@@ -20,8 +20,8 @@
                 
                 <!-- Desktop Actions -->
                 <div class="hidden lg:flex items-center space-x-3">
-                    <a href="#login" class="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-primary transition-colors">Log In</a>
-                    <a href="#signup" class="px-6 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 transition-all">Sign Up</a>
+                    <a href="{{ route('login') }}" class="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-primary transition-colors">Log In</a>
+                    <a href="{{ route('register') }}" class="px-6 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 transition-all">Sign Up</a>
                 </div>
                 
                 <!-- Mobile Menu Toggle -->
@@ -44,8 +44,8 @@
                             </ul>
                         </nav>
                         <div class="space-y-3 pt-6 border-t border-gray-200">
-                            <a href="#login" class="block w-full px-6 py-3 text-center text-base font-semibold text-gray-700 hover:text-primary hover:bg-primary-light/50 rounded-full transition-all">Log In</a>
-                            <a href="#signup" class="block w-full px-6 py-3 text-center text-base font-semibold text-white bg-primary hover:bg-primary-dark rounded-full shadow-lg shadow-primary/25 transition-all">Sign Up</a>
+                            <a href="{{ route('login') }}" class="block w-full px-6 py-3 text-center text-base font-semibold text-gray-700 hover:text-primary hover:bg-primary-light/50 rounded-full transition-all">Log In</a>
+                            <a href="{{ route('register') }}" class="block w-full px-6 py-3 text-center text-base font-semibold text-white bg-primary hover:bg-primary-dark rounded-full shadow-lg shadow-primary/25 transition-all">Sign Up</a>
                         </div>
                     </div>
                 </div>

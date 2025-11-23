@@ -1,10 +1,7 @@
-// // resources/js/app.js
-// import '../css/app.css';   // ensure this imports first so CSS is included
+import './bootstrap';
 
-
-import "flowbite";
-import Alpine from "alpinejs";
-import './scripts.js';     // your site JS (create file below)
+import Alpine from 'alpinejs';
+// import './scripts';
 
 window.Alpine = Alpine;
 
