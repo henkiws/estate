@@ -18,21 +18,13 @@ class UserSeeder extends Seeder
         ]);
         $admin->assignRole('admin');
 
-        // Tenant User
-        $tenant = User::create([
-            'name' => 'Tenant User',
-            'email' => 'tenant@mail.com',
+        // Agency User
+        $agency = User::create([
+            'name' => 'Agency User',
+            'email' => 'agency@mail.com',
             'password' => Hash::make('admin123'),
         ]);
-        $tenant->assignRole('tenant');
-
-        // Landlord User
-        $landlord = User::create([
-            'name' => 'Landlord User',
-            'email' => 'landlord@mail.com',
-            'password' => Hash::make('admin123'),
-        ]);
-        $landlord->assignRole('landlord');
+        $agency->assignRole('agency');
 
         // Agent User
         $agent = User::create([

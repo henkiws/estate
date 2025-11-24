@@ -11,7 +11,34 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Register Spatie Permission Middleware Aliases
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+        // Custom Redirects for Authentication Middleware
+        $middleware->redirectGuestsTo(function () {
+            return route('login');
+        });
+        
+        $middleware->redirectUsersTo(function () {
+            $user = auth()->user();
+            
+            if ($user->hasRole('admin')) {
+                return route('admin.dashboard');
+            }
+            
+            if ($user->hasRole('agency')) {
+                return route('agency.dashboard');
+            }
+            
+            if ($user->hasRole('agent')) {
+                return route('agent.dashboard');
+            }
+            
+            return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

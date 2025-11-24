@@ -129,7 +129,7 @@
                     <div class="relative">
                         <button id="userMenuBtn" class="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors">
                             <div class="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                JD
+                                {{ strtoupper(substr(Auth::user()->name,0,2)) }}
                             </div>
                             <svg class="hidden sm:block w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -141,11 +141,11 @@
                             <div class="p-4 border-b border-gray-100">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                                        JD
+                                        {{ strtoupper(substr(Auth::user()->name,0,2)) }}
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-semibold text-gray-900 truncate">John Doe</p>
-                                        <p class="text-xs text-gray-500 truncate">john@example.com</p>
+                                        <p class="font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
                                     </div>
                                 </div>
                             </div>

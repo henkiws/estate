@@ -28,7 +28,37 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect based on user role
+        return $this->redirectBasedOnRole();
+    }
+
+    /**
+     * Redirect user to appropriate dashboard based on their role
+     */
+    protected function redirectBasedOnRole(): RedirectResponse
+    {
+        $user = Auth::user();
+
+        // Check if user has a role
+        if ($user->hasRole('admin')) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user->hasRole('agency')) {
+            // Check if agency is active
+            if ($user->agency && $user->agency->status !== 'active') {
+                return redirect()->route('agency.dashboard')
+                    ->with('warning', 'Your agency is pending approval. Some features may be limited.');
+            }
+            return redirect()->intended(route('agency.dashboard'));
+        }
+
+        if ($user->hasRole('agent')) {
+            return redirect()->intended(route('agent.dashboard'));
+        }
+
+        // Default fallback if no role is assigned
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
