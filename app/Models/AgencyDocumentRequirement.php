@@ -1,9 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class AgencyDocumentRequirement extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'agency_id',
+        'name',
         'license_certificate_uploaded',
         'proof_of_identity_uploaded',
         'abn_certificate_uploaded',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\AgencyRepository;
+use App\Models\Agency;
 
 class HomeController extends Controller
 {
@@ -17,8 +18,11 @@ class HomeController extends Controller
         $stats = $this->agencyRepository->getStatistics();
         $stateStats = $this->agencyRepository->getStatisticsByState();
         
-        // Get pending agencies for the widget
-        $pendingAgencies = $this->agencyRepository->getByStatus('pending', 100);
+        // Get pending agencies for the widget WITH document requirements
+        $pendingAgencies = Agency::where('status', 'pending')
+            ->with('documentRequirements')  // ← ADD THIS
+            ->latest()
+            ->get();
         
         // Get recent agencies
         $recentAgencies = $this->agencyRepository->getAllPaginated(5);

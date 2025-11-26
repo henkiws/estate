@@ -125,30 +125,10 @@ return new class extends Migration
             $table->index('transaction_id');
             $table->index('status');
         });
-
-        // 5. Document completion tracking
-        Schema::create('agency_document_requirements', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('agency_id')->constrained()->onDelete('cascade');
-            
-            // Required documents checklist
-            $table->boolean('license_certificate_uploaded')->default(false);
-            $table->boolean('proof_of_identity_uploaded')->default(false);
-            $table->boolean('abn_certificate_uploaded')->default(false);
-            $table->boolean('insurance_professional_indemnity_uploaded')->default(false);
-            $table->boolean('insurance_public_liability_uploaded')->default(false);
-            
-            // Completion percentage
-            $table->integer('completion_percentage')->default(0);
-            $table->timestamp('completed_at')->nullable();
-            
-            $table->timestamps();
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('agency_document_requirements');
         Schema::dropIfExists('transactions');
         Schema::dropIfExists('subscriptions');
         Schema::dropIfExists('subscription_plans');

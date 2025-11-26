@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\AgencyRepository;
+use App\Models\Agency;
+use App\Models\AgencyDocumentRequirement;
+use App\Models\ActivityLog;
 use App\Mail\AgencyApproved;
 use App\Mail\AgencyRejected;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class AgencyController extends Controller
 {
@@ -22,45 +26,94 @@ class AgencyController extends Controller
      */
     public function index(Request $request)
     {
-        $filters = [
-            'status' => $request->get('status'),
-            'state' => $request->get('state'),
-            'search' => $request->get('search'),
-        ];
-
-        $agencies = $this->agencyRepository->getAllPaginated(15, array_filter($filters));
+        // Get statistics
         $stats = $this->agencyRepository->getStatistics();
-        $stateStats = $this->agencyRepository->getStatisticsByState();
+        
+        // Build query
+        $query = Agency::query()->with(['contact', 'primaryContact']);
 
-        return view('admin.agencies.index', compact('agencies', 'stats', 'stateStats', 'filters'));
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('agency_name', 'like', "%{$search}%")
+                  ->orWhere('trading_name', 'like', "%{$search}%")
+                  ->orWhere('abn', 'like', "%{$search}%")
+                  ->orWhere('business_email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by state
+        if ($request->filled('state')) {
+            $query->where('state', $request->state);
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Paginate
+        $agencies = $query->paginate(15)->withQueryString();
+
+        return view('admin.agencies.index', compact('agencies', 'stats'));
     }
 
     /**
-     * Display the specified agency
+     * Display the specified agency for review
      */
-    public function show(int $id)
+    public function show($id)
     {
         $agency = $this->agencyRepository->findWithAllRelations($id);
+        
+        // Get document requirements
+        $documentRequirements = AgencyDocumentRequirement::where('agency_id', $id)
+            ->orderBy('is_required', 'desc')
+            ->orderBy('name', 'asc')
+            ->get();
+        
+        // Get agents
+        $agents = $agency->agents()->with('user')->get();
+        
+        // Get subscription info
+        $subscription = $agency->activeSubscription;
+        
+        // Get recent transactions
+        $transactions = $agency->transactions()
+            ->with('subscriptionPlan')
+            ->latest()
+            ->take(10)
+            ->get();
 
-        if (!$agency) {
-            return redirect()->route('admin.agencies.index')
-                ->with('error', 'Agency not found.');
-        }
+        // Get activity logs
+        $activityLogs = ActivityLog::where('subject_type', Agency::class)
+            ->where('subject_id', $id)
+            ->with('causer')
+            ->latest()
+            ->take(20)
+            ->get();
 
-        return view('admin.agencies.show', compact('agency'));
+        return view('admin.agencies.show', compact(
+            'agency',
+            'documentRequirements',
+            'agents',
+            'subscription',
+            'transactions',
+            'activityLogs'
+        ));
     }
 
     /**
      * Show the form for editing the specified agency
      */
-    public function edit(int $id)
+    public function edit($id)
     {
         $agency = $this->agencyRepository->findWithAllRelations($id);
-
-        if (!$agency) {
-            return redirect()->route('admin.agencies.index')
-                ->with('error', 'Agency not found.');
-        }
 
         return view('admin.agencies.edit', compact('agency'));
     }
@@ -68,24 +121,57 @@ class AgencyController extends Controller
     /**
      * Update the specified agency
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id)
     {
+        $request->validate([
+            'agency_name' => 'required|string|max:255',
+            'trading_name' => 'nullable|string|max:255',
+            'abn' => 'required|string|size:11',
+            'business_phone' => 'required|string|max:20',
+            'business_email' => 'required|email|max:255',
+            'status' => 'required|in:pending,approved,active,rejected,suspended,inactive',
+        ]);
+
         try {
+            $agency = Agency::findOrFail($id);
+            $oldStatus = $agency->status;
+            
             $this->agencyRepository->update($id, $request->all());
+
+            // Log the update
+            ActivityLog::log(
+                "Agency information updated by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'changes' => $request->only(['agency_name', 'status', 'business_email'])
+                ]
+            );
+
+            // If status changed, log it separately
+            if ($oldStatus !== $request->status) {
+                ActivityLog::log(
+                    "Agency status changed from {$oldStatus} to {$request->status}",
+                    $agency,
+                    [
+                        'old_status' => $oldStatus,
+                        'new_status' => $request->status,
+                        'admin' => Auth::user()->name,
+                    ]
+                );
+            }
 
             Log::info('Agency updated by admin', [
                 'agency_id' => $id,
-                'admin_id' => auth()->id(),
+                'admin_id' => Auth::id(),
+                'changes' => $request->all(),
             ]);
 
             return redirect()->route('admin.agencies.show', $id)
                 ->with('success', 'Agency updated successfully!');
 
-        } catch (Exception $e) {
-            Log::error('Failed to update agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency update error: ' . $e->getMessage());
 
             return back()->withInput()
                 ->with('error', 'Failed to update agency. Please try again.');
@@ -95,104 +181,113 @@ class AgencyController extends Controller
     /**
      * Approve the agency
      */
-    public function approve(int $id)
+    public function approve($id)
     {
         try {
-            $agency = $this->agencyRepository->findById($id, ['users']);
+            $agency = Agency::findOrFail($id);
+            $oldStatus = $agency->status;
 
-            if (!$agency) {
-                return back()->with('error', 'Agency not found.');
+            // Update status to 'approved' (waiting for subscription)
+            $agency->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => Auth::id(),
+                'rejection_reason' => null, // Clear any previous rejection
+            ]);
+
+            // Log the approval
+            ActivityLog::log(
+                "Agency approved by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
+                    'previous_status' => $oldStatus,
+                    'new_status' => 'approved',
+                    'approved_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            // Send approval email
+            try {
+                Mail::to($agency->business_email)->send(new AgencyApproved($agency));
+            } catch (\Exception $e) {
+                Log::error('Failed to send approval email: ' . $e->getMessage());
             }
 
-            if ($agency->status === 'active') {
-                return back()->with('info', 'Agency is already approved.');
-            }
-
-            // Approve the agency
-            $this->agencyRepository->approve($id, auth()->id());
-
-            // Log the action
             Log::info('Agency approved', [
                 'agency_id' => $id,
                 'agency_name' => $agency->agency_name,
-                'approved_by' => auth()->id(),
+                'admin_id' => Auth::id(),
+                'admin_name' => Auth::user()->name,
             ]);
 
-            // Send approval email to agency
-            try {
-                $user = $agency->users()->first();
-                if ($user) {
-                    Mail::to($user->email)->send(new AgencyApproved($agency->fresh()));
-                    Log::info('Approval email sent', ['email' => $user->email]);
-                }
-            } catch (Exception $e) {
-                Log::error('Failed to send approval email', [
-                    'error' => $e->getMessage(),
-                    'agency_id' => $id,
-                ]);
-            }
+            return back()->with('success', 'Agency approved successfully! They can now choose a subscription plan.');
 
-            return back()->with('success', 'Agency approved successfully! Notification email sent.');
-
-        } catch (Exception $e) {
-            Log::error('Failed to approve agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency approval error: ' . $e->getMessage());
 
             return back()->with('error', 'Failed to approve agency. Please try again.');
         }
     }
 
     /**
-     * Reject the agency
+     * Reject the agency with reason
      */
-    public function reject(Request $request, int $id)
+    public function reject(Request $request, $id)
     {
         $request->validate([
-            'rejection_reason' => 'nullable|string|max:1000',
+            'rejection_reason' => 'required|string|min:10|max:1000',
+        ], [
+            'rejection_reason.required' => 'Please provide a reason for rejection.',
+            'rejection_reason.min' => 'Rejection reason must be at least 10 characters.',
         ]);
 
         try {
-            $agency = $this->agencyRepository->findById($id, ['users']);
+            $agency = Agency::findOrFail($id);
+            $oldStatus = $agency->status;
 
-            if (!$agency) {
-                return back()->with('error', 'Agency not found.');
+            // Update status to rejected with reason
+            $agency->update([
+                'status' => 'rejected',
+                'rejection_reason' => $request->rejection_reason,
+                'rejected_at' => now(),
+                'rejected_by' => Auth::id(),
+            ]);
+
+            // Log the rejection
+            ActivityLog::log(
+                "Agency rejected by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
+                    'previous_status' => $oldStatus,
+                    'new_status' => 'rejected',
+                    'rejection_reason' => $request->rejection_reason,
+                    'rejected_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            // Send rejection email
+            try {
+                Mail::to($agency->business_email)->send(new AgencyRejected($agency));
+            } catch (\Exception $e) {
+                Log::error('Failed to send rejection email: ' . $e->getMessage());
             }
 
-            // Reject the agency
-            $reason = $request->input('rejection_reason');
-            $this->agencyRepository->reject($id, $reason);
-
-            // Log the action
             Log::info('Agency rejected', [
                 'agency_id' => $id,
                 'agency_name' => $agency->agency_name,
-                'rejected_by' => auth()->id(),
-                'reason' => $reason,
+                'admin_id' => Auth::id(),
+                'admin_name' => Auth::user()->name,
+                'reason' => $request->rejection_reason,
             ]);
 
-            // Send rejection email to agency
-            try {
-                $user = $agency->users()->first();
-                if ($user) {
-                    Mail::to($user->email)->send(new AgencyRejected($agency->fresh(), $reason));
-                    Log::info('Rejection email sent', ['email' => $user->email]);
-                }
-            } catch (Exception $e) {
-                Log::error('Failed to send rejection email', [
-                    'error' => $e->getMessage(),
-                    'agency_id' => $id,
-                ]);
-            }
+            return back()->with('success', 'Agency rejected. They have been notified via email with the reason.');
 
-            return back()->with('success', 'Agency rejected. Notification email sent.');
-
-        } catch (Exception $e) {
-            Log::error('Failed to reject agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency rejection error: ' . $e->getMessage());
 
             return back()->with('error', 'Failed to reject agency. Please try again.');
         }
@@ -201,34 +296,45 @@ class AgencyController extends Controller
     /**
      * Suspend the agency
      */
-    public function suspend(Request $request, int $id)
+    public function suspend(Request $request, $id)
     {
         $request->validate([
-            'suspension_reason' => 'nullable|string|max:1000',
+            'suspension_reason' => 'nullable|string|max:500',
         ]);
 
         try {
-            $agency = $this->agencyRepository->findById($id);
+            $agency = Agency::findOrFail($id);
+            $oldStatus = $agency->status;
 
-            if (!$agency) {
-                return back()->with('error', 'Agency not found.');
-            }
+            $agency->update([
+                'status' => 'suspended',
+                'suspended_at' => now(),
+                'suspended_by' => Auth::id(),
+            ]);
 
-            $this->agencyRepository->updateStatus($id, 'suspended');
+            // Log the suspension
+            ActivityLog::log(
+                "Agency suspended by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'previous_status' => $oldStatus,
+                    'new_status' => 'suspended',
+                    'reason' => $request->suspension_reason ?? 'No reason provided',
+                    'suspended_at' => now()->toDateTimeString(),
+                ]
+            );
 
             Log::info('Agency suspended', [
                 'agency_id' => $id,
-                'suspended_by' => auth()->id(),
-                'reason' => $request->input('suspension_reason'),
+                'admin_id' => Auth::id(),
+                'reason' => $request->suspension_reason,
             ]);
 
             return back()->with('success', 'Agency suspended successfully.');
 
-        } catch (Exception $e) {
-            Log::error('Failed to suspend agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency suspension error: ' . $e->getMessage());
 
             return back()->with('error', 'Failed to suspend agency. Please try again.');
         }
@@ -237,29 +343,46 @@ class AgencyController extends Controller
     /**
      * Reactivate the agency
      */
-    public function reactivate(int $id)
+    public function reactivate($id)
     {
         try {
-            $agency = $this->agencyRepository->findById($id);
+            $agency = Agency::findOrFail($id);
+            $oldStatus = $agency->status;
 
-            if (!$agency) {
-                return back()->with('error', 'Agency not found.');
-            }
+            // Check if agency has active subscription
+            $hasSubscription = $agency->activeSubscription !== null;
 
-            $this->agencyRepository->updateStatus($id, 'active', auth()->id());
+            $newStatus = $hasSubscription ? 'active' : 'approved';
+
+            $agency->update([
+                'status' => $newStatus,
+                'suspended_at' => null,
+                'suspended_by' => null,
+            ]);
+
+            // Log the reactivation
+            ActivityLog::log(
+                "Agency reactivated by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'previous_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'has_subscription' => $hasSubscription,
+                    'reactivated_at' => now()->toDateTimeString(),
+                ]
+            );
 
             Log::info('Agency reactivated', [
                 'agency_id' => $id,
-                'reactivated_by' => auth()->id(),
+                'admin_id' => Auth::id(),
+                'new_status' => $newStatus,
             ]);
 
             return back()->with('success', 'Agency reactivated successfully.');
 
-        } catch (Exception $e) {
-            Log::error('Failed to reactivate agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency reactivation error: ' . $e->getMessage());
 
             return back()->with('error', 'Failed to reactivate agency. Please try again.');
         }
@@ -268,43 +391,178 @@ class AgencyController extends Controller
     /**
      * Remove the specified agency
      */
-    public function destroy(int $id)
+    public function destroy($id)
     {
         try {
-            $agency = $this->agencyRepository->findById($id);
+            $agency = Agency::findOrFail($id);
+            
+            // Log before deletion
+            ActivityLog::log(
+                "Agency deleted by admin",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'agency_name' => $agency->agency_name,
+                    'agency_email' => $agency->business_email,
+                    'deleted_at' => now()->toDateTimeString(),
+                ]
+            );
 
-            if (!$agency) {
-                return back()->with('error', 'Agency not found.');
-            }
-
-            $agencyName = $agency->agency_name;
             $this->agencyRepository->delete($id);
 
-            Log::warning('Agency deleted', [
+            Log::info('Agency deleted', [
                 'agency_id' => $id,
-                'agency_name' => $agencyName,
-                'deleted_by' => auth()->id(),
+                'admin_id' => Auth::id(),
             ]);
 
             return redirect()->route('admin.agencies.index')
                 ->with('success', 'Agency deleted successfully.');
 
-        } catch (Exception $e) {
-            Log::error('Failed to delete agency', [
-                'agency_id' => $id,
-                'error' => $e->getMessage(),
-            ]);
+        } catch (\Exception $e) {
+            Log::error('Agency deletion error: ' . $e->getMessage());
 
             return back()->with('error', 'Failed to delete agency. Please try again.');
         }
     }
 
     /**
-     * Get pending agencies count (for dashboard widget)
+     * Approve document
+     */
+    public function approveDocument($agencyId, $documentId)
+    {
+        try {
+            $agency = Agency::findOrFail($agencyId);
+            $document = AgencyDocumentRequirement::where('id', $documentId)
+                ->where('agency_id', $agencyId)
+                ->firstOrFail();
+
+            $document->update([
+                'status' => 'approved',
+                'reviewed_at' => now(),
+                'reviewed_by' => Auth::id(),
+                'rejection_reason' => null,
+            ]);
+
+            // Log document approval
+            ActivityLog::log(
+                "Document approved: {$document->name}",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'document_name' => $document->name,
+                    'document_id' => $documentId,
+                    'approved_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            Log::info('Document approved', [
+                'agency_id' => $agencyId,
+                'document_id' => $documentId,
+                'admin_id' => Auth::id(),
+            ]);
+
+            return back()->with('success', 'Document approved successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Document approval error: ' . $e->getMessage());
+
+            return back()->with('error', 'Failed to approve document. Please try again.');
+        }
+    }
+
+    /**
+     * Reject document
+     */
+    public function rejectDocument(Request $request, $agencyId, $documentId)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|min:10|max:500',
+        ]);
+
+        try {
+            $agency = Agency::findOrFail($agencyId);
+            $document = AgencyDocumentRequirement::where('id', $documentId)
+                ->where('agency_id', $agencyId)
+                ->firstOrFail();
+
+            $document->update([
+                'status' => 'rejected',
+                'reviewed_at' => now(),
+                'reviewed_by' => Auth::id(),
+                'rejection_reason' => $request->rejection_reason,
+            ]);
+
+            // Log document rejection
+            ActivityLog::log(
+                "Document rejected: {$document->name}",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'document_name' => $document->name,
+                    'document_id' => $documentId,
+                    'rejection_reason' => $request->rejection_reason,
+                    'rejected_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            Log::info('Document rejected', [
+                'agency_id' => $agencyId,
+                'document_id' => $documentId,
+                'admin_id' => Auth::id(),
+                'reason' => $request->rejection_reason,
+            ]);
+
+            return back()->with('success', 'Document rejected. Agency has been notified.');
+
+        } catch (\Exception $e) {
+            Log::error('Document rejection error: ' . $e->getMessage());
+
+            return back()->with('error', 'Failed to reject document. Please try again.');
+        }
+    }
+
+    /**
+     * Download document
+     */
+    public function downloadDocument($agencyId, $documentId)
+    {
+        try {
+            $document = AgencyDocumentRequirement::where('id', $documentId)
+                ->where('agency_id', $agencyId)
+                ->firstOrFail();
+
+            if (!$document->file_path || !Storage::disk('private')->exists($document->file_path)) {
+                return back()->with('error', 'Document file not found.');
+            }
+
+            // Log document download
+            $agency = Agency::findOrFail($agencyId);
+            ActivityLog::log(
+                "Document downloaded: {$document->name}",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'document_name' => $document->name,
+                    'downloaded_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            return Storage::disk('private')->download($document->file_path, $document->file_name);
+
+        } catch (\Exception $e) {
+            Log::error('Document download error: ' . $e->getMessage());
+
+            return back()->with('error', 'Failed to download document. Please try again.');
+        }
+    }
+
+    /**
+     * Get pending agencies count (API endpoint)
      */
     public function getPendingCount()
     {
-        $count = $this->agencyRepository->getByStatus('pending', 1)->total();
+        $count = Agency::where('status', 'pending')->count();
+
         return response()->json(['count' => $count]);
     }
 }

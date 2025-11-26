@@ -33,6 +33,7 @@ class Agency extends Model
         'website_url',
         'status',
         'verified_at',
+        'onboarding_completed_at',
         'verified_by',
     ];
 
@@ -182,5 +183,12 @@ class Agency extends Model
     public function needsSubscription(): bool
     {
         return $this->status === 'approved' && !$this->hasActiveSubscription();
+    }
+    /**
+     * Get all document requirements for the agency
+     */
+    public function documentRequirements(): HasMany
+    {
+        return $this->hasMany(AgencyDocumentRequirement::class);
     }
 }
