@@ -16,11 +16,17 @@ class AgencyDocumentRequirement extends Model
     protected $fillable = [
         'agency_id',
         'name',
+        'description',
         'file_path',
         'file_name',
         'file_type',
         'file_size',
         'status',
+        'rejection_reason',
+        'is_required',
+        'reviewed_by',
+        'uploaded_at',
+        'reviewed_at',
         'license_certificate_uploaded',
         'proof_of_identity_uploaded',
         'abn_certificate_uploaded',
@@ -37,6 +43,8 @@ class AgencyDocumentRequirement extends Model
         'insurance_professional_indemnity_uploaded' => 'boolean',
         'insurance_public_liability_uploaded' => 'boolean',
         'completed_at' => 'datetime',
+        'reviewed_at' => 'datetime',
+        'uploaded_at' => 'datetime',
     ];
 
     public function agency()

@@ -7,9 +7,16 @@ use App\Models\SubscriptionPlan;
 
 class SubscriptionPlansSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
+        // Clear existing plans (optional - remove if you want to keep existing data)
+        // SubscriptionPlan::truncate();
+
         $plans = [
+            // BASIC PLAN
             [
                 'name' => 'Basic',
                 'slug' => 'basic',
@@ -17,6 +24,8 @@ class SubscriptionPlansSeeder extends Seeder
                 'price' => 49.00,
                 'currency' => 'AUD',
                 'billing_period' => 'monthly',
+                'stripe_price_id' => null, // Add Stripe price ID when ready
+                'stripe_product_id' => null, // Add Stripe product ID when ready
                 'features' => [
                     'Up to 5 agents',
                     'Up to 50 properties',
@@ -36,6 +45,8 @@ class SubscriptionPlansSeeder extends Seeder
                 'is_popular' => false,
                 'sort_order' => 1,
             ],
+            
+            // PROFESSIONAL PLAN (Most Popular)
             [
                 'name' => 'Professional',
                 'slug' => 'professional',
@@ -43,6 +54,8 @@ class SubscriptionPlansSeeder extends Seeder
                 'price' => 99.00,
                 'currency' => 'AUD',
                 'billing_period' => 'monthly',
+                'stripe_price_id' => null,
+                'stripe_product_id' => null,
                 'features' => [
                     'Up to 20 agents',
                     'Up to 200 properties',
@@ -61,9 +74,11 @@ class SubscriptionPlansSeeder extends Seeder
                 'api_access' => true,
                 'custom_branding' => false,
                 'is_active' => true,
-                'is_popular' => true,
+                'is_popular' => true, // Marked as popular
                 'sort_order' => 2,
             ],
+            
+            // ENTERPRISE PLAN
             [
                 'name' => 'Enterprise',
                 'slug' => 'enterprise',
@@ -71,6 +86,8 @@ class SubscriptionPlansSeeder extends Seeder
                 'price' => 199.00,
                 'currency' => 'AUD',
                 'billing_period' => 'monthly',
+                'stripe_price_id' => null,
+                'stripe_product_id' => null,
                 'features' => [
                     'Unlimited agents',
                     'Unlimited properties',
@@ -84,8 +101,8 @@ class SubscriptionPlansSeeder extends Seeder
                     'Custom integrations',
                     'White-label options',
                 ],
-                'max_agents' => 999,
-                'max_properties' => 9999,
+                'max_agents' => 999, // 999 = unlimited
+                'max_properties' => 9999, // 9999 = unlimited
                 'document_storage' => true,
                 'email_support' => true,
                 'priority_support' => true,
@@ -98,12 +115,25 @@ class SubscriptionPlansSeeder extends Seeder
         ];
 
         foreach ($plans as $plan) {
-            SubscriptionPlan::create($plan);
+            SubscriptionPlan::updateOrCreate(
+                ['slug' => $plan['slug']], // Match by slug to avoid duplicates
+                $plan
+            );
         }
 
+        $this->command->info('');
         $this->command->info('✅ Subscription plans seeded successfully!');
-        $this->command->info('   - Basic: $49/month');
-        $this->command->info('   - Professional: $99/month (Popular)');
-        $this->command->info('   - Enterprise: $199/month');
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->command->info('📦 Plans Created:');
+        $this->command->info('   1. Basic        - $49/month  (5 agents, 50 properties)');
+        $this->command->info('   2. Professional - $99/month  (20 agents, 200 properties) ⭐ POPULAR');
+        $this->command->info('   3. Enterprise   - $199/month (Unlimited agents & properties)');
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->command->info('');
+        $this->command->info('💡 Next Steps:');
+        $this->command->info('   1. Create Stripe products and get Price IDs');
+        $this->command->info('   2. Update stripe_price_id and stripe_product_id fields');
+        $this->command->info('   3. Test subscription flow');
+        $this->command->info('');
     }
 }

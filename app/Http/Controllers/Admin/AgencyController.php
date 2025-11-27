@@ -9,6 +9,7 @@ use App\Models\AgencyDocumentRequirement;
 use App\Models\ActivityLog;
 use App\Mail\AgencyApproved;
 use App\Mail\AgencyRejected;
+use App\Mail\DocumentRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +31,7 @@ class AgencyController extends Controller
         $stats = $this->agencyRepository->getStatistics();
         
         // Build query
-        $query = Agency::query()->with(['contact', 'primaryContact']);
+        $query = Agency::query()->with(['contacts', 'primaryContact']);
 
         // Search
         if ($request->filled('search')) {
@@ -141,9 +142,10 @@ class AgencyController extends Controller
             // Log the update
             ActivityLog::log(
                 "Agency information updated by admin",
-                $agency,
+                $agency->fresh(),
                 [
                     'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
                     'changes' => $request->only(['agency_name', 'status', 'business_email'])
                 ]
             );
@@ -152,11 +154,13 @@ class AgencyController extends Controller
             if ($oldStatus !== $request->status) {
                 ActivityLog::log(
                     "Agency status changed from {$oldStatus} to {$request->status}",
-                    $agency,
+                    $agency->fresh(),
                     [
+                        'admin' => Auth::user()->name,
+                        'admin_email' => Auth::user()->email,
                         'old_status' => $oldStatus,
                         'new_status' => $request->status,
-                        'admin' => Auth::user()->name,
+                        'changed_at' => now()->toDateTimeString(),
                     ]
                 );
             }
@@ -186,6 +190,19 @@ class AgencyController extends Controller
         try {
             $agency = Agency::findOrFail($id);
             $oldStatus = $agency->status;
+
+            // Check if all required documents are approved
+            $requiredDocs = AgencyDocumentRequirement::where('agency_id', $id)
+                ->where('is_required', true)
+                ->get();
+
+            $allApproved = $requiredDocs->every(function($doc) {
+                return $doc->status === 'approved';
+            });
+
+            if (!$allApproved) {
+                return back()->with('error', 'Cannot approve agency. Not all required documents are approved.');
+            }
 
             // Update status to 'approved' (waiting for subscription)
             $agency->update([
@@ -318,9 +335,10 @@ class AgencyController extends Controller
                 $agency,
                 [
                     'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
                     'previous_status' => $oldStatus,
                     'new_status' => 'suspended',
-                    'reason' => $request->suspension_reason ?? 'No reason provided',
+                    'suspension_reason' => $request->suspension_reason ?? 'No reason provided',
                     'suspended_at' => now()->toDateTimeString(),
                 ]
             );
@@ -366,6 +384,7 @@ class AgencyController extends Controller
                 $agency,
                 [
                     'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
                     'previous_status' => $oldStatus,
                     'new_status' => $newStatus,
                     'has_subscription' => $hasSubscription,
@@ -402,8 +421,10 @@ class AgencyController extends Controller
                 $agency,
                 [
                     'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
                     'agency_name' => $agency->agency_name,
                     'agency_email' => $agency->business_email,
+                    'agency_abn' => $agency->abn,
                     'deleted_at' => now()->toDateTimeString(),
                 ]
             );
@@ -426,98 +447,41 @@ class AgencyController extends Controller
     }
 
     /**
-     * Approve document
+     * Preview document in new tab
      */
-    public function approveDocument($agencyId, $documentId)
+    public function previewDocument($agencyId, $documentId)
     {
         try {
             $agency = Agency::findOrFail($agencyId);
-            $document = AgencyDocumentRequirement::where('id', $documentId)
-                ->where('agency_id', $agencyId)
-                ->firstOrFail();
+            $document = AgencyDocumentRequirement::findOrFail($documentId);
 
-            $document->update([
-                'status' => 'approved',
-                'reviewed_at' => now(),
-                'reviewed_by' => Auth::id(),
-                'rejection_reason' => null,
-            ]);
+            // Check if document belongs to agency
+            if ($document->agency_id !== $agency->id) {
+                abort(403, 'Unauthorized access to document');
+            }
 
-            // Log document approval
-            ActivityLog::log(
-                "Document approved: {$document->name}",
-                $agency,
-                [
-                    'admin' => Auth::user()->name,
-                    'document_name' => $document->name,
-                    'document_id' => $documentId,
-                    'approved_at' => now()->toDateTimeString(),
-                ]
-            );
+            // Check if file exists
+            if (!$document->file_path || !Storage::disk('private')->exists($document->file_path)) {
+                abort(404, 'Document file not found');
+            }
 
-            Log::info('Document approved', [
+            // Get file contents
+            $file = Storage::disk('private')->get($document->file_path);
+            $mimeType = $document->file_type ?? Storage::disk('private')->mimeType($document->file_path);
+
+            // Return file with inline disposition (opens in browser)
+            return response($file, 200)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'inline; filename="' . $document->file_name . '"');
+                
+        } catch (\Exception $e) {
+            Log::error('Document preview failed', [
                 'agency_id' => $agencyId,
                 'document_id' => $documentId,
-                'admin_id' => Auth::id(),
+                'error' => $e->getMessage()
             ]);
-
-            return back()->with('success', 'Document approved successfully.');
-
-        } catch (\Exception $e) {
-            Log::error('Document approval error: ' . $e->getMessage());
-
-            return back()->with('error', 'Failed to approve document. Please try again.');
-        }
-    }
-
-    /**
-     * Reject document
-     */
-    public function rejectDocument(Request $request, $agencyId, $documentId)
-    {
-        $request->validate([
-            'rejection_reason' => 'required|string|min:10|max:500',
-        ]);
-
-        try {
-            $agency = Agency::findOrFail($agencyId);
-            $document = AgencyDocumentRequirement::where('id', $documentId)
-                ->where('agency_id', $agencyId)
-                ->firstOrFail();
-
-            $document->update([
-                'status' => 'rejected',
-                'reviewed_at' => now(),
-                'reviewed_by' => Auth::id(),
-                'rejection_reason' => $request->rejection_reason,
-            ]);
-
-            // Log document rejection
-            ActivityLog::log(
-                "Document rejected: {$document->name}",
-                $agency,
-                [
-                    'admin' => Auth::user()->name,
-                    'document_name' => $document->name,
-                    'document_id' => $documentId,
-                    'rejection_reason' => $request->rejection_reason,
-                    'rejected_at' => now()->toDateTimeString(),
-                ]
-            );
-
-            Log::info('Document rejected', [
-                'agency_id' => $agencyId,
-                'document_id' => $documentId,
-                'admin_id' => Auth::id(),
-                'reason' => $request->rejection_reason,
-            ]);
-
-            return back()->with('success', 'Document rejected. Agency has been notified.');
-
-        } catch (\Exception $e) {
-            Log::error('Document rejection error: ' . $e->getMessage());
-
-            return back()->with('error', 'Failed to reject document. Please try again.');
+            
+            abort(500, 'Failed to preview document');
         }
     }
 
@@ -527,32 +491,168 @@ class AgencyController extends Controller
     public function downloadDocument($agencyId, $documentId)
     {
         try {
-            $document = AgencyDocumentRequirement::where('id', $documentId)
-                ->where('agency_id', $agencyId)
-                ->firstOrFail();
+            $agency = Agency::findOrFail($agencyId);
+            $document = AgencyDocumentRequirement::findOrFail($documentId);
 
-            if (!$document->file_path || !Storage::disk('private')->exists($document->file_path)) {
-                return back()->with('error', 'Document file not found.');
+            // Check if document belongs to agency
+            if ($document->agency_id !== $agency->id) {
+                abort(403, 'Unauthorized access to document');
             }
 
-            // Log document download
+            // Check if file exists
+            if (!$document->file_path || !Storage::disk('private')->exists($document->file_path)) {
+                abort(404, 'Document file not found');
+            }
+
+            // Return file as download
+            return Storage::disk('private')->download(
+                $document->file_path, 
+                $document->file_name
+            );
+            
+        } catch (\Exception $e) {
+            Log::error('Document download failed', [
+                'agency_id' => $agencyId,
+                'document_id' => $documentId,
+                'error' => $e->getMessage()
+            ]);
+            
+            return back()->with('error', 'Failed to download document. Please try again.');
+        }
+    }
+
+    /**
+     * Approve document
+     */
+    public function approveDocument($agencyId, $documentId)
+    {
+        try {
             $agency = Agency::findOrFail($agencyId);
+            $document = AgencyDocumentRequirement::findOrFail($documentId);
+
+            // Check if document belongs to agency
+            if ($document->agency_id !== $agency->id) {
+                return back()->with('error', 'Unauthorized access to document');
+            }
+
+            // Check if document has been uploaded
+            if (!$document->file_path) {
+                return back()->with('error', 'Cannot approve document that has not been uploaded');
+            }
+
+            // Update document status
+            $document->update([
+                'status' => 'approved',
+                'reviewed_at' => now(),
+                'reviewed_by' => Auth::id(),
+                'rejection_reason' => null, // Clear any previous rejection
+            ]);
+
+            // Log the document approval
             ActivityLog::log(
-                "Document downloaded: {$document->name}",
+                "Document approved: {$document->name}",
                 $agency,
                 [
                     'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
+                    'document_id' => $document->id,
                     'document_name' => $document->name,
-                    'downloaded_at' => now()->toDateTimeString(),
+                    'document_type' => $document->document_type,
+                    'file_name' => $document->file_name,
+                    'action' => 'approved',
+                    'reviewed_at' => now()->toDateTimeString(),
                 ]
             );
 
-            return Storage::disk('private')->download($document->file_path, $document->file_name);
+            Log::info('Document approved', [
+                'agency_id' => $agency->id,
+                'document_id' => $document->id,
+                'admin_id' => Auth::id(),
+            ]);
 
+            return back()->with('success', "Document '{$document->name}' approved successfully!");
+            
         } catch (\Exception $e) {
-            Log::error('Document download error: ' . $e->getMessage());
+            Log::error('Document approval failed', [
+                'error' => $e->getMessage(),
+                'agency_id' => $agencyId,
+                'document_id' => $documentId,
+            ]);
+            
+            return back()->with('error', 'Failed to approve document. Please try again.');
+        }
+    }
 
-            return back()->with('error', 'Failed to download document. Please try again.');
+    /**
+     * Reject document with reason
+     */
+    public function rejectDocument(Request $request, $agencyId, $documentId)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|min:10|max:500',
+        ], [
+            'rejection_reason.required' => 'Please provide a reason for rejection.',
+            'rejection_reason.min' => 'Rejection reason must be at least 10 characters.',
+        ]);
+
+        try {
+            $agency = Agency::findOrFail($agencyId);
+            $document = AgencyDocumentRequirement::findOrFail($documentId);
+
+            // Check if document belongs to agency
+            if ($document->agency_id !== $agency->id) {
+                return back()->with('error', 'Unauthorized access to document');
+            }
+
+            // Update document status
+            $document->update([
+                'status' => 'rejected',
+                'reviewed_at' => now(),
+                'reviewed_by' => Auth::id(),
+                'rejection_reason' => $request->rejection_reason,
+            ]);
+
+            // Log the document rejection
+            ActivityLog::log(
+                "Document rejected: {$document->name}",
+                $agency,
+                [
+                    'admin' => Auth::user()->name,
+                    'admin_email' => Auth::user()->email,
+                    'document_id' => $document->id,
+                    'document_name' => $document->name,
+                    'document_type' => $document->document_type,
+                    'file_name' => $document->file_name,
+                    'action' => 'rejected',
+                    'rejection_reason' => $request->rejection_reason,
+                    'reviewed_at' => now()->toDateTimeString(),
+                ]
+            );
+
+            // Send email notification to agency
+            try {
+                Mail::to($agency->business_email)->send(new DocumentRejected($agency, $document));
+            } catch (\Exception $e) {
+                Log::error('Failed to send document rejection email: ' . $e->getMessage());
+            }
+
+            Log::info('Document rejected', [
+                'agency_id' => $agency->id,
+                'document_id' => $document->id,
+                'admin_id' => Auth::id(),
+                'reason' => $request->rejection_reason,
+            ]);
+
+            return back()->with('success', "Document '{$document->name}' rejected. Agency has been notified.");
+            
+        } catch (\Exception $e) {
+            Log::error('Document rejection failed', [
+                'error' => $e->getMessage(),
+                'agency_id' => $agencyId,
+                'document_id' => $documentId,
+            ]);
+            
+            return back()->with('error', 'Failed to reject document. Please try again.');
         }
     }
 

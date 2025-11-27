@@ -185,12 +185,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::post('/{id}/reactivate', [AdminAgencyController::class, 'reactivate'])->name('reactivate');
         
         // Document Management
-        Route::post('/{agencyId}/documents/{documentId}/approve', [AdminAgencyController::class, 'approveDocument'])
-            ->name('documents.approve');
-        Route::post('/{agencyId}/documents/{documentId}/reject', [AdminAgencyController::class, 'rejectDocument'])
-            ->name('documents.reject');
-        Route::get('/{agencyId}/documents/{documentId}/download', [AdminAgencyController::class, 'downloadDocument'])
-            ->name('documents.download');
+        Route::post('/{agencyId}/documents/{documentId}/approve', [AdminAgencyController::class, 'approveDocument'])->name('documents.approve');
+        Route::post('/{agencyId}/documents/{documentId}/reject', [AdminAgencyController::class, 'rejectDocument'])->name('documents.reject');
+        Route::get('/{agencyId}/documents/{documentId}/preview', [AdminAgencyController::class, 'previewDocument'])->name('documents.preview');
+        Route::get('/{agencyId}/documents/{documentId}/download', [AdminAgencyController::class, 'downloadDocument'])->name('documents.download');
         
         // API Endpoints
         Route::get('/api/pending-count', [AdminAgencyController::class, 'getPendingCount'])

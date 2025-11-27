@@ -7,7 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gradient-to-br from-gray-50 via-white to-blue-50">
-    <div class="min-h-screen py-8 px-4">
+    <div class="min-h-screen py-8 px-4" x-data="{ isYearly: false }">
         <div class="max-w-7xl mx-auto">
         
             <!-- Success Banner -->
@@ -41,25 +41,29 @@
 
             <!-- Billing Toggle -->
             <div class="flex justify-center items-center gap-4 mb-12">
-                <span class="text-sm font-semibold text-gray-700" :class="{ 'text-blue-600': !isYearly }">Monthly</span>
+                <span class="text-sm font-semibold transition-colors duration-300" 
+                      :class="isYearly ? 'text-gray-700' : 'text-blue-600 font-bold'">
+                    Monthly
+                </span>
                 <button type="button" 
-                        @click="toggleBilling()"
-                        class="relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        :class="isYearly ? 'bg-blue-600' : 'bg-gray-300'"
-                        x-data="{ isYearly: false }">
-                    <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-lg"
+                        @click="isYearly = !isYearly"
+                        class="relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        :class="isYearly ? 'bg-blue-600' : 'bg-gray-300'">
+                    <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-300 ease-in-out shadow-lg"
                           :class="isYearly ? 'translate-x-8' : 'translate-x-1'"></span>
                 </button>
-                <span class="text-sm font-semibold text-gray-700 flex items-center gap-2" :class="{ 'text-blue-600': isYearly }">
+                <span class="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" 
+                      :class="isYearly ? 'text-blue-600 font-bold' : 'text-gray-700'">
                     Yearly 
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 animate-pulse">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800" 
+                          :class="isYearly && 'animate-pulse'">
                         Save 20%
                     </span>
                 </span>
             </div>
 
             <!-- Subscription Plans -->
-            <div class="grid md:grid-cols-3 gap-8 mb-12" x-data="planSelector()">
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
                 @foreach($plans as $index => $plan)
                 <div class="relative bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl {{ $plan->is_popular ? 'ring-4 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-blue-300' }}">
                     
@@ -90,22 +94,31 @@
                         <!-- Price -->
                         <div class="mb-8">
                             <div class="flex items-baseline">
-                                <span class="text-5xl font-extrabold text-gray-900" 
-                                      x-text="isYearly ? '$' + Math.round({{ $plan->price }} * 12 * 0.8) : '${{ number_format($plan->price, 0) }}'">
-                                    ${{ number_format($plan->price, 0) }}
+                                <span class="text-5xl font-extrabold text-gray-900 transition-all duration-300">
+                                    <span x-text="isYearly ? '$' + Math.round({{ $plan->price }} * 12 * 0.8) : '${{ number_format($plan->price, 0) }}'">
+                                        ${{ number_format($plan->price, 0) }}
+                                    </span>
                                 </span>
-                                <span class="text-gray-600 ml-2 text-lg">
+                                <span class="text-gray-600 ml-2 text-lg transition-all duration-300">
                                     /<span x-text="isYearly ? 'year' : 'month'">month</span>
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-500 mt-2">
-                                <span x-show="isYearly" class="text-green-600 font-semibold">
-                                    Save ${{ number_format($plan->price * 12 * 0.2, 0) }}/year 🎉
+                            <div class="text-sm text-gray-500 mt-2 min-h-[1.5rem]">
+                                <span x-show="isYearly" 
+                                      x-transition:enter="transition ease-out duration-200"
+                                      x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                      x-transition:enter-end="opacity-100 transform translate-y-0"
+                                      class="text-green-600 font-semibold block">
+                                    💰 Save ${{ number_format($plan->price * 12 * 0.2, 0) }}/year!
                                 </span>
-                                <span x-show="!isYearly">
+                                <span x-show="!isYearly"
+                                      x-transition:enter="transition ease-out duration-200"
+                                      x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                      x-transition:enter-end="opacity-100 transform translate-y-0"
+                                      class="block">
                                     Billed monthly
                                 </span>
-                            </p>
+                            </div>
                         </div>
 
                         <!-- Features -->
@@ -123,18 +136,19 @@
                         <!-- CTA Button -->
                         <form action="{{ route('agency.subscription.checkout', $plan->id) }}" method="POST">
                             @csrf
-                            <input type="hidden" name="billing_cycle" x-model="isYearly ? 'yearly' : 'monthly'" value="monthly">
+                            <input type="hidden" name="billing_cycle" :value="isYearly ? 'yearly' : 'monthly'">
                             <button type="submit" 
                                     class="w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-2xl transform hover:-translate-y-1
                                            {{ $plan->is_popular 
                                               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700' 
                                               : 'bg-gray-900 text-white hover:bg-gray-800' }}">
-                                Choose {{ $plan->name }}
+                                <span x-show="!isYearly">Choose {{ $plan->name }}</span>
+                                <span x-show="isYearly">Choose {{ $plan->name }} (Yearly)</span>
                             </button>
                         </form>
 
                         <p class="text-xs text-center text-gray-500 mt-4">
-                            14-day free trial • No credit card required • Cancel anytime
+                            14-day free trial • <span x-text="isYearly ? 'Billed yearly' : 'No credit card required'"></span> • Cancel anytime
                         </p>
                     </div>
                 </div>
@@ -301,16 +315,5 @@
 
     <!-- Alpine.js for interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <script>
-        function planSelector() {
-            return {
-                isYearly: false,
-                toggleBilling() {
-                    this.isYearly = !this.isYearly;
-                }
-            }
-        }
-    </script>
 </body>
 </html>

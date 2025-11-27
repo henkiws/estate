@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             // UserSeeder::class,
             SampleDataSeeder::class,
+            SubscriptionPlansSeeder::class,
         ]);
     }
 }

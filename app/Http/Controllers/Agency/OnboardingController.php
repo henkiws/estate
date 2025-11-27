@@ -35,7 +35,7 @@ class OnboardingController extends Controller
         // Validate step number (only 1 or 2)
         $step = (int) $step;
         if ($step < 1 || $step > 2) {
-            return redirect()->route('agency.onboarding', ['step' => 1]);
+            return redirect()->route('agency.onboarding.show', ['step' => 1]);
         }
 
         // Get data based on step
@@ -95,7 +95,7 @@ class OnboardingController extends Controller
      */
     public function completeStep1()
     {
-        return redirect()->route('agency.onboarding', ['step' => 2])
+        return redirect()->route('agency.onboarding.show', ['step' => 2])
             ->with('success', 'Let\'s upload your required documents!');
     }
 
