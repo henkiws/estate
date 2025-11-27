@@ -62,6 +62,7 @@ class SampleDataSeeder extends Seeder
                 'business_email' => 'info@sydneypremier.com.au',
                 'website_url' => 'https://www.sydneypremier.com.au',
                 'status' => 'active',
+                'onboarding_completed_at' => now()->subDays(25),
                 'verified_at' => now()->subDays(30),
                 'verified_by' => null, // Will be set to admin->id
                 'user' => [
