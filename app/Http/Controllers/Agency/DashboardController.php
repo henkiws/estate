@@ -30,7 +30,14 @@ class DashboardController extends Controller
                 ->with('error', 'Please complete your agency registration.');
         }
 
-        // Route based on agency status
+        // CRITICAL: Check if onboarding is complete
+        // If NOT complete, redirect to onboarding
+        if (!$agency->onboarding_completed_at) {
+            return redirect()->route('agency.onboarding.show', ['step' => 1])
+                ->with('info', 'Please complete your onboarding process.');
+        }
+
+        // Route based on agency status (AFTER onboarding is complete)
         return match($agency->status) {
             'pending' => $this->showPendingView($agency),
             'rejected' => $this->showRejectedView($agency),

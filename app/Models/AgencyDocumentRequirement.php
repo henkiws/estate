@@ -16,6 +16,11 @@ class AgencyDocumentRequirement extends Model
     protected $fillable = [
         'agency_id',
         'name',
+        'file_path',
+        'file_name',
+        'file_type',
+        'file_size',
+        'status',
         'license_certificate_uploaded',
         'proof_of_identity_uploaded',
         'abn_certificate_uploaded',

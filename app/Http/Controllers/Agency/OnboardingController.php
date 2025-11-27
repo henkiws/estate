@@ -64,6 +64,16 @@ class OnboardingController extends Controller
                     ->orderBy('name', 'asc')
                     ->get();
                 
+                // AUTO-CREATE documents if they don't exist (for old agencies)
+                if ($documents->isEmpty()) {
+                    Log::info('Auto-creating document requirements for agency', ['agency_id' => $agency->id]);
+                    $this->createDocumentRequirements($agency);
+                    $documents = AgencyDocumentRequirement::where('agency_id', $agency->id)
+                        ->orderBy('is_required', 'desc')
+                        ->orderBy('name', 'asc')
+                        ->get();
+                }
+                
                 $uploadedCount = $documents->whereNotNull('file_path')->count();
                 $requiredCount = $documents->where('is_required', true)->count();
                 $progress = $requiredCount > 0 ? round(($uploadedCount / $requiredCount) * 100) : 0;
@@ -139,7 +149,14 @@ class OnboardingController extends Controller
                 'file_name' => $file->getClientOriginalName(),
             ]);
 
-            return back()->with('success', 'Document uploaded successfully!');
+            // Calculate updated progress
+            $agency = Auth::user()->agency;
+            $allDocs = AgencyDocumentRequirement::where('agency_id', $agency->id)->get();
+            $uploadedCount = $allDocs->whereNotNull('file_path')->count();
+            $requiredCount = $allDocs->where('is_required', true)->count();
+
+            return redirect()->route('agency.onboarding.show', ['step' => 2])
+                ->with('success', "✓ {$document->name} uploaded successfully! ({$uploadedCount}/{$requiredCount} documents completed)");
 
         } catch (\Exception $e) {
             Log::error('Document upload failed: ' . $e->getMessage());
@@ -244,5 +261,54 @@ class OnboardingController extends Controller
     {
         return redirect()->route('agency.dashboard')
             ->with('info', 'You can complete your document upload anytime from the dashboard.');
+    }
+
+    /**
+     * Create document requirements for agency
+     */
+    protected function createDocumentRequirements($agency)
+    {
+        $documents = [
+            [
+                'name' => 'Real Estate Agency License Certificate',
+                'description' => 'Valid real estate agency license issued by your state regulatory authority',
+                'is_required' => true,
+            ],
+            [
+                'name' => 'Proof of Identity - Principal/Licensee',
+                'description' => 'Driver\'s license, passport, or other government-issued ID of the principal licensee',
+                'is_required' => true,
+            ],
+            [
+                'name' => 'ABN Registration Certificate',
+                'description' => 'Australian Business Number registration document from the ATO',
+                'is_required' => true,
+            ],
+            [
+                'name' => 'Professional Indemnity Insurance',
+                'description' => 'Current professional indemnity insurance certificate of currency',
+                'is_required' => true,
+            ],
+            [
+                'name' => 'Public Liability Insurance',
+                'description' => 'Current public liability insurance certificate of currency',
+                'is_required' => true,
+            ],
+        ];
+
+        foreach ($documents as $doc) {
+            AgencyDocumentRequirement::create([
+                'agency_id' => $agency->id,
+                'name' => $doc['name'],
+                'description' => $doc['description'],
+                'is_required' => $doc['is_required'],
+                'status' => 'pending',
+            ]);
+        }
+
+        Log::info('Document requirements created for agency', [
+            'agency_id' => $agency->id,
+            'document_count' => count($documents),
+        ]);
     }
 }
