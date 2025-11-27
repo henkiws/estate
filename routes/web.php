@@ -140,22 +140,43 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             return view('agency.settings', compact('agency'));
         })->name('settings');
         
-        // Agent Management (will be implemented later)
+        // Agent Management
         Route::prefix('agents')->name('agents.')->group(function () {
-            Route::get('/', function () {
-                return view('agency.agents.index');
-            })->name('index');
+            Route::get('/', [App\Http\Controllers\Agency\AgentController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Agency\AgentController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Agency\AgentController::class, 'store'])->name('store');
+            Route::get('/{agent}', [App\Http\Controllers\Agency\AgentController::class, 'show'])->name('show');
+            Route::get('/{agent}/edit', [App\Http\Controllers\Agency\AgentController::class, 'edit'])->name('edit');
+            Route::patch('/{agent}', [App\Http\Controllers\Agency\AgentController::class, 'update'])->name('update');
+            Route::delete('/{agent}', [App\Http\Controllers\Agency\AgentController::class, 'destroy'])->name('destroy');
             
-            Route::get('/create', function () {
-                return view('agency.agents.create');
-            })->name('create');
+            // Actions
+            Route::post('/{agent}/toggle-status', [App\Http\Controllers\Agency\AgentController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{agent}/toggle-featured', [App\Http\Controllers\Agency\AgentController::class, 'toggleFeatured'])->name('toggle-featured');
+            Route::post('/{agent}/send-invitation', [App\Http\Controllers\Agency\AgentController::class, 'sendInvitation'])->name('send-invitation');
+            Route::delete('/{agent}/photo', [App\Http\Controllers\Agency\AgentController::class, 'deletePhoto'])->name('delete-photo');
         });
         
-        // Properties (will be implemented later)
+        // Property Management
         Route::prefix('properties')->name('properties.')->group(function () {
-            Route::get('/', function () {
-                return view('agency.properties.index');
-            })->name('index');
+            Route::get('/', [App\Http\Controllers\Agency\PropertyController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Agency\PropertyController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Agency\PropertyController::class, 'store'])->name('store');
+            Route::get('/{property}', [App\Http\Controllers\Agency\PropertyController::class, 'show'])->name('show');
+            Route::get('/{property}/edit', [App\Http\Controllers\Agency\PropertyController::class, 'edit'])->name('edit');
+            Route::patch('/{property}', [App\Http\Controllers\Agency\PropertyController::class, 'update'])->name('update');
+            Route::delete('/{property}', [App\Http\Controllers\Agency\PropertyController::class, 'destroy'])->name('destroy');
+            
+            // Actions
+            Route::post('/{property}/publish', [App\Http\Controllers\Agency\PropertyController::class, 'publish'])->name('publish');
+            Route::post('/{property}/unpublish', [App\Http\Controllers\Agency\PropertyController::class, 'unpublish'])->name('unpublish');
+            Route::post('/{property}/mark-sold', [App\Http\Controllers\Agency\PropertyController::class, 'markAsSold'])->name('mark-sold');
+            Route::post('/{property}/toggle-featured', [App\Http\Controllers\Agency\PropertyController::class, 'toggleFeatured'])->name('toggle-featured');
+            
+            // Images
+            Route::post('/{property}/images', [App\Http\Controllers\Agency\PropertyController::class, 'uploadImages'])->name('upload-images');
+            Route::delete('/{property}/images/{image}', [App\Http\Controllers\Agency\PropertyController::class, 'deleteImage'])->name('delete-image');
+            Route::post('/{property}/images/{image}/featured', [App\Http\Controllers\Agency\PropertyController::class, 'setFeaturedImage'])->name('set-featured-image');
         });
     });
 });

@@ -8,25 +8,6 @@
     {{-- Tailwind --}}
     @vite(['resources/css/app.css','resources/js/app.js'])
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            DEFAULT: '#0066FF',
-                            dark: '#0052CC',
-                            light: '#E8F5FF',
-                        },
-                        secondary: '#FF9500',
-                        success: '#00CC66',
-                        danger: '#FF3366',
-                    },
-                }
-            }
-        }
-    </script>
-
     <style>
         @keyframes slideIn {
             from { transform: translateX(-100%); }

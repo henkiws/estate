@@ -217,29 +217,66 @@ return new class extends Migration
         });
 
         // 9. Agents table (Section 9 - under agency)
-        Schema::create('agents', function (Blueprint $table) {
+       Schema::create('agents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agency_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             
-            $table->string('agent_name');
-            $table->string('license_number')->nullable();
+            // Basic Information
+            $table->string('agent_code', 20)->unique();
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
-            $table->string('mobile');
-            $table->string('profile_photo')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('mobile', 20)->nullable();
             
-            // Agent specific fields
-            $table->string('position')->nullable();
+            // License & Professional Details
+            $table->string('license_number', 50)->nullable();
+            $table->date('license_expiry')->nullable();
+            $table->string('position')->nullable(); // Sales Agent, Property Manager, etc.
+            $table->enum('employment_type', ['full_time', 'part_time', 'contractor', 'intern'])->default('full_time');
+            $table->decimal('commission_rate', 5, 2)->nullable()->comment('Percentage');
+            
+            // Profile
             $table->text('bio')->nullable();
-            $table->json('specializations')->nullable(); // residential, commercial, etc
+            $table->string('photo')->nullable();
+            $table->json('specializations')->nullable(); // ['Residential', 'Commercial', etc.]
+            $table->json('languages')->nullable(); // ['English', 'Mandarin', etc.]
+            $table->json('social_media')->nullable(); // {facebook: '', linkedin: '', etc.}
             
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            // Address
+            $table->string('address_line1')->nullable();
+            $table->string('address_line2')->nullable();
+            $table->string('suburb')->nullable();
+            $table->string('state', 10)->nullable();
+            $table->string('postcode', 10)->nullable();
+            $table->string('country', 50)->default('Australia');
             
-            $table->timestamps();
+            // Emergency Contact
+            $table->string('emergency_contact_name')->nullable();
+            $table->string('emergency_contact_phone', 20)->nullable();
+            $table->string('emergency_contact_relationship')->nullable();
+            
+            // Status & Dates
+            $table->enum('status', ['active', 'inactive', 'on_leave', 'terminated'])->default('active');
+            $table->boolean('is_active')->default(true);
+            $table->date('started_at')->nullable();
+            $table->date('ended_at')->nullable();
+            
+            // Features
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_accepting_new_listings')->default(true);
+            
+            // Metadata
+            $table->json('metadata')->nullable();
+            
             $table->softDeletes();
+            $table->timestamps();
             
-            $table->index('agency_id');
-            $table->index('status');
+            // Indexes
+            $table->index(['agency_id', 'status']);
+            $table->index('email');
+            $table->index('license_number');
         });
 
         // 10. Update users table

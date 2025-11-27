@@ -11,6 +11,7 @@ use App\Models\AgencyService;
 use App\Models\AgencyCompliance;
 use App\Models\AgencyDocumentRequirement;
 use App\Models\Agent;
+use App\Models\Property;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -344,6 +345,7 @@ class SampleDataSeeder extends Seeder
             // ============================================
             if ($agency->status === 'active') {
                 $this->createAgentsForAgency($agency);
+                $this->createPropertiesForAgency($agency);
             }
         }
         
@@ -432,21 +434,17 @@ class SampleDataSeeder extends Seeder
         $agentCount = rand(2, 4);
         
         $agentNames = [
-            ['first' => 'James', 'last' => 'Taylor'],
-            ['first' => 'Emily', 'last' => 'Davis'],
-            ['first' => 'Oliver', 'last' => 'Martin'],
-            ['first' => 'Sophie', 'last' => 'Anderson'],
-            ['first' => 'Liam', 'last' => 'Thomas'],
-            ['first' => 'Ava', 'last' => 'White'],
-            ['first' => 'Noah', 'last' => 'Garcia'],
-            ['first' => 'Isabella', 'last' => 'Martinez'],
-            ['first' => 'Ethan', 'last' => 'Robinson'],
-            ['first' => 'Mia', 'last' => 'Clark'],
+            ['first' => 'James', 'last' => 'Taylor', 'position' => 'Senior Sales Agent', 'specializations' => ['Residential Sales', 'Luxury Properties', 'First Home Buyers'], 'languages' => ['English', 'Mandarin'], 'bio' => 'Award-winning agent with over 10 years of experience in luxury residential sales.', 'employment_type' => 'full_time', 'commission_rate' => 2.5],
+            ['first' => 'Emily', 'last' => 'Davis', 'position' => 'Property Manager', 'specializations' => ['Property Management', 'Rentals', 'Residential'], 'languages' => ['English', 'Spanish'], 'bio' => 'Dedicated property manager specializing in residential portfolio management.', 'employment_type' => 'full_time', 'commission_rate' => 8.0],
+            ['first' => 'Oliver', 'last' => 'Martin', 'position' => 'Sales Agent', 'specializations' => ['Residential Sales', 'Investments', 'Auctions'], 'languages' => ['English'], 'bio' => 'Dynamic sales professional with a passion for helping clients find their dream home.', 'employment_type' => 'full_time', 'commission_rate' => 2.0],
+            ['first' => 'Sophie', 'last' => 'Anderson', 'position' => 'Commercial Sales Agent', 'specializations' => ['Commercial Sales', 'Investments', 'Business Sales'], 'languages' => ['English', 'Italian'], 'bio' => 'Experienced commercial real estate specialist with strong negotiation skills.', 'employment_type' => 'full_time', 'commission_rate' => 3.0],
+            ['first' => 'Liam', 'last' => 'Thomas', 'position' => 'Junior Sales Agent', 'specializations' => ['Residential Sales', 'First Home Buyers'], 'languages' => ['English', 'Vietnamese'], 'bio' => 'Enthusiastic new agent committed to providing exceptional service.', 'employment_type' => 'part_time', 'commission_rate' => 1.5],
         ];
         
         shuffle($agentNames);
         
         for ($i = 0; $i < $agentCount; $i++) {
+            $profile = $agentNames[$i];
             $agentName = $agentNames[$i];
             $fullName = $agentName['first'] . ' ' . $agentName['last'];
             
@@ -471,18 +469,31 @@ class SampleDataSeeder extends Seeder
                 'email_verified_at' => now(),
             ]);
             $agentUser->assignRole('agent');
-            
+
             Agent::create([
                 'agency_id' => $agency->id,
                 'user_id' => $agentUser->id,
-                'agent_name' => $fullName,
-                'license_number' => $agency->state . '-' . rand(10000000, 99999999),
+                'first_name' => $profile['first'],
+                'last_name' => $profile['last'],
                 'email' => $email,
-                'mobile' => $agentUser->phone,
-                'position' => 'Sales Agent',
-                'bio' => 'Experienced real estate professional specializing in residential properties.',
-                'specializations' => json_encode(['Residential', 'Sales']),
-                'status' => 'active',
+                'phone' => $agency->business_phone,
+                'mobile' => '+61 4' . rand(10, 99) . ' ' . rand(100, 999) . ' ' . rand(100, 999),
+                'license_number' => $agency->state . '-' . rand(10000000, 99999999),
+                'license_expiry' => now()->addYears(rand(1, 3)),
+                'position' => $profile['position'],
+                'employment_type' => $profile['employment_type'],
+                'commission_rate' => $profile['commission_rate'],
+                'bio' => $profile['bio'],
+                'specializations' => $profile['specializations'],
+                'languages' => $profile['languages'],
+                'address_line1' => $agency->business_address,
+                'state' => $agency->state,
+                'postcode' => $agency->postcode,
+                'country' => 'Australia',
+                'status' => $i === 0 ? 'active' : (rand(0, 10) > 2 ? 'active' : 'on_leave'),
+                'started_at' => now()->subMonths(rand(1, 36)),
+                'is_featured' => $i === 0,
+                'is_accepting_new_listings' => true,
             ]);
             
             $this->command->info("  └─ Agent: {$fullName} ({$email} / password)");
@@ -561,5 +572,199 @@ class SampleDataSeeder extends Seeder
         $this->command->info('5. sarah@ - Test approved status (subscription page)');
         $this->command->info('6. john@ - Test full active agency with dashboard');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+
+    private function createPropertiesForAgency(Agency $agency)
+    {
+        $propertyCount = rand(5, 12);
+        
+        // Get active agents
+        $agents = Agent::where('agency_id', $agency->id)
+            ->where('status', 'active')
+            ->get();
+        
+        if ($agents->isEmpty()) {
+            return; // No agents, skip properties
+        }
+        
+        $propertyTypes = ['house', 'apartment', 'unit', 'townhouse', 'villa'];
+        $listingTypes = ['sale', 'rent'];
+        $statuses = ['active', 'active', 'active', 'under_contract', 'sold', 'leased']; // More active
+        
+        $suburbs = $this->getSuburbsForState($agency->state);
+        $streetNames = ['Main', 'High', 'Park', 'Church', 'Station', 'Queen', 'King', 'George', 'Victoria', 'Elizabeth'];
+        $streetTypes = ['Street', 'Road', 'Avenue', 'Drive', 'Lane', 'Terrace'];
+        
+        $features = [
+            'Air Conditioning', 'Built-in Wardrobes', 'Dishwasher', 'Gas Cooking', 'Swimming Pool',
+            'Alarm System', 'Balcony', 'Deck', 'Courtyard', 'Garden', 'Study', 'Ensuite',
+            'Walk-in Wardrobe', 'Ducted Heating', 'Floorboards', 'Remote Garage', 'Intercom',
+        ];
+        
+        for ($i = 0; $i < $propertyCount; $i++) {
+            $listingType = $listingTypes[array_rand($listingTypes)];
+            $propertyType = $propertyTypes[array_rand($propertyTypes)];
+            $status = $statuses[array_rand($statuses)];
+            
+            // Adjust status based on listing type
+            if ($listingType === 'sale' && $status === 'leased') {
+                $status = 'sold';
+            } elseif ($listingType === 'rent' && $status === 'sold') {
+                $status = 'leased';
+            }
+            
+            $suburb = $suburbs[array_rand($suburbs)];
+            $streetName = $streetNames[array_rand($streetNames)];
+            $streetType = $streetTypes[array_rand($streetTypes)];
+            $streetNumber = rand(1, 999);
+            
+            $bedrooms = rand(1, 5);
+            $bathrooms = rand(1, 3);
+            $parkingSpaces = rand(0, 3);
+            
+            // Price based on listing type
+            if ($listingType === 'sale') {
+                $price = rand(300000, 2000000);
+                $price = round($price / 10000) * 10000; // Round to nearest 10k
+                $rentPerWeek = null;
+                $bondAmount = null;
+            } else {
+                $price = null;
+                $rentPerWeek = rand(250, 1200);
+                $rentPerWeek = round($rentPerWeek / 10) * 10; // Round to nearest 10
+                $bondAmount = $rentPerWeek * 4;
+            }
+            
+            // Select random features
+            $selectedFeatures = array_rand(array_flip($features), rand(3, 8));
+            
+            // Randomly assign agent
+            $listingAgent = $agents->random();
+            
+            // Create address parts
+            $unitNumber = ($propertyType === 'apartment' || $propertyType === 'unit') && rand(0, 1) 
+                ? rand(1, 99) 
+                : null;
+            
+            $property = Property::create([
+                'agency_id' => $agency->id,
+                'listing_agent_id' => $listingAgent->id,
+                'property_manager_id' => $listingType === 'rent' ? $listingAgent->id : null,
+                // property_code auto-generated
+                'property_type' => $propertyType,
+                'listing_type' => $listingType,
+                'status' => $status,
+                'street_number' => $streetNumber,
+                'street_name' => $streetName,
+                'street_type' => $streetType,
+                'unit_number' => $unitNumber,
+                'suburb' => $suburb,
+                'state' => $agency->state,
+                'postcode' => $this->getPostcodeForSuburb($suburb, $agency->state),
+                'country' => 'Australia',
+                'bedrooms' => $bedrooms,
+                'bathrooms' => $bathrooms,
+                'parking_spaces' => $parkingSpaces,
+                'garages' => rand(0, 2),
+                'land_area' => rand(200, 1000),
+                'land_area_unit' => 'sqm',
+                'floor_area' => $propertyType === 'house' ? rand(150, 400) : rand(60, 150),
+                'floor_area_unit' => 'sqm',
+                'year_built' => rand(1950, 2023),
+                'price' => $price,
+                'price_display' => true,
+                'rent_per_week' => $rentPerWeek,
+                'bond_amount' => $bondAmount,
+                'available_from' => $listingType === 'rent' ? now()->addDays(rand(0, 60)) : null,
+                'headline' => $this->generatePropertyHeadline($propertyType, $bedrooms, $suburb),
+                'description' => $this->generatePropertyDescription($propertyType, $bedrooms, $bathrooms, $suburb),
+                'features' => $selectedFeatures,
+                'is_featured' => $i < 2, // First 2 properties are featured
+                'view_count' => rand(10, 500),
+                'enquiry_count' => rand(0, 50),
+                'inspection_count' => rand(0, 20),
+                'listed_at' => in_array($status, ['active', 'under_contract']) ? now()->subDays(rand(1, 90)) : null,
+                'sold_at' => $status === 'sold' ? now()->subDays(rand(1, 30)) : null,
+                'leased_at' => $status === 'leased' ? now()->subDays(rand(1, 30)) : null,
+                'sale_price' => $status === 'sold' ? $price : null,
+                'is_published' => in_array($status, ['active', 'under_contract']),
+                'published_at' => in_array($status, ['active', 'under_contract']) ? now()->subDays(rand(1, 90)) : null,
+                // slug auto-generated
+            ]);
+            
+            $this->command->info("  🏠 Property: {$property->short_address} ({$status})");
+        }
+    }
+
+    /**
+     * Get suburbs for a state
+     */
+    private function getSuburbsForState($state)
+    {
+        $suburbs = [
+            'NSW' => ['Sydney', 'Bondi', 'Manly', 'Parramatta', 'Newcastle', 'Wollongong', 'Surry Hills', 'Newtown', 'Chatswood', 'Liverpool'],
+            'VIC' => ['Melbourne', 'St Kilda', 'Brighton', 'Richmond', 'Carlton', 'Geelong', 'Fitzroy', 'South Yarra', 'Doncaster', 'Glen Waverley'],
+            'QLD' => ['Brisbane', 'Surfers Paradise', 'Cairns', 'Toowoomba', 'Southport', 'Gold Coast', 'Fortitude Valley', 'New Farm', 'Paddington', 'Indooroopilly'],
+            'WA' => ['Perth', 'Fremantle', 'Subiaco', 'Scarborough', 'Cottesloe', 'Northbridge', 'Victoria Park', 'Mount Lawley', 'Leederville', 'Claremont'],
+            'SA' => ['Adelaide', 'Glenelg', 'North Adelaide', 'Unley', 'Prospect', 'Norwood', 'Brighton', 'Henley Beach', 'Burnside', 'Walkerville'],
+            'TAS' => ['Hobart', 'Launceston', 'Sandy Bay', 'North Hobart', 'Battery Point', 'South Hobart', 'West Hobart', 'Bellerive', 'New Town', 'Glenorchy'],
+        ];
+        
+        return $suburbs[$state] ?? ['Capital City', 'Suburb', 'Downtown', 'Uptown'];
+    }
+
+    /**
+     * Get postcode for suburb
+     */
+    private function getPostcodeForSuburb($suburb, $state)
+    {
+        $postcodes = [
+            'NSW' => ['2000' => 2999],
+            'VIC' => ['3000' => 3999],
+            'QLD' => ['4000' => 4999],
+            'WA' => ['6000' => 6999],
+            'SA' => ['5000' => 5999],
+            'TAS' => ['7000' => 7999],
+        ];
+        
+        $range = $postcodes[$state] ?? ['2000' => 2999];
+        return rand(array_keys($range)[0], array_values($range)[0]);
+    }
+
+    /**
+     * Generate property headline
+     */
+    private function generatePropertyHeadline($type, $bedrooms, $suburb)
+    {
+        $adjectives = ['Stunning', 'Beautiful', 'Modern', 'Spacious', 'Charming', 'Luxurious', 'Contemporary', 'Elegant', 'Impressive', 'Stylish'];
+        $adjective = $adjectives[array_rand($adjectives)];
+        
+        $typeNames = [
+            'house' => 'Family Home',
+            'apartment' => 'Apartment',
+            'unit' => 'Unit',
+            'townhouse' => 'Townhouse',
+            'villa' => 'Villa',
+        ];
+        
+        $typeName = $typeNames[$type] ?? ucfirst($type);
+        
+        return "{$adjective} {$bedrooms} Bedroom {$typeName} in {$suburb}";
+    }
+
+    /**
+     * Generate property description
+     */
+    private function generatePropertyDescription($type, $bedrooms, $bathrooms, $suburb)
+    {
+        $descriptions = [
+            "This beautiful {$bedrooms} bedroom, {$bathrooms} bathroom {$type} offers exceptional living in the heart of {$suburb}. Featuring modern finishes throughout, spacious living areas, and a well-appointed kitchen, this property is perfect for families or professionals seeking quality accommodation.",
+            
+            "Discover the perfect blend of comfort and style in this {$bedrooms} bedroom {$type}. Located in sought-after {$suburb}, this property boasts contemporary design, quality fixtures, and convenient access to local amenities. Don't miss this opportunity to secure your dream home.",
+            
+            "Welcome to this impressive {$bedrooms} bedroom residence in prime {$suburb} location. Offering generous living spaces, {$bathrooms} modern bathrooms, and quality finishes throughout, this property represents excellent value in today's market. Inspection highly recommended.",
+        ];
+        
+        return $descriptions[array_rand($descriptions)];
     }
 }

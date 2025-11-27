@@ -93,6 +93,14 @@ class Agency extends Model
         return $this->hasMany(Agent::class);
     }
 
+    /**
+     * Get all properties for this agency
+     */
+    public function properties()
+    {
+        return $this->hasMany(Property::class);
+    }
+
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');

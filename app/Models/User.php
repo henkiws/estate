@@ -73,6 +73,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Agent::class);
     }
 
+    public function agent()
+    {
+        return $this->hasOne(Agent::class);
+    }
+
     /**
      * Check if user is an admin
      */
