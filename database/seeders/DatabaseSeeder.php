@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             // UserSeeder::class,
             SampleDataSeeder::class,
             SubscriptionPlansSeeder::class,
+            UpdateSubscriptionPlansWithStripeIDsSeeder::class,
         ]);
     }
 }

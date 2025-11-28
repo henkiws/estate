@@ -239,8 +239,7 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 // ============================================
 // Stripe Webhook (No CSRF protection)
 // ============================================
-Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
-    ->name('webhook.stripe');
+// Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
+Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 
 require __DIR__.'/auth.php';

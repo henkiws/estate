@@ -32,7 +32,7 @@ class DashboardController extends Controller
 
         // CRITICAL: Check if onboarding is complete
         // If NOT complete, redirect to onboarding
-        if (!$agency->onboarding_completed_at) {
+        if (!$agency->onboarding_completed_at && $agency->status != "approved") {
             return redirect()->route('agency.onboarding.show', ['step' => 1])
                 ->with('info', 'Please complete your onboarding process.');
         }

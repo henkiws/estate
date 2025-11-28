@@ -91,7 +91,7 @@ class SampleDataSeeder extends Seeder
                 'business_phone' => '(03) 9876 5432',
                 'business_email' => 'info@mpgrealty.com.au',
                 'website_url' => 'https://www.mpgrealty.com.au',
-                'status' => 'active',
+                'status' => 'approved',
                 'verified_at' => now()->subDays(7),
                 'verified_by' => null,
                 'user' => [
