@@ -6,433 +6,484 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Models\Agent;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class PropertyController extends Controller
 {
     /**
-     * Display listing of properties
+     * Display a listing of properties.
      */
     public function index(Request $request)
     {
         $agency = Auth::user()->agency;
         
-        $query = Property::with(['listingAgent', 'propertyManager', 'featuredImage'])
-            ->where('agency_id', $agency->id);
-        
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('street_name', 'like', "%{$search}%")
-                  ->orWhere('suburb', 'like', "%{$search}%")
-                  ->orWhere('property_code', 'like', "%{$search}%")
-                  ->orWhere('postcode', 'like', "%{$search}%");
-            });
-        }
-        
-        // Filter by status
+        $query = Property::where('agency_id', $agency->id)
+            ->with(['agents', 'images', 'applications']);
+
+        // Filters
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
-        // Filter by listing type
+
         if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);
         }
-        
-        // Filter by property type
+
         if ($request->filled('property_type')) {
             $query->where('property_type', $request->property_type);
         }
-        
-        // Filter by agent
-        if ($request->filled('agent_id')) {
-            $query->where('listing_agent_id', $request->agent_id);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('property_code', 'like', "%{$search}%")
+                  ->orWhere('street_name', 'like', "%{$search}%")
+                  ->orWhere('suburb', 'like', "%{$search}%")
+                  ->orWhere('full_address', 'like', "%{$search}%");
+            });
         }
+
+        $properties = $query->latest()->paginate(12);
         
-        // Sort
-        $sortField = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $query->orderBy($sortField, $sortDirection);
-        
-        $properties = $query->paginate(12)->withQueryString();
-        
-        // Stats
+        // Statistics
         $stats = [
             'total' => Property::where('agency_id', $agency->id)->count(),
             'active' => Property::where('agency_id', $agency->id)->where('status', 'active')->count(),
-            'sold' => Property::where('agency_id', $agency->id)->where('status', 'sold')->count(),
-            'leased' => Property::where('agency_id', $agency->id)->where('status', 'leased')->count(),
-            'for_sale' => Property::where('agency_id', $agency->id)->where('listing_type', 'sale')->whereIn('status', ['active', 'under_contract'])->count(),
-            'for_rent' => Property::where('agency_id', $agency->id)->where('listing_type', 'rent')->whereIn('status', ['active', 'under_contract'])->count(),
+            'for_rent' => Property::where('agency_id', $agency->id)->where('listing_type', 'rent')->count(),
+            'for_sale' => Property::where('agency_id', $agency->id)->where('listing_type', 'sale')->count(),
         ];
-        
-        // Get agents for filter
-        $agents = Agent::where('agency_id', $agency->id)
-            ->where('status', 'active')
-            ->orderBy('first_name')
-            ->get();
-        
-        return view('agency.properties.index', compact('properties', 'stats', 'agents', 'agency'));
+
+        return view('agency.properties.index', compact('properties', 'stats'));
     }
 
     /**
-     * Show create property form
+     * Show the form for creating a new property.
      */
     public function create()
     {
         $agency = Auth::user()->agency;
-        
-        // Get active agents
         $agents = Agent::where('agency_id', $agency->id)
-            ->where('status', 'active')
-            ->orderBy('first_name')
-            ->get();
-        
-        return view('agency.properties.create', compact('agency', 'agents'));
+                      ->where('status', 'active')
+                      ->get();
+
+        return view('agency.properties.create', compact('agents'));
     }
 
     /**
-     * Store new property
+     * Store a newly created property.
      */
     public function store(Request $request)
     {
         $agency = Auth::user()->agency;
-        
+
         $validated = $request->validate([
-            'property_type' => 'required|in:house,apartment,unit,townhouse,villa,land,studio,duplex,farm,acreage,retirement,block_of_units,commercial,industrial',
-            'listing_type' => 'required|in:sale,rent,lease',
+            // Property Type
+            'property_type' => 'required|string',
+            'listing_type' => 'required|in:sale,rent',
+            
+            // Address
             'street_number' => 'nullable|string|max:20',
             'street_name' => 'required|string|max:255',
             'street_type' => 'nullable|string|max:50',
             'unit_number' => 'nullable|string|max:20',
             'suburb' => 'required|string|max:100',
-            'state' => 'required|string|max:10',
+            'state' => 'required|string|max:50',
             'postcode' => 'required|string|max:10',
-            'bedrooms' => 'nullable|integer|min:0|max:20',
-            'bathrooms' => 'nullable|integer|min:0|max:20',
-            'parking_spaces' => 'nullable|integer|min:0|max:20',
-            'garages' => 'nullable|integer|min:0|max:20',
-            'land_area' => 'nullable|numeric|min:0',
-            'floor_area' => 'nullable|numeric|min:0',
-            'year_built' => 'nullable|integer|min:1800|max:' . (date('Y') + 2),
+            
+            // Details
+            'bedrooms' => 'nullable|integer|min:0',
+            'bathrooms' => 'nullable|integer|min:0',
+            'parking_spaces' => 'nullable|integer|min:0',
+            'land_size' => 'nullable|numeric|min:0',
+            'building_size' => 'nullable|numeric|min:0',
+            
+            // Pricing
             'price' => 'nullable|numeric|min:0',
-            'price_display' => 'boolean',
-            'price_text' => 'nullable|string|max:100',
             'rent_per_week' => 'nullable|numeric|min:0',
-            'bond_amount' => 'nullable|numeric|min:0',
-            'available_from' => 'nullable|date',
+            'bond_weeks' => 'nullable|integer|min:1|max:52',
+            
+            // Description
             'headline' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            
+            // Features
             'features' => 'nullable|array',
-            'listing_agent_id' => 'nullable|exists:agents,id',
-            'property_manager_id' => 'nullable|exists:agents,id',
-            'is_featured' => 'boolean',
+            'custom_features' => 'nullable|string',
+            
+            // Availability
+            'available_from' => 'nullable|date',
+            'status' => 'required|in:draft,active',
+            
+            // Files
+            'floorplan' => 'nullable|image|mimes:jpeg,jpg,png,pdf|max:5120',
+            'images.*' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            
+            // Agents
+            'agents' => 'nullable|array',
+            'agents.*' => 'exists:agents,id',
         ]);
-        
-        DB::beginTransaction();
-        
-        try {
-            $property = Property::create(array_merge($validated, [
-                'agency_id' => $agency->id,
-                'status' => 'draft',
-            ]));
-            
-            DB::commit();
-            
-            return redirect()
-                ->route('agency.properties.show', $property->id)
-                ->with('success', 'Property added successfully!');
-                    
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return back()
-                ->withInput()
-                ->with('error', 'Failed to add property. Please try again.');
+
+        // Build full address
+        $addressParts = array_filter([
+            $validated['unit_number'] ?? null,
+            $validated['street_number'] ?? null,
+            $validated['street_name'],
+            $validated['street_type'] ?? null,
+            $validated['suburb'],
+            $validated['state'],
+            $validated['postcode'],
+        ]);
+        $validated['full_address'] = implode(' ', $addressParts);
+
+        // Merge custom features with selected features
+        if (!empty($validated['custom_features'])) {
+            $customFeatures = array_map('trim', explode(',', $validated['custom_features']));
+            $validated['features'] = array_merge($validated['features'] ?? [], $customFeatures);
         }
+
+        // Set bond weeks default
+        if ($validated['listing_type'] === 'rent' && empty($validated['bond_weeks'])) {
+            $validated['bond_weeks'] = 4;
+        }
+
+        // Create property
+        $property = new Property($validated);
+        $property->agency_id = $agency->id;
+        $property->save();
+
+        // Handle floorplan upload
+        if ($request->hasFile('floorplan')) {
+            $path = $request->file('floorplan')->store('properties/floorplans', 'public');
+            $property->update(['floorplan_path' => $path]);
+        }
+
+        // Handle property images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('properties/images', 'public');
+                
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'file_path' => $path,
+                    'file_name' => $image->getClientOriginalName(),
+                    'file_type' => $image->getMimeType(),
+                    'file_size' => $image->getSize(),
+                    'sort_order' => $index,
+                    'is_featured' => $index === 0, // First image is featured
+                ]);
+            }
+        }
+
+        // Assign agents
+        if (!empty($validated['agents'])) {
+            foreach ($validated['agents'] as $index => $agentId) {
+                $property->agents()->attach($agentId, [
+                    'role' => $index === 0 ? 'listing_agent' : 'co_agent',
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
+        // Return success with property URL
+        return response()->json([
+            'success' => true,
+            'message' => 'Property added successfully!',
+            'property_id' => $property->id,
+            'public_url' => $property->public_url,
+            'public_url_code' => $property->public_url_code,
+        ]);
     }
 
     /**
-     * Show property details
+     * Display the specified property.
      */
     public function show(Property $property)
     {
-        $agency = Auth::user()->agency;
+        // $this->authorize('view', $property);
         
-        if ($property->agency_id !== $agency->id) {
-            abort(403, 'Unauthorized access to property.');
-        }
+        $property->load(['agency', 'agents', 'images', 'applications']);
         
-        $property->load(['listingAgent', 'propertyManager', 'images']);
-        
-        // Get recent activities
-        $activities = ActivityLog::where('subject_type', Property::class)
-            ->where('subject_id', $property->id)
-            ->latest()
-            ->take(10)
-            ->get();
-        
-        return view('agency.properties.show', compact('property', 'activities', 'agency'));
+        return view('agency.properties.show', compact('property'));
     }
 
     /**
-     * Show edit form
+     * Show the form for editing the property.
      */
     public function edit(Property $property)
     {
+        // $this->authorize('update', $property);
+        
         $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
         $agents = Agent::where('agency_id', $agency->id)
-            ->where('status', 'active')
-            ->orderBy('first_name')
-            ->get();
+                      ->where('status', 'active')
+                      ->get();
         
-        return view('agency.properties.edit', compact('property', 'agents', 'agency'));
+        $property->load(['agents', 'images']);
+        
+        return view('agency.properties.edit', compact('property', 'agents'));
     }
 
     /**
-     * Update property
+     * Update the specified property.
      */
     public function update(Request $request, Property $property)
     {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
+        // $this->authorize('update', $property);
+
         $validated = $request->validate([
-            'property_type' => 'required|in:house,apartment,unit,townhouse,villa,land,studio,duplex,farm,acreage,retirement,block_of_units,commercial,industrial',
-            'listing_type' => 'required|in:sale,rent,lease',
+            // Same validation as store
+            'property_type' => 'required|string',
+            'listing_type' => 'required|in:sale,rent',
             'street_number' => 'nullable|string|max:20',
             'street_name' => 'required|string|max:255',
             'street_type' => 'nullable|string|max:50',
             'unit_number' => 'nullable|string|max:20',
             'suburb' => 'required|string|max:100',
-            'state' => 'required|string|max:10',
+            'state' => 'required|string|max:50',
             'postcode' => 'required|string|max:10',
-            'bedrooms' => 'nullable|integer|min:0|max:20',
-            'bathrooms' => 'nullable|integer|min:0|max:20',
-            'parking_spaces' => 'nullable|integer|min:0|max:20',
-            'garages' => 'nullable|integer|min:0|max:20',
-            'land_area' => 'nullable|numeric|min:0',
-            'floor_area' => 'nullable|numeric|min:0',
-            'year_built' => 'nullable|integer|min:1800|max:' . (date('Y') + 2),
+            'bedrooms' => 'nullable|integer|min:0',
+            'bathrooms' => 'nullable|integer|min:0',
+            'parking_spaces' => 'nullable|integer|min:0',
+            'land_size' => 'nullable|numeric|min:0',
+            'building_size' => 'nullable|numeric|min:0',
             'price' => 'nullable|numeric|min:0',
-            'price_display' => 'boolean',
-            'price_text' => 'nullable|string|max:100',
             'rent_per_week' => 'nullable|numeric|min:0',
-            'bond_amount' => 'nullable|numeric|min:0',
-            'available_from' => 'nullable|date',
+            'bond_weeks' => 'nullable|integer|min:1|max:52',
             'headline' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'features' => 'nullable|array',
-            'listing_agent_id' => 'nullable|exists:agents,id',
-            'property_manager_id' => 'nullable|exists:agents,id',
-            'status' => 'required|in:draft,active,under_contract,sold,leased,withdrawn,off_market,expired',
-            'is_featured' => 'boolean',
+            'custom_features' => 'nullable|string',
+            'available_from' => 'nullable|date',
+            'status' => 'required|in:draft,active',
+            'floorplan' => 'nullable|image|mimes:jpeg,jpg,png,pdf|max:5120',
+            'images.*' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            'agents' => 'nullable|array',
+            'agents.*' => 'exists:agents,id',
         ]);
-        
-        try {
-            $property->update($validated);
-            
-            return redirect()
-                ->route('agency.properties.show', $property->id)
-                ->with('success', 'Property updated successfully!');
-                
-        } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Failed to update property. Please try again.');
+
+        // Update full address
+        $addressParts = array_filter([
+            $validated['unit_number'] ?? null,
+            $validated['street_number'] ?? null,
+            $validated['street_name'],
+            $validated['street_type'] ?? null,
+            $validated['suburb'],
+            $validated['state'],
+            $validated['postcode'],
+        ]);
+        $validated['full_address'] = implode(' ', $addressParts);
+
+        // Merge custom features
+        if (!empty($validated['custom_features'])) {
+            $customFeatures = array_map('trim', explode(',', $validated['custom_features']));
+            $validated['features'] = array_merge($validated['features'] ?? [], $customFeatures);
         }
+
+        // Update property
+        $property->update($validated);
+
+        // Handle floorplan upload
+        if ($request->hasFile('floorplan')) {
+            // Delete old floorplan
+            if ($property->floorplan_path) {
+                Storage::disk('public')->delete($property->floorplan_path);
+            }
+            
+            $path = $request->file('floorplan')->store('properties/floorplans', 'public');
+            $property->update(['floorplan_path' => $path]);
+        }
+
+        // Handle new property images
+        if ($request->hasFile('images')) {
+            $currentMaxOrder = $property->images()->max('sort_order') ?? -1;
+            
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('properties/images', 'public');
+                
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'file_path' => $path,
+                    'file_name' => $image->getClientOriginalName(),
+                    'file_type' => $image->getMimeType(),
+                    'file_size' => $image->getSize(),
+                    'sort_order' => $currentMaxOrder + $index + 1,
+                    'is_featured' => false,
+                ]);
+            }
+        }
+
+        // Update agents
+        if ($request->has('agents')) {
+            $property->agents()->detach();
+            foreach ($validated['agents'] as $index => $agentId) {
+                $property->agents()->attach($agentId, [
+                    'role' => $index === 0 ? 'listing_agent' : 'co_agent',
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
+        return redirect()->route('agency.properties.show', $property)
+            ->with('success', 'Property updated successfully!');
     }
 
     /**
-     * Delete property
+     * Remove the specified property.
      */
     public function destroy(Property $property)
     {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
+        // $this->authorize('delete', $property);
+
+        // Delete floorplan
+        if ($property->floorplan_path) {
+            Storage::disk('public')->delete($property->floorplan_path);
         }
-        
-        try {
-            // Delete all images
-            foreach ($property->images as $image) {
-                Storage::disk('public')->delete($image->file_path);
-                $image->delete();
-            }
-            
-            $address = $property->full_address;
-            $property->delete();
-            
-            return redirect()
-                ->route('agency.properties.index')
-                ->with('success', "Property {$address} has been deleted.");
-                
-        } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete property. Please try again.');
+
+        // Delete images
+        foreach ($property->images as $image) {
+            Storage::disk('public')->delete($image->file_path);
         }
+
+        $property->delete();
+
+        return redirect()->route('agency.properties.index')
+            ->with('success', 'Property deleted successfully!');
     }
 
     /**
-     * Publish property
-     */
-    public function publish(Property $property)
-    {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
-        $property->publish();
-        
-        return back()->with('success', 'Property published successfully!');
-    }
-
-    /**
-     * Unpublish property
-     */
-    public function unpublish(Property $property)
-    {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
-        $property->unpublish();
-        
-        return back()->with('success', 'Property unpublished.');
-    }
-
-    /**
-     * Mark as sold
-     */
-    public function markAsSold(Request $request, Property $property)
-    {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
-        $request->validate([
-            'sale_price' => 'nullable|numeric|min:0',
-            'sale_date' => 'nullable|date',
-        ]);
-        
-        $property->markAsSold($request->sale_price, $request->sale_date);
-        
-        return back()->with('success', 'Property marked as sold!');
-    }
-
-    /**
-     * Toggle featured status
-     */
-    public function toggleFeatured(Property $property)
-    {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
-        $property->update(['is_featured' => !$property->is_featured]);
-        
-        return back()->with('success', 'Featured status updated.');
-    }
-
-    /**
-     * Upload property images
-     */
-    public function uploadImages(Request $request, Property $property)
-    {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id) {
-            abort(403);
-        }
-        
-        $request->validate([
-            'images' => 'required|array|max:20',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120', // 5MB
-        ]);
-        
-        $uploadedCount = 0;
-        
-        foreach ($request->file('images') as $file) {
-            $path = $file->store('properties/' . $property->id, 'public');
-            
-            // Get image dimensions
-            $dimensions = getimagesize($file->getRealPath());
-            
-            PropertyImage::create([
-                'property_id' => $property->id,
-                'file_path' => $path,
-                'file_name' => $file->getClientOriginalName(),
-                'file_type' => $file->getClientMimeType(),
-                'file_size' => $file->getSize(),
-                'width' => $dimensions[0] ?? null,
-                'height' => $dimensions[1] ?? null,
-                'sort_order' => $property->images()->count(),
-                'is_featured' => $property->images()->count() === 0, // First image is featured
-            ]);
-            
-            $uploadedCount++;
-        }
-        
-        return back()->with('success', "{$uploadedCount} images uploaded successfully!");
-    }
-
-    /**
-     * Delete property image
+     * Delete a property image.
      */
     public function deleteImage(Property $property, PropertyImage $image)
     {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id || $image->property_id !== $property->id) {
+        // $this->authorize('update', $property);
+
+        if ($image->property_id !== $property->id) {
             abort(403);
         }
-        
+
         Storage::disk('public')->delete($image->file_path);
         $image->delete();
-        
-        return back()->with('success', 'Image deleted successfully.');
+
+        return response()->json(['success' => true]);
     }
 
     /**
-     * Set featured image
+     * Set featured image.
      */
     public function setFeaturedImage(Property $property, PropertyImage $image)
     {
-        $agency = Auth::user()->agency;
-        
-        if ($property->agency_id !== $agency->id || $image->property_id !== $property->id) {
+        // $this->authorize('update', $property);
+
+        if ($image->property_id !== $property->id) {
             abort(403);
         }
-        
+
         // Remove featured from all images
-        PropertyImage::where('property_id', $property->id)->update(['is_featured' => false]);
+        $property->images()->update(['is_featured' => false]);
         
-        // Set this image as featured
+        // Set this as featured
         $image->update(['is_featured' => true]);
-        
-        return back()->with('success', 'Featured image updated.');
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Upload additional images to existing property.
+     */
+    public function uploadImages(Request $request, Property $property)
+    {
+        // $this->authorize('update', $property);
+
+        $request->validate([
+            'images.*' => 'required|image|mimes:jpeg,jpg,png|max:5120',
+        ]);
+
+        if ($request->hasFile('images')) {
+            $currentMaxOrder = $property->images()->max('sort_order') ?? -1;
+            
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('properties/images', 'public');
+                
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'file_path' => $path,
+                    'file_name' => $image->getClientOriginalName(),
+                    'file_type' => $image->getMimeType(),
+                    'file_size' => $image->getSize(),
+                    'sort_order' => $currentMaxOrder + $index + 1,
+                    'is_featured' => false,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Images uploaded successfully!',
+        ]);
+    }
+
+    /**
+     * Publish property.
+     */
+    public function publish(Property $property)
+    {
+        // $this->authorize('update', $property);
+
+        $property->publish();
+
+        return redirect()->back()
+            ->with('success', 'Property published successfully!');
+    }
+
+    /**
+     * Unpublish property.
+     */
+    public function unpublish(Property $property)
+    {
+        // $this->authorize('update', $property);
+
+        $property->unpublish();
+
+        return redirect()->back()
+            ->with('success', 'Property unpublished successfully!');
+    }
+
+    /**
+     * Mark property as sold.
+     */
+    public function markAsSold(Property $property)
+    {
+        // $this->authorize('update', $property);
+
+        $property->update([
+            'status' => 'sold',
+            'sold_at' => now(),
+            'is_published' => false,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Property marked as sold!');
+    }
+
+    /**
+     * Toggle featured status.
+     */
+    public function toggleFeatured(Property $property)
+    {
+        // $this->authorize('update', $property);
+
+        $property->update([
+            'is_featured' => !$property->is_featured,
+        ]);
+
+        $message = $property->is_featured 
+            ? 'Property marked as featured!' 
+            : 'Property removed from featured!';
+
+        return redirect()->back()
+            ->with('success', $message);
     }
 }

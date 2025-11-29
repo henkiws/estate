@@ -172,16 +172,24 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             Route::patch('/{property}', [App\Http\Controllers\Agency\PropertyController::class, 'update'])->name('update');
             Route::delete('/{property}', [App\Http\Controllers\Agency\PropertyController::class, 'destroy'])->name('destroy');
             
-            // Actions
+            // Actions ✅
             Route::post('/{property}/publish', [App\Http\Controllers\Agency\PropertyController::class, 'publish'])->name('publish');
             Route::post('/{property}/unpublish', [App\Http\Controllers\Agency\PropertyController::class, 'unpublish'])->name('unpublish');
             Route::post('/{property}/mark-sold', [App\Http\Controllers\Agency\PropertyController::class, 'markAsSold'])->name('mark-sold');
             Route::post('/{property}/toggle-featured', [App\Http\Controllers\Agency\PropertyController::class, 'toggleFeatured'])->name('toggle-featured');
             
-            // Images
+            // Images ✅
             Route::post('/{property}/images', [App\Http\Controllers\Agency\PropertyController::class, 'uploadImages'])->name('upload-images');
             Route::delete('/{property}/images/{image}', [App\Http\Controllers\Agency\PropertyController::class, 'deleteImage'])->name('delete-image');
             Route::post('/{property}/images/{image}/featured', [App\Http\Controllers\Agency\PropertyController::class, 'setFeaturedImage'])->name('set-featured-image');
+        });
+
+        Route::prefix('applications')->name('applications.')->group(function () {
+            Route::get('/', [ApplicationController::class, 'index'])->name('index');
+            Route::get('/{application}', [ApplicationController::class, 'show'])->name('show');
+            Route::post('/{application}/approve', [ApplicationController::class, 'approve'])->name('approve');
+            Route::post('/{application}/reject', [ApplicationController::class, 'reject'])->name('reject');
+            Route::delete('/{application}', [ApplicationController::class, 'destroy'])->name('destroy');
         });
     });
 });
@@ -333,5 +341,11 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 // Stripe Webhook (No CSRF protection)
 // ============================================
 Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
+
+// Public Property Page
+Route::get('/properties/{code}', [PublicPropertyController::class, 'show'])->name('property.show');
+
+// Submit Application
+Route::post('/properties/{code}/apply', [PublicPropertyController::class, 'submitApplication'])->name('property.apply');
 
 require __DIR__.'/auth.php';
