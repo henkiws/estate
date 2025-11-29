@@ -76,6 +76,9 @@ class Property extends Model
         'is_published',
         'published_at',
         'metadata',
+        'featured',
+        'verified',
+        'admin_notes',
     ];
 
     protected $casts = [
@@ -106,6 +109,8 @@ class Property extends Model
         'leased_at' => 'date',
         'sale_date' => 'date',
         'published_at' => 'datetime',
+        'featured' => 'boolean',
+        'verified' => 'boolean',
     ];
 
     protected $appends = [

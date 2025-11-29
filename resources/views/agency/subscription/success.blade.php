@@ -1,9 +1,13 @@
-@extends('layouts.admin')
-
-@section('title', 'Subscription Successful')
-
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Successful</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50">
+<div class="min-h-screen flex items-center justify-center p-4">
     <div class="max-w-2xl w-full">
         <!-- Success Card -->
         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center animate-fadeIn">
@@ -140,4 +144,5 @@
         animation: fadeIn 0.6s ease-out;
     }
 </style>
-@endsection
+</body>
+</html>

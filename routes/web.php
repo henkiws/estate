@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\AgencyController as AdminAgencyController;
 use App\Http\Controllers\Agency\DashboardController as AgencyDashboardController;
 use App\Http\Controllers\Agency\OnboardingController;
 use App\Http\Controllers\Agency\SubscriptionController;
+use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
@@ -215,6 +218,57 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/api/pending-count', [AdminAgencyController::class, 'getPendingCount'])
             ->name('api.pending-count');
     });
+
+    // Properties Management
+    Route::prefix('properties')->name('properties.')->group(function () {
+        Route::get('/', [PropertyController::class, 'index'])->name('index');
+        Route::get('/statistics', [PropertyController::class, 'statistics'])->name('statistics');
+        Route::get('/export', [PropertyController::class, 'export'])->name('export');
+        Route::get('/{property}', [PropertyController::class, 'show'])->name('show');
+        Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
+        Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
+        Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
+        
+        // Property Actions
+        Route::post('/{property}/toggle-featured', [PropertyController::class, 'toggleFeatured'])->name('toggle-featured');
+        Route::post('/{property}/toggle-verified', [PropertyController::class, 'toggleVerified'])->name('toggle-verified');
+        Route::post('/bulk-update', [PropertyController::class, 'bulkUpdate'])->name('bulk-update');
+    });
+
+    // User Management
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/statistics', [UserController::class, 'statistics'])->name('statistics');
+        Route::get('/export', [UserController::class, 'export'])->name('export');
+        Route::get('/{user}', [UserController::class, 'show'])->name('show');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+        
+        // User Actions
+        Route::post('/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('toggle-admin');
+        Route::post('/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('verify-email');
+        Route::post('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/bulk-update', [UserController::class, 'bulkUpdate'])->name('bulk-update');
+    });
+
+    // Payment Management
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [PaymentController::class, 'index'])->name('index');
+        Route::get('/statistics', [PaymentController::class, 'statistics'])->name('statistics');
+        Route::get('/export', [PaymentController::class, 'export'])->name('export');
+        Route::get('/subscriptions', [PaymentController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/failed', [PaymentController::class, 'failedPayments'])->name('failed');
+        Route::get('/refunds', [PaymentController::class, 'refunds'])->name('refunds');
+        Route::get('/{transaction}', [PaymentController::class, 'show'])->name('show');
+        
+        // Payment Actions
+        Route::post('/{transaction}/refund', [PaymentController::class, 'processRefund'])->name('process-refund');
+        Route::post('/{transaction}/retry', [PaymentController::class, 'retryPayment'])->name('retry');
+        Route::post('/subscriptions/{subscription}/cancel', [PaymentController::class, 'cancelSubscription'])->name('cancel-subscription');
+    });
     
     // Subscription Plans Management (for future)
     Route::prefix('subscription-plans')->name('subscription-plans.')->group(function () {
@@ -239,7 +293,6 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 // ============================================
 // Stripe Webhook (No CSRF protection)
 // ============================================
-// Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 
 require __DIR__.'/auth.php';
