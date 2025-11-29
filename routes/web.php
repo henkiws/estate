@@ -9,6 +9,8 @@ use App\Http\Controllers\Agency\SubscriptionController;
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
@@ -268,6 +270,43 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::post('/{transaction}/refund', [PaymentController::class, 'processRefund'])->name('process-refund');
         Route::post('/{transaction}/retry', [PaymentController::class, 'retryPayment'])->name('retry');
         Route::post('/subscriptions/{subscription}/cancel', [PaymentController::class, 'cancelSubscription'])->name('cancel-subscription');
+    });
+
+    // Reports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/overview', [ReportController::class, 'overview'])->name('overview');
+        Route::get('/agencies', [ReportController::class, 'agencies'])->name('agencies');
+        Route::get('/properties', [ReportController::class, 'properties'])->name('properties');
+        Route::get('/users', [ReportController::class, 'users'])->name('users');
+        Route::get('/revenue', [ReportController::class, 'revenue'])->name('revenue');
+        Route::get('/export', [ReportController::class, 'export'])->name('export');
+    });
+
+    // Profile routes
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [AdminProfileController::class, 'show'])->name('show');
+        Route::get('/edit', [AdminProfileController::class, 'edit'])->name('edit');
+        Route::put('/update', [AdminProfileController::class, 'update'])->name('update');
+        
+        // Password
+        Route::put('/password', [AdminProfileController::class, 'updatePassword'])->name('password.update');
+        
+        // Avatar
+        Route::post('/avatar', [AdminProfileController::class, 'updateAvatar'])->name('avatar.update');
+        Route::delete('/avatar', [AdminProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+        
+        // Settings
+        Route::get('/settings', [AdminProfileController::class, 'settings'])->name('settings');
+        Route::put('/settings', [AdminProfileController::class, 'updateSettings'])->name('settings.update');
+        
+        // Security
+        Route::get('/security', [AdminProfileController::class, 'security'])->name('security');
+        Route::post('/security/2fa/enable', [AdminProfileController::class, 'enableTwoFactor'])->name('security.2fa.enable');
+        Route::post('/security/2fa/disable', [AdminProfileController::class, 'disableTwoFactor'])->name('security.2fa.disable');
+        
+        // Activity
+        Route::get('/activity', [AdminProfileController::class, 'activity'])->name('activity');
     });
     
     // Subscription Plans Management (for future)

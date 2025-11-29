@@ -133,7 +133,7 @@ class PaymentController extends Controller
             ->get();
 
         // Revenue by plan
-        $revenueByPlan = Transaction::where('status', 'completed')
+        $revenueByPlan = Transaction::where('transactions.status', 'completed')
             ->join('subscriptions', 'transactions.subscription_id', '=', 'subscriptions.id')
             ->join('subscription_plans', 'subscriptions.subscription_plan_id', '=', 'subscription_plans.id')
             ->selectRaw('subscription_plans.name, SUM(transactions.amount) as revenue, COUNT(transactions.id) as count')
