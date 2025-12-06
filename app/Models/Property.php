@@ -120,6 +120,14 @@ class Property extends Model
         'sale_price' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'full_address',
+        'short_address',
+        'display_price',
+        'is_active',
+        'public_url',  // ← ADD THIS LINE
+    ];
+
     /**
      * Boot the model.
      */
@@ -267,9 +275,34 @@ class Property extends Model
 
     public function getPublicUrlAttribute()
     {
-        return route('agency.properties.show', $this->public_url_code);
+        // Use property_code for SEO-friendly public URLs
+        return route('properties.show', $this->property_code);
     }
 
+    /**
+     * Increment view count
+     */
+    public function incrementViews()
+    {
+        $this->increment('view_count');
+    }
+
+    /**
+     * Increment enquiry count
+     */
+    public function incrementEnquiries()
+    {
+        $this->increment('enquiry_count');
+    }
+
+    /**
+     * Increment inspection count
+     */
+    public function incrementInspections()
+    {
+        $this->increment('inspection_count');
+    }
+    
     public function getBedroomsBathroomsTextAttribute()
     {
         $parts = [];

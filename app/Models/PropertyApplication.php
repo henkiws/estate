@@ -12,64 +12,35 @@ class PropertyApplication extends Model
     protected $fillable = [
         'property_id',
         'agency_id',
-        
-        // Applicant info
-        'full_name',
+        'first_name',
+        'last_name',
         'email',
         'phone',
+        'move_in_date',
         'current_address',
-        'city',
-        'state',
-        'postcode',
-        
-        // Employment
         'employment_status',
         'employer_name',
-        'job_title',
         'annual_income',
-        'employment_length_months',
-        
-        // References
-        'reference_1_name',
-        'reference_1_phone',
-        'reference_1_relationship',
-        'reference_2_name',
-        'reference_2_phone',
-        'reference_2_relationship',
-        
-        // Additional
         'number_of_occupants',
         'has_pets',
         'pet_details',
-        'preferred_move_in_date',
-        'additional_notes',
-        
-        // Documents
-        'id_document_path',
-        'income_proof_path',
-        'reference_letter_path',
-        
-        // Status
+        'references',
+        'additional_information',
         'status',
-        'agency_notes',
         'reviewed_at',
         'reviewed_by',
-        
-        // Tracking
-        'ip_address',
-        'user_agent',
+        'rejection_reason',
     ];
 
     protected $casts = [
+        'move_in_date' => 'date',
         'annual_income' => 'decimal:2',
         'has_pets' => 'boolean',
-        'preferred_move_in_date' => 'date',
+        'references' => 'array',
         'reviewed_at' => 'datetime',
     ];
 
-    /**
-     * Relationships
-     */
+    // Relationships
     public function property()
     {
         return $this->belongsTo(Property::class);
@@ -85,9 +56,40 @@ class PropertyApplication extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    // Accessors
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function getStatusBadgeAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'reviewing' => 'bg-blue-100 text-blue-800',
+            'approved' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
+    }
+
     /**
-     * Scopes
+     * Property applications (for rental properties)
      */
+    public function applications()
+    {
+        return $this->hasMany(PropertyApplication::class);
+    }
+
+    /**
+     * Pending applications
+     */
+    public function pendingApplications()
+    {
+        return $this->hasMany(PropertyApplication::class)->where('status', 'pending');
+    }
+
+    // Scopes
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -101,42 +103,5 @@ class PropertyApplication extends Model
     public function scopeRejected($query)
     {
         return $query->where('status', 'rejected');
-    }
-
-    /**
-     * Accessors
-     */
-    public function getStatusBadgeColorAttribute()
-    {
-        return match($this->status) {
-            'pending' => 'yellow',
-            'reviewing' => 'blue',
-            'approved' => 'green',
-            'rejected' => 'red',
-            'withdrawn' => 'gray',
-            default => 'gray',
-        };
-    }
-
-    /**
-     * Methods
-     */
-    public function approve($userId)
-    {
-        $this->update([
-            'status' => 'approved',
-            'reviewed_at' => now(),
-            'reviewed_by' => $userId,
-        ]);
-    }
-
-    public function reject($userId, $notes = null)
-    {
-        $this->update([
-            'status' => 'rejected',
-            'reviewed_at' => now(),
-            'reviewed_by' => $userId,
-            'agency_notes' => $notes,
-        ]);
     }
 }

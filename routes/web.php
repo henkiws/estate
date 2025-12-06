@@ -342,10 +342,22 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 // ============================================
 Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 
-// Public Property Page
-Route::get('/properties/{code}', [PublicPropertyController::class, 'show'])->name('property.show');
-
-// Submit Application
-Route::post('/properties/{code}/apply', [PublicPropertyController::class, 'submitApplication'])->name('property.apply');
+// Public Property Listing & Details
+Route::prefix('properties')->name('properties.')->group(function () {
+    // Property listing page
+    Route::get('/', [App\Http\Controllers\PublicPropertyController::class, 'index'])->name('index');
+    
+    // Single property page (using property_code or slug)
+    Route::get('/{code}', [App\Http\Controllers\PublicPropertyController::class, 'show'])->name('show');
+    
+    // Submit rental application
+    Route::post('/{code}/apply', [App\Http\Controllers\PublicPropertyController::class, 'submitApplication'])->name('apply');
+    
+    // Submit enquiry
+    Route::post('/{code}/enquiry', [App\Http\Controllers\PublicPropertyController::class, 'submitEnquiry'])->name('enquiry');
+    
+    // Book inspection
+    Route::post('/{code}/inspection', [App\Http\Controllers\PublicPropertyController::class, 'bookInspection'])->name('inspection');
+});
 
 require __DIR__.'/auth.php';
