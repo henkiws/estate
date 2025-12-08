@@ -338,6 +338,57 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 });
 
 // ============================================
+// Property Actions (Require Auth)
+// ============================================
+Route::middleware(['auth'])->group(function () {
+    // Enquiries (requires login)
+    Route::post('/properties/{code}/enquiry', [PublicPropertyController::class, 'submitEnquiry'])
+        ->name('properties.enquiry');
+    
+    // Save/Unsave property (requires login + user role)
+    Route::post('/properties/{code}/toggle-save', [SavedPropertyController::class, 'toggle'])
+        ->name('properties.toggle-save')
+        ->middleware('role:user');
+});
+
+// ============================================
+// User Dashboard Routes (Protected - User Role Only)
+// ============================================
+Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+    
+    // Dashboard Overview
+    Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])
+        ->name('dashboard');
+    
+    // Saved Properties (Favorites)
+    Route::get('/saved-properties', [App\Http\Controllers\User\SavedPropertyController::class, 'index'])
+        ->name('saved-properties');
+    
+    Route::delete('/saved-properties/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'destroy'])
+        ->name('saved-properties.destroy');
+    
+    // Applications (Rentals)
+    Route::get('/applications', [App\Http\Controllers\User\ApplicationController::class, 'index'])
+        ->name('applications');
+    
+    Route::get('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'create'])
+        ->name('apply');
+    
+    Route::post('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'store'])
+        ->name('apply.store');
+    
+    Route::get('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'show'])
+        ->name('applications.show');
+    
+    Route::post('/applications/{application}/withdraw', [App\Http\Controllers\User\ApplicationController::class, 'withdraw'])
+        ->name('applications.withdraw');
+    
+    // Enquiries
+    Route::get('/enquiries', [App\Http\Controllers\User\EnquiryController::class, 'index'])
+        ->name('enquiries');
+});
+
+// ============================================
 // Stripe Webhook (No CSRF protection)
 // ============================================
 Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');

@@ -219,11 +219,6 @@ class Property extends Model
         return $this->hasOne(PropertyImage::class)->where('is_featured', true);
     }
 
-    public function applications()
-    {
-        return $this->hasMany(PropertyApplication::class);
-    }
-
     /**
      * Scopes
      */
@@ -346,5 +341,150 @@ class Property extends Model
             'is_published' => false,
             'status' => 'draft',
         ]);
+    }
+
+    /**
+     * Get full formatted address
+     */
+    public function getFullAddressAttribute()
+    {
+        $parts = array_filter([
+            $this->unit_number ? "Unit {$this->unit_number}," : null,
+            $this->street_number ?? null,
+            $this->street_name ?? null,
+            $this->street_type ?? null,
+            $this->suburb ?? null,
+            $this->state ?? null,
+            $this->postcode ?? null,
+        ]);
+
+        return !empty($parts) ? implode(' ', $parts) : 'Address not set';
+    }
+
+    /**
+     * Get short address (street and suburb only)
+     */
+    public function getShortAddressAttribute()
+    {
+        $parts = array_filter([
+            $this->street_number ?? null,
+            $this->street_name ?? null,
+            $this->suburb ?? null,
+        ]);
+
+        return !empty($parts) ? implode(' ', $parts) : 'Address not set';
+    }
+
+    /**
+     * Get formatted display price
+     */
+    public function getDisplayPriceAttribute()
+    {
+        // If price display is disabled, show price text or default
+        if (!$this->price_display) {
+            return $this->price_text ?? 'Contact Agent';
+        }
+
+        // Handle rental properties
+        if ($this->listing_type === 'rent') {
+            if ($this->rent_per_week && $this->rent_per_week > 0) {
+                return '$' . number_format($this->rent_per_week, 0) . ' per week';
+            }
+            if ($this->rent_per_month && $this->rent_per_month > 0) {
+                return '$' . number_format($this->rent_per_month, 0) . ' per month';
+            }
+            return $this->price_text ?? 'Contact Agent';
+        }
+
+        // Handle price ranges
+        if ($this->price_min && $this->price_max && $this->price_min > 0 && $this->price_max > 0) {
+            return '$' . number_format($this->price_min, 0) . ' - $' . number_format($this->price_max, 0);
+        }
+
+        // Handle single price
+        if ($this->price && $this->price > 0) {
+            return '$' . number_format($this->price, 0);
+        }
+
+        // Fallback to price text or POA
+        return $this->price_text ?? 'POA';
+    }
+
+    /**
+     * Check if property is active
+     */
+    public function getIsActiveAttribute()
+    {
+        // Add null check for status
+        if (!$this->status) {
+            return false;
+        }
+        
+        return in_array($this->status, ['active', 'under_contract']);
+    }
+
+    /**
+     * Get featured image URL
+     */
+    public function getFeaturedImageUrlAttribute()
+    {
+        // Check if featuredImage relationship is loaded and exists
+        if ($this->relationLoaded('featuredImage') && $this->featuredImage) {
+            return \Storage::disk('public')->url($this->featuredImage->file_path);
+        }
+
+        // Fallback: Check for any image
+        if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
+            return \Storage::disk('public')->url($this->images->first()->file_path);
+        }
+
+        // Default property placeholder
+        $addressText = $this->short_address !== 'Address not set' 
+            ? $this->short_address 
+            : 'Property';
+            
+        return "https://ui-avatars.com/api/?name=" . urlencode($addressText) . 
+            "&size=800&background=4F46E5&color=fff&bold=true";
+    }
+
+    /**
+     * Get users who saved this property
+     */
+    public function savedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'saved_properties')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get applications for this property
+     */
+    public function applications()
+    {
+        return $this->hasMany(PropertyApplication::class);
+    }
+
+    /**
+     * Get enquiries for this property
+     */
+    public function enquiries()
+    {
+        return $this->hasMany(PropertyEnquiry::class);
+    }
+
+    /**
+     * Check if property is saved by a specific user
+     */
+    public function isSavedBy($userId)
+    {
+        return $this->savedByUsers()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Get count of users who saved this property
+     */
+    public function getSavedCountAttribute()
+    {
+        return $this->savedByUsers()->count();
     }
 }

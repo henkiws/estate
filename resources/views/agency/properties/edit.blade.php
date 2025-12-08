@@ -1,4 +1,4 @@
-@extends('layouts.agency')
+@extends('layouts.admin')
 
 @section('title', 'Edit Property')
 

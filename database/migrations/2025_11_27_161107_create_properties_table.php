@@ -121,6 +121,12 @@ return new class extends Migration
             $table->string('strata_fees')->nullable();
             $table->string('water_rates')->nullable();
             $table->string('zoning')->nullable();
+
+            $table->integer('land_size')->default(0)->nullable();
+            $table->string('land_size_unit')->nullable();
+            $table->integer('building_size')->default(0)->nullable();
+            $table->string('building_size_unit')->nullable();
+            $table->text('full_address')->nullable();
             
             // SEO & Publishing
             $table->string('slug')->unique();

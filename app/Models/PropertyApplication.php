@@ -4,104 +4,167 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PropertyApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'property_id',
         'agency_id',
+        'status',
         'first_name',
         'last_name',
         'email',
         'phone',
-        'move_in_date',
+        'date_of_birth',
         'current_address',
-        'employment_status',
-        'employer_name',
-        'annual_income',
+        'move_in_date',
         'number_of_occupants',
         'has_pets',
         'pet_details',
+        'employment_status',
+        'employer_name',
+        'job_title',
+        'annual_income',
         'references',
         'additional_information',
-        'status',
+        'documents',
+        'agency_notes',
+        'submitted_at',
         'reviewed_at',
-        'reviewed_by',
-        'rejection_reason',
     ];
 
     protected $casts = [
+        'date_of_birth' => 'date',
         'move_in_date' => 'date',
-        'annual_income' => 'decimal:2',
         'has_pets' => 'boolean',
+        'annual_income' => 'decimal:2',
         'references' => 'array',
+        'documents' => 'array',
+        'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    // Relationships
+    /**
+     * Get the user who submitted the application
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the property for this application
+     */
     public function property()
     {
         return $this->belongsTo(Property::class);
     }
 
+    /**
+     * Get the agency that manages this property
+     */
     public function agency()
     {
         return $this->belongsTo(Agency::class);
     }
 
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
-    }
-
-    // Accessors
+    /**
+     * Get full name of applicant
+     */
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
     }
 
-    public function getStatusBadgeAttribute()
+    /**
+     * Get status badge color
+     */
+    public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'pending' => 'bg-yellow-100 text-yellow-800',
-            'reviewing' => 'bg-blue-100 text-blue-800',
-            'approved' => 'bg-green-100 text-green-800',
-            'rejected' => 'bg-red-100 text-red-800',
-            default => 'bg-gray-100 text-gray-800',
+            'pending' => 'yellow',
+            'approved' => 'green',
+            'rejected' => 'red',
+            'withdrawn' => 'gray',
+            default => 'gray',
         };
     }
 
     /**
-     * Property applications (for rental properties)
+     * Get status label
      */
-    public function applications()
+    public function getStatusLabelAttribute()
     {
-        return $this->hasMany(PropertyApplication::class);
+        return match($this->status) {
+            'pending' => 'Pending Review',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            'withdrawn' => 'Withdrawn',
+            default => 'Unknown',
+        };
     }
 
     /**
-     * Pending applications
+     * Scope to get pending applications
      */
-    public function pendingApplications()
-    {
-        return $this->hasMany(PropertyApplication::class)->where('status', 'pending');
-    }
-
-    // Scopes
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
     }
 
-    public function scopeApproved($query)
+    /**
+     * Scope to get applications for a specific agency
+     */
+    public function scopeForAgency($query, $agencyId)
     {
-        return $query->where('status', 'approved');
+        return $query->where('agency_id', $agencyId);
     }
 
-    public function scopeRejected($query)
+    /**
+     * Scope to get applications for a specific user
+     */
+    public function scopeForUser($query, $userId)
     {
-        return $query->where('status', 'rejected');
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Mark application as approved
+     */
+    public function approve($notes = null)
+    {
+        $this->update([
+            'status' => 'approved',
+            'reviewed_at' => now(),
+            'agency_notes' => $notes,
+        ]);
+    }
+
+    /**
+     * Mark application as rejected
+     */
+    public function reject($notes = null)
+    {
+        $this->update([
+            'status' => 'rejected',
+            'reviewed_at' => now(),
+            'agency_notes' => $notes,
+        ]);
+    }
+
+    /**
+     * Mark application as withdrawn
+     */
+    public function withdraw()
+    {
+        $this->update([
+            'status' => 'withdrawn',
+        ]);
     }
 }

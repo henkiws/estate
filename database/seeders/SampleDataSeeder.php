@@ -15,6 +15,7 @@ use App\Models\Property;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class SampleDataSeeder extends Seeder
 {
@@ -23,10 +24,41 @@ class SampleDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure roles exist
+        // ============================================
+        // ENSURE ALL ROLES EXIST
+        // ============================================
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $agencyRole = Role::firstOrCreate(['name' => 'agency']);
         $agentRole = Role::firstOrCreate(['name' => 'agent']);
+        $userRole = Role::firstOrCreate(['name' => 'user']); // NEW USER ROLE
+        
+        // Create user role permissions if not exist
+        $userPermissions = [
+            'view published properties',
+            'save properties',
+            'submit applications',
+            'submit enquiries',
+            'view own applications',
+            'view own enquiries',
+            'view own saved properties',
+        ];
+
+        foreach ($userPermissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        // Assign permissions to user role
+        $userRole->syncPermissions([
+            'view published properties',
+            'save properties',
+            'submit applications',
+            'submit enquiries',
+            'view own applications',
+            'view own enquiries',
+            'view own saved properties',
+        ]);
+        
+        $this->command->info('✅ All roles created (admin, agency, agent, user)');
 
         // ============================================
         // 1. CREATE ADMIN USER
@@ -44,7 +76,12 @@ class SampleDataSeeder extends Seeder
         $this->command->info('✅ Admin created: admin@sorted.com / password');
 
         // ============================================
-        // 2. CREATE AGENCIES WITH DIFFERENT STATUSES
+        // 2. CREATE SAMPLE PUBLIC USERS (NEW)
+        // ============================================
+        $this->createPublicUsers();
+
+        // ============================================
+        // 3. CREATE AGENCIES WITH DIFFERENT STATUSES
         // ============================================
         $agencies = [
             // STATUS: Active + Subscribed (Fully operational)
@@ -356,6 +393,46 @@ class SampleDataSeeder extends Seeder
     }
     
     /**
+     * Create sample public users with user role
+     */
+    private function createPublicUsers()
+    {
+        $publicUsers = [
+            [
+                'name' => 'Test User',
+                'email' => 'user@test.com',
+                'phone' => '0412345001',
+            ],
+            [
+                'name' => 'Jane Smith',
+                'email' => 'jane.smith@email.com',
+                'phone' => '0412345002',
+            ],
+            [
+                'name' => 'Bob Johnson',
+                'email' => 'bob.johnson@email.com',
+                'phone' => '0412345003',
+            ],
+        ];
+        
+        foreach ($publicUsers as $userData) {
+            $user = User::create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'password' => Hash::make('password'),
+                'phone' => $userData['phone'],
+                'email_verified_at' => now(),
+            ]);
+            
+            $user->assignRole('user');
+            
+            $this->command->info("👤 Public User: {$userData['name']} ({$userData['email']} / password)");
+        }
+        
+        $this->command->info('');
+    }
+    
+    /**
      * Create document requirements for agency
      */
     private function createDocumentRequirements(Agency $agency, $documentsUploaded)
@@ -532,6 +609,11 @@ class SampleDataSeeder extends Seeder
         $this->command->info('   Email: admin@sorted.com');
         $this->command->info('   Password: password');
         $this->command->info('');
+        $this->command->info('👥 PUBLIC USERS (Role: user):');
+        $this->command->info('   user@test.com / password');
+        $this->command->info('   jane.smith@email.com / password');
+        $this->command->info('   bob.johnson@email.com / password');
+        $this->command->info('');
         $this->command->info('🏢 AGENCIES (All passwords: password)');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('✅ ACTIVE + SUBSCRIBED:');
@@ -565,12 +647,18 @@ class SampleDataSeeder extends Seeder
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('');
         $this->command->info('🎯 TESTING FLOW:');
-        $this->command->info('1. jessica@ - Test email verification');
-        $this->command->info('2. emma@ - Test Step 2 onboarding (upload documents)');
-        $this->command->info('3. david@ - Test Step 2 with partial upload');
-        $this->command->info('4. michael@ - Test pending review status');
-        $this->command->info('5. sarah@ - Test approved status (subscription page)');
-        $this->command->info('6. john@ - Test full active agency with dashboard');
+        $this->command->info('PUBLIC USERS (Test save, enquiry, applications):');
+        $this->command->info('1. user@test.com - Test property browsing, save, enquiry');
+        $this->command->info('2. jane.smith@email.com - Test rental applications');
+        $this->command->info('3. bob.johnson@email.com - Test user dashboard');
+        $this->command->info('');
+        $this->command->info('AGENCIES:');
+        $this->command->info('4. jessica@ - Test email verification');
+        $this->command->info('5. emma@ - Test Step 2 onboarding (upload documents)');
+        $this->command->info('6. david@ - Test Step 2 with partial upload');
+        $this->command->info('7. michael@ - Test pending review status');
+        $this->command->info('8. sarah@ - Test approved status (subscription page)');
+        $this->command->info('9. john@ - Test full active agency with dashboard');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 

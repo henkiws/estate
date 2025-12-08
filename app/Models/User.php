@@ -126,4 +126,51 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->phone ? preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2 $3', $this->phone) : null;
     }
+
+    /**
+     * Get properties saved by this user
+     */
+    public function savedProperties()
+    {
+        return $this->belongsToMany(Property::class, 'saved_properties')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get property applications submitted by this user
+     */
+    public function propertyApplications()
+    {
+        return $this->hasMany(PropertyApplication::class);
+    }
+
+    /**
+     * Get enquiries made by this user
+     */
+    public function propertyEnquiries()
+    {
+        return $this->hasMany(PropertyEnquiry::class);
+    }
+
+    /**
+     * Check if user has saved a property
+     */
+    public function hasSavedProperty($propertyId)
+    {
+        return $this->savedProperties()->where('property_id', $propertyId)->exists();
+    }
+
+    /**
+     * Toggle save property
+     */
+    public function toggleSaveProperty($propertyId)
+    {
+        if ($this->hasSavedProperty($propertyId)) {
+            $this->savedProperties()->detach($propertyId);
+            return false; // Unsaved
+        } else {
+            $this->savedProperties()->attach($propertyId);
+            return true; // Saved
+        }
+    }
 }
