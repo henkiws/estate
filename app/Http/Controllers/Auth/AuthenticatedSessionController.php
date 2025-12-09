@@ -57,6 +57,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('agent.dashboard'));
         }
 
+        if ($user->hasRole('user')) {
+            return redirect()->intended(route('user.dashboard'));
+        }
+
         // Default fallback if no role is assigned
         return redirect()->intended(route('dashboard'));
     }
