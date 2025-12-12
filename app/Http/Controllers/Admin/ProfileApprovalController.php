@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserProfile;
-use App\Models\User;
+use App\Models\UserProfileHistory;
+use App\Mail\ProfileApprovedMail;
+use App\Mail\ProfileRejectedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -12,29 +14,26 @@ use Illuminate\Support\Facades\Log;
 class ProfileApprovalController extends Controller
 {
     /**
-     * Display a listing of profiles
+     * Display a listing of user profiles
      */
     public function index(Request $request)
     {
         $status = $request->get('status', 'pending');
         
         $profiles = UserProfile::with(['user', 'user.identifications'])
-            ->where('status', $status)
-            ->orderBy('submitted_at', 'desc')
+            ->when($status !== 'all', function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->latest('submitted_at')
             ->paginate(20);
 
-        // Get counts for filter badges
-        $pendingCount = UserProfile::where('status', 'pending')->count();
-        $approvedCount = UserProfile::where('status', 'approved')->count();
-        $rejectedCount = UserProfile::where('status', 'rejected')->count();
+        $counts = [
+            'pending' => UserProfile::where('status', 'pending')->count(),
+            'approved' => UserProfile::where('status', 'approved')->count(),
+            'rejected' => UserProfile::where('status', 'rejected')->count(),
+        ];
 
-        return view('admin.profiles.index', compact(
-            'profiles',
-            'status',
-            'pendingCount',
-            'approvedCount',
-            'rejectedCount'
-        ));
+        return view('admin.profiles.index', compact('profiles', 'status', 'counts'));
     }
 
     /**
@@ -44,121 +43,186 @@ class ProfileApprovalController extends Controller
     {
         $profile = UserProfile::with([
             'user',
+            'user.identifications',
             'user.incomes',
             'user.employments',
             'user.pets',
             'user.vehicles',
             'user.addresses',
             'user.references',
-            'user.identifications'
+            'histories.admin' // Load approval history
         ])->findOrFail($id);
 
-        // Calculate total ID points - ENSURE this is set
+        // Calculate total ID points
         $totalPoints = $profile->user->identifications->sum('points') ?? 0;
+
+        // Log for debugging
+        Log::info('Profile Review', [
+            'profile_id' => $profile->id,
+            'user_id' => $profile->user_id,
+            'identifications_count' => $profile->user->identifications->count(),
+            'total_points' => $totalPoints
+        ]);
 
         return view('admin.profiles.show', compact('profile', 'totalPoints'));
     }
 
     /**
-     * Approve a profile
+     * Approve a user profile
      */
-    public function approve(Request $request, $id)
+    public function approve($id)
     {
-        $profile = UserProfile::findOrFail($id);
-        $user = $profile->user;
+        try {
+            $profile = UserProfile::with('user')->findOrFail($id);
 
-        $profile->status = 'approved';
-        $profile->approved_at = now();
-        $profile->approved_by = auth()->id();
-        $profile->save();
+            // Store previous status
+            $previousStatus = $profile->status;
 
-        // Mark user profile as completed
-        $user->profile_completed = true;
-        $user->save();
-
-        // Send approval email to user (optional)
-        // $this->sendApprovalEmail($user, $profile);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile approved successfully!'
+            // Update profile status
+            $profile->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+                'approved_by' => auth()->id(),
+                'rejected_at' => null,
+                'rejected_by' => null,
+                'rejection_reason' => null,
             ]);
-        }
 
-        return redirect()->route('admin.profiles.index')
-            ->with('success', "Profile for {$user->name} has been approved!");
+            // Update user's profile_completed status
+            $profile->user->update([
+                'profile_completed' => true
+            ]);
+
+            // ==================== CREATE HISTORY RECORD ====================
+            UserProfileHistory::create([
+                'user_profile_id' => $profile->id,
+                'user_id' => $profile->user_id,
+                'admin_id' => auth()->id(),
+                'action' => 'approved',
+                'previous_status' => $previousStatus,
+                'new_status' => 'approved',
+                'reason' => null, // No reason needed for approval
+                'admin_notes' => 'Profile approved by admin',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            // Send approval email via queue
+            Mail::to($profile->user->email)
+                ->queue(new ProfileApprovedMail($profile->user, $profile));
+
+            Log::info('Profile Approved', [
+                'profile_id' => $profile->id,
+                'user_id' => $profile->user_id,
+                'user_email' => $profile->user->email,
+                'approved_by' => auth()->id(),
+                'approved_by_name' => auth()->user()->name
+            ]);
+
+            return redirect()
+                ->route('admin.profiles.index')
+                ->with('success', 'Profile approved successfully! Approval email has been queued and will be sent shortly.');
+
+        } catch (\Exception $e) {
+            Log::error('Profile Approval Error', [
+                'profile_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to approve profile. Please try again.');
+        }
     }
 
     /**
-     * Reject a profile
+     * Reject a user profile
      */
     public function reject(Request $request, $id)
     {
         $request->validate([
-            'rejection_reason' => 'required|string|min:10|max:500'
+            'rejection_reason' => 'required|string|min:10|max:500',
+            'admin_notes' => 'nullable|string|max:1000' // Optional private notes
         ]);
 
-        $profile = UserProfile::findOrFail($id);
-        $user = $profile->user;
+        try {
+            $profile = UserProfile::with('user')->findOrFail($id);
 
-        $profile->status = 'rejected';
-        $profile->rejection_reason = $request->rejection_reason;
-        $profile->rejected_at = now();
-        $profile->rejected_by = auth()->id();
-        $profile->save();
+            // Store previous status
+            $previousStatus = $profile->status;
 
-        // Keep user profile as incomplete
-        $user->profile_completed = false;
-        $user->save();
-
-        // Send rejection email to user (optional)
-        // $this->sendRejectionEmail($user, $profile);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile rejected successfully!'
+            // Update profile status
+            $profile->update([
+                'status' => 'rejected',
+                'rejected_at' => now(),
+                'rejected_by' => auth()->id(),
+                'rejection_reason' => $request->rejection_reason,
+                'approved_at' => null,
+                'approved_by' => null,
             ]);
-        }
 
-        return redirect()->route('admin.profiles.index')
-            ->with('success', "Profile for {$user->name} has been rejected.");
+            // Update user's profile_completed status
+            $profile->user->update([
+                'profile_completed' => false
+            ]);
+
+            // ==================== CREATE HISTORY RECORD ====================
+            UserProfileHistory::create([
+                'user_profile_id' => $profile->id,
+                'user_id' => $profile->user_id,
+                'admin_id' => auth()->id(),
+                'action' => 'rejected',
+                'previous_status' => $previousStatus,
+                'new_status' => 'rejected',
+                'reason' => $request->rejection_reason,
+                'admin_notes' => $request->admin_notes,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            // Send rejection email via queue
+            Mail::to($profile->user->email)
+                ->queue(new ProfileRejectedMail($profile->user, $profile));
+
+            Log::info('Profile Rejected', [
+                'profile_id' => $profile->id,
+                'user_id' => $profile->user_id,
+                'user_email' => $profile->user->email,
+                'rejected_by' => auth()->id(),
+                'rejected_by_name' => auth()->user()->name,
+                'reason' => $request->rejection_reason
+            ]);
+
+            return redirect()
+                ->route('admin.profiles.index')
+                ->with('success', 'Profile rejected and user has been notified via email.');
+
+        } catch (\Exception $e) {
+            Log::error('Profile Rejection Error', [
+                'profile_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to reject profile. Please try again.');
+        }
     }
 
     /**
-     * Send approval email to user (implement if needed)
+     * Display approval history for a profile
      */
-    private function sendApprovalEmail(User $user, UserProfile $profile)
+    public function history($id)
     {
-        try {
-            // You can create a ProfileApprovedMail class similar to ProfileSubmittedNotification
-            // Mail::to($user->email)->send(new ProfileApprovedMail($user, $profile));
-            
-            Log::info('Approval email sent to user', [
-                'user_id' => $user->id,
-                'profile_id' => $profile->id
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send approval email: ' . $e->getMessage());
-        }
-    }
+        $profile = UserProfile::with([
+            'user',
+            'histories' => function($query) {
+                $query->with('admin')->orderBy('created_at', 'desc');
+            }
+        ])->findOrFail($id);
 
-    /**
-     * Send rejection email to user (implement if needed)
-     */
-    private function sendRejectionEmail(User $user, UserProfile $profile)
-    {
-        try {
-            // You can create a ProfileRejectedMail class
-            // Mail::to($user->email)->send(new ProfileRejectedMail($user, $profile));
-            
-            Log::info('Rejection email sent to user', [
-                'user_id' => $user->id,
-                'profile_id' => $profile->id
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send rejection email: ' . $e->getMessage());
-        }
+        return view('admin.profiles.history', compact('profile'));
     }
 }

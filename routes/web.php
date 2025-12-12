@@ -318,6 +318,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/activity', [AdminProfileController::class, 'activity'])->name('activity');
     });
 
+    Route::get('/profiles/{profile}/history', [App\Http\Controllers\Admin\ProfileApprovalController::class, 'history'])->name('profiles.history');
+
     // Profile approval
     Route::get('/profiles', [App\Http\Controllers\Admin\ProfileApprovalController::class, 'index'])->name('profiles.index');
     Route::get('/profiles/{profile}', [App\Http\Controllers\Admin\ProfileApprovalController::class, 'show'])->name('profiles.show');
@@ -373,7 +375,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::post('/profile/previous-step', [ProfileCompletionController::class, 'previousStep'])
         ->name('profile.previous-step');
 
-    Route::get('/profile/view', [ProfileCompletionController::class, 'view'])->name('user.profile.view');
+    Route::get('/profile/view', [ProfileCompletionController::class, 'view'])->name('profile.view');
     
     // Apply profile completion check to all other user routes
     Route::middleware(['profile.complete'])->group(function () {

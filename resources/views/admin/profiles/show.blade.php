@@ -326,7 +326,7 @@
                 @if($profile->rejected_at)
                 <div>
                     <label class="text-gray-600">Rejected</label>
-                    <p class="font-semibold">{{ $profile->rejected_at->format('M d, Y g:i A') }}</p>
+                    <p class="font-semibold">{{ \Carbon\Carbon::parse($profile->rejected_at)->format('M d, Y g:i A') }}</p>
                 </div>
                 @endif
             </div>

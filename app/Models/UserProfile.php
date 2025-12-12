@@ -121,4 +121,9 @@ class UserProfile extends Model
     {
         return $this->status === 'rejected';
     }
+
+    public function histories()
+    {
+        return $this->hasMany(UserProfileHistory::class, 'user_profile_id');
+    }
 }

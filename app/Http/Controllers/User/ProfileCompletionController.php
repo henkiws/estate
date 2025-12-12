@@ -31,6 +31,10 @@ class ProfileCompletionController extends Controller
                 ->with('info', 'Your profile is already complete and approved.');
         }
 
+        if ($profile->exists && $profile->isPending()) {
+            return redirect()->route('user.profile.view');
+        }
+
         $currentStep = $user->profile_current_step ?? 1;
         
         return view('user.profile.complete', [
@@ -440,18 +444,33 @@ class ProfileCompletionController extends Controller
 
     /**
      * View submitted profile (read-only)
+     * Load all related data for comprehensive display
      */
     public function view()
     {
         $user = Auth::user();
-        $profile = $user->profile;
+        
+        // Load profile with ALL relationships
+        $profile = UserProfile::with([
+            'user',
+            'user.incomes',
+            'user.employments',
+            'user.pets',
+            'user.vehicles',
+            'user.addresses',
+            'user.references',
+            'user.identifications'
+        ])->where('user_id', $user->id)->first();
 
         if (!$profile) {
             return redirect()->route('user.profile.complete')
                 ->with('error', 'Please complete your profile first.');
         }
 
-        return view('user.profile.view', compact('user', 'profile'));
+        // Calculate total ID points
+        $totalPoints = $user->identifications->sum('points') ?? 0;
+
+        return view('user.profile.view', compact('user', 'profile', 'totalPoints'));
     }
 
     public function previousStep(Request $request)

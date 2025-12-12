@@ -3,6 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UserProfile;
+use App\Models\UserIncome;
+use App\Models\UserEmployment;
+use App\Models\UserPet;
+use App\Models\UserVehicle;
+use App\Models\UserAddress;
+use App\Models\UserReference;
+use App\Models\UserIdentification;
 use App\Models\Agency;
 use App\Models\AgencyContact;
 use App\Models\AgencySetting;
@@ -30,7 +38,7 @@ class SampleDataSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $agencyRole = Role::firstOrCreate(['name' => 'agency']);
         $agentRole = Role::firstOrCreate(['name' => 'agent']);
-        $userRole = Role::firstOrCreate(['name' => 'user']); // NEW USER ROLE
+        $userRole = Role::firstOrCreate(['name' => 'user']); // USER ROLE
         
         // Create user role permissions if not exist
         $userPermissions = [
@@ -76,7 +84,7 @@ class SampleDataSeeder extends Seeder
         $this->command->info('✅ Admin created: admin@sorted.com / password');
 
         // ============================================
-        // 2. CREATE SAMPLE PUBLIC USERS (NEW)
+        // 2. CREATE SAMPLE PUBLIC USERS WITH PROFILES
         // ============================================
         $this->createPublicUsers();
 
@@ -102,7 +110,7 @@ class SampleDataSeeder extends Seeder
                 'status' => 'active',
                 'onboarding_completed_at' => now()->subDays(25),
                 'verified_at' => now()->subDays(30),
-                'verified_by' => null, // Will be set to admin->id
+                'verified_by' => null,
                 'user' => [
                     'name' => 'John Smith',
                     'email' => 'john@sydneypremier.com.au',
@@ -189,10 +197,10 @@ class SampleDataSeeder extends Seeder
                     'name' => 'Emma Wilson',
                     'email' => 'emma@coastalrealty.com.au',
                     'password' => Hash::make('password'),
-                    'email_verified_at' => now()->subDays(1), // Email verified recently
+                    'email_verified_at' => now()->subDays(1),
                 ],
                 'onboarding_completed' => true,
-                'documents_uploaded' => false, // Still uploading documents
+                'documents_uploaded' => false,
             ],
             
             // STATUS: Email Verified (Step 1 completed, partial documents uploaded)
@@ -219,7 +227,7 @@ class SampleDataSeeder extends Seeder
                     'email_verified_at' => now()->subHours(12),
                 ],
                 'onboarding_completed' => true,
-                'documents_uploaded' => 'partial', // Some documents uploaded
+                'documents_uploaded' => 'partial',
             ],
             
             // STATUS: Just Registered (Email NOT verified yet)
@@ -243,7 +251,7 @@ class SampleDataSeeder extends Seeder
                     'name' => 'Jessica Lee',
                     'email' => 'jessica@prestigegc.com.au',
                     'password' => Hash::make('password'),
-                    'email_verified_at' => null, // Email NOT verified
+                    'email_verified_at' => null,
                 ],
                 'onboarding_completed' => false,
                 'documents_uploaded' => false,
@@ -367,9 +375,7 @@ class SampleDataSeeder extends Seeder
                 'public_liability_expiry' => now()->addYear(),
             ]);
             
-            // ============================================
-            // CREATE DOCUMENT REQUIREMENTS
-            // ============================================
+            // Create Document Requirements
             if ($onboardingCompleted) {
                 $this->createDocumentRequirements($agency, $documentsUploaded);
             }
@@ -377,9 +383,7 @@ class SampleDataSeeder extends Seeder
             $statusEmoji = $this->getStatusEmoji($agency, $userData['email_verified_at'], $documentsUploaded);
             $this->command->info("{$statusEmoji} Agency: {$agency->agency_name} ({$user->email} / password)");
             
-            // ============================================
-            // CREATE AGENTS UNDER ACTIVE AGENCIES
-            // ============================================
+            // Create Agents and Properties for Active Agencies
             if ($agency->status === 'active') {
                 $this->createAgentsForAgency($agency);
                 $this->createPropertiesForAgency($agency);
@@ -393,43 +397,271 @@ class SampleDataSeeder extends Seeder
     }
     
     /**
-     * Create sample public users with user role
+     * Create sample public users with different profile statuses
      */
     private function createPublicUsers()
     {
-        $publicUsers = [
-            [
-                'name' => 'Test User',
-                'email' => 'user@test.com',
-                'phone' => '0412345001',
-            ],
-            [
-                'name' => 'Jane Smith',
-                'email' => 'jane.smith@email.com',
-                'phone' => '0412345002',
-            ],
-            [
-                'name' => 'Bob Johnson',
-                'email' => 'bob.johnson@email.com',
-                'phone' => '0412345003',
-            ],
-        ];
+        // USER 1: Complete Profile - Approved (Can apply for properties)
+        $user1 = User::create([
+            'name' => 'Test User',
+            'email' => 'user@test.com',
+            'password' => Hash::make('password'),
+            'phone' => '0412345001',
+            'email_verified_at' => now()->subDays(10),
+            'profile_completed' => true,
+        ]);
+        $user1->assignRole('user');
         
-        foreach ($publicUsers as $userData) {
-            $user = User::create([
-                'name' => $userData['name'],
-                'email' => $userData['email'],
-                'password' => Hash::make('password'),
-                'phone' => $userData['phone'],
-                'email_verified_at' => now(),
-            ]);
-            
-            $user->assignRole('user');
-            
-            $this->command->info("👤 Public User: {$userData['name']} ({$userData['email']} / password)");
-        }
+        $this->createCompleteProfile($user1, 'approved');
+        $this->command->info("✅ Public User (Approved): {$user1->name} ({$user1->email} / password)");
+        
+        // USER 2: Complete Profile - Pending Review
+        $user2 = User::create([
+            'name' => 'Jane Smith',
+            'email' => 'jane.smith@email.com',
+            'password' => Hash::make('password'),
+            'phone' => '0412345002',
+            'email_verified_at' => now()->subDays(2),
+            'profile_completed' => false,
+        ]);
+        $user2->assignRole('user');
+        
+        $this->createCompleteProfile($user2, 'pending');
+        $this->command->info("⏳ Public User (Pending): {$user2->name} ({$user2->email} / password)");
+        
+        // USER 3: Complete Profile - Rejected (Needs update)
+        $user3 = User::create([
+            'name' => 'Bob Johnson',
+            'email' => 'bob.johnson@email.com',
+            'password' => Hash::make('password'),
+            'phone' => '0412345003',
+            'email_verified_at' => now()->subDays(5),
+            'profile_completed' => false,
+        ]);
+        $user3->assignRole('user');
+        
+        $this->createCompleteProfile($user3, 'rejected');
+        $this->command->info("❌ Public User (Rejected): {$user3->name} ({$user3->email} / password)");
+        
+        // USER 4: Incomplete Profile - Step 5 (Stopped at pets)
+        $user4 = User::create([
+            'name' => 'Alice Brown',
+            'email' => 'alice.brown@email.com',
+            'password' => Hash::make('password'),
+            'phone' => '0412345004',
+            'email_verified_at' => now()->subDays(1),
+            'profile_current_step' => 5,
+            'profile_completed' => false,
+        ]);
+        $user4->assignRole('user');
+        
+        $this->createPartialProfile($user4, 4); // Completed up to step 4
+        $this->command->info("📝 Public User (Incomplete - Step 5): {$user4->name} ({$user4->email} / password)");
+        
+        // USER 5: No Profile (Just registered)
+        $user5 = User::create([
+            'name' => 'Charlie Davis',
+            'email' => 'charlie.davis@email.com',
+            'password' => Hash::make('password'),
+            'phone' => '0412345005',
+            'email_verified_at' => now(),
+            'profile_current_step' => 1,
+            'profile_completed' => false,
+        ]);
+        $user5->assignRole('user');
+        
+        $this->command->info("🆕 Public User (No Profile): {$user5->name} ({$user5->email} / password)");
         
         $this->command->info('');
+    }
+    
+    /**
+     * Create complete user profile with all 10 steps
+     */
+    private function createCompleteProfile($user, $status = 'pending')
+    {
+        // STEP 1: Personal Details + Introduction
+        $profile = UserProfile::create([
+            'user_id' => $user->id,
+            'title' => ['Mr', 'Mrs', 'Ms', 'Dr'][rand(0, 3)],
+            'first_name' => explode(' ', $user->name)[0],
+            'middle_name' => null,
+            'last_name' => explode(' ', $user->name)[1] ?? 'User',
+            'surname' => null,
+            'date_of_birth' => now()->subYears(rand(25, 45))->format('Y-m-d'),
+            'email' => $user->email,
+            'mobile_country_code' => '+61',
+            'mobile_number' => $user->phone,
+            'emergency_contact_name' => 'Emergency Contact',
+            'emergency_contact_relationship' => 'Sibling',
+            'emergency_contact_country_code' => '+61',
+            'emergency_contact_number' => '0412999888',
+            'emergency_contact_email' => 'emergency@email.com',
+            'has_guarantor' => false,
+            'introduction' => 'I am a responsible tenant looking for a quality property. I have stable employment and excellent rental history.',
+            'status' => $status,
+            'submitted_at' => $status !== 'draft' ? now()->subDays(rand(1, 7)) : null,
+            'approved_at' => $status === 'approved' ? now()->subDays(rand(0, 3)) : null,
+            'rejected_at' => $status === 'rejected' ? now()->subDays(rand(0, 2)) : null,
+            'rejection_reason' => $status === 'rejected' ? 'Please upload clearer ID documents with minimum 80 points.' : null,
+            'terms_accepted' => true,
+            'signature' => $user->name,
+            'terms_accepted_at' => now()->subDays(rand(1, 7)),
+        ]);
+        
+        // STEP 3: Income Sources
+        UserIncome::create([
+            'user_id' => $user->id,
+            'source_of_income' => 'Full-time Employment',
+            'net_weekly_amount' => rand(800, 2000),
+            'bank_statement_path' => 'private/bank-statements/' . $user->id . '/statement.pdf',
+        ]);
+        
+        // STEP 4: Employment History
+        UserEmployment::create([
+            'user_id' => $user->id,
+            'company_name' => 'Tech Company Pty Ltd',
+            'address' => '123 Business Street, Sydney NSW 2000',
+            'position' => 'Software Developer',
+            'gross_annual_salary' => rand(70000, 120000),
+            'manager_full_name' => 'Manager Name',
+            'contact_number' => '0298765432',
+            'email' => 'manager@techcompany.com',
+            'employment_letter_path' => 'private/employment-letters/' . $user->id . '/letter.pdf',
+            'start_date' => now()->subYears(rand(1, 5))->format('Y-m-d'),
+            'still_employed' => true,
+            'end_date' => null,
+        ]);
+        
+        // STEP 5: Pets (some users have pets)
+        if (rand(0, 1)) {
+            UserPet::create([
+                'user_id' => $user->id,
+                'type' => 'dog',
+                'breed' => 'Labrador',
+                'desexed' => 'yes',
+                'size' => 'medium',
+                'registration_number' => 'PET' . rand(100000, 999999),
+                'document_path' => 'private/pet-documents/' . $user->id . '/registration.pdf',
+            ]);
+        }
+        
+        // STEP 6: Vehicles
+        UserVehicle::create([
+            'user_id' => $user->id,
+            'vehicle_type' => 'car',
+            'year' => rand(2015, 2023),
+            'make' => 'Toyota',
+            'model' => 'Camry',
+            'state' => 'NSW',
+            'registration_number' => 'ABC' . rand(100, 999),
+        ]);
+        
+        // STEP 7: Address History
+        UserAddress::create([
+            'user_id' => $user->id,
+            'living_arrangement' => 'renting_agent',
+            'address' => rand(1, 999) . ' Main Street, Sydney NSW 2000',
+            'years_lived' => rand(1, 5),
+            'months_lived' => rand(0, 11),
+            'reason_for_leaving' => 'Looking for bigger property',
+            'different_postal_address' => false,
+            'postal_code' => null,
+            'is_current' => true,
+        ]);
+        
+        // STEP 8: References
+        UserReference::create([
+            'user_id' => $user->id,
+            'full_name' => 'Reference Name',
+            'relationship' => 'Previous Landlord',
+            'mobile_country_code' => '+61',
+            'mobile_number' => '0412888777',
+            'email' => 'reference@email.com',
+        ]);
+        
+        UserReference::create([
+            'user_id' => $user->id,
+            'full_name' => 'Another Reference',
+            'relationship' => 'Employer',
+            'mobile_country_code' => '+61',
+            'mobile_number' => '0412777666',
+            'email' => 'employer@email.com',
+        ]);
+        
+        // STEP 9: Identification Documents
+        $idTypes = [
+            ['type' => 'australian_drivers_licence', 'points' => 40],
+            ['type' => 'passport', 'points' => 70],
+            ['type' => 'birth_certificate', 'points' => 70],
+            ['type' => 'medicare', 'points' => 25],
+        ];
+        
+        // Add 2 ID documents to ensure 80+ points
+        $selectedIds = array_rand($idTypes, 2);
+        foreach ($selectedIds as $index) {
+            $idType = $idTypes[$index];
+            UserIdentification::create([
+                'user_id' => $user->id,
+                'identification_type' => $idType['type'],
+                'points' => $idType['points'],
+                'document_path' => 'private/identification-documents/' . $user->id . '/' . $idType['type'] . '.pdf',
+                'expiry_date' => now()->addYears(rand(1, 5))->format('Y-m-d'),
+            ]);
+        }
+    }
+    
+    /**
+     * Create partial user profile (incomplete)
+     */
+    private function createPartialProfile($user, $completedUpToStep)
+    {
+        if ($completedUpToStep >= 1) {
+            // STEP 1: Personal Details
+            UserProfile::create([
+                'user_id' => $user->id,
+                'title' => 'Mr',
+                'first_name' => explode(' ', $user->name)[0],
+                'middle_name' => null,
+                'last_name' => explode(' ', $user->name)[1] ?? 'User',
+                'date_of_birth' => now()->subYears(30)->format('Y-m-d'),
+                'email' => $user->email,
+                'mobile_country_code' => '+61',
+                'mobile_number' => $user->phone,
+                'emergency_contact_name' => 'Emergency Contact',
+                'emergency_contact_relationship' => 'Sibling',
+                'emergency_contact_country_code' => '+61',
+                'emergency_contact_number' => '0412999888',
+                'emergency_contact_email' => 'emergency@email.com',
+                'has_guarantor' => false,
+                'status' => 'draft',
+            ]);
+        }
+        
+        if ($completedUpToStep >= 3) {
+            // STEP 3: Income
+            UserIncome::create([
+                'user_id' => $user->id,
+                'source_of_income' => 'Full-time Employment',
+                'net_weekly_amount' => 1200,
+            ]);
+        }
+        
+        if ($completedUpToStep >= 4) {
+            // STEP 4: Employment
+            UserEmployment::create([
+                'user_id' => $user->id,
+                'company_name' => 'Company Name',
+                'address' => '123 Street, City',
+                'position' => 'Position',
+                'gross_annual_salary' => 80000,
+                'manager_full_name' => 'Manager',
+                'contact_number' => '0298765432',
+                'email' => 'manager@company.com',
+                'start_date' => now()->subYears(2)->format('Y-m-d'),
+                'still_employed' => true,
+            ]);
+        }
     }
     
     /**
@@ -476,7 +708,6 @@ class SampleDataSeeder extends Seeder
             
             // Upload documents based on status
             if ($documentsUploaded === true) {
-                // All documents uploaded and approved
                 $docRequirement->update([
                     'file_path' => 'private/agency-documents/' . $agency->id . '/' . $doc['name'] . '.pdf',
                     'file_name' => $doc['name'] . '.pdf',
@@ -487,7 +718,6 @@ class SampleDataSeeder extends Seeder
                     'reviewed_at' => now()->subDays(rand(0, 2)),
                 ]);
             } elseif ($documentsUploaded === 'partial') {
-                // Only first 2-3 documents uploaded
                 if ($index < 3) {
                     $docRequirement->update([
                         'file_path' => 'private/agency-documents/' . $agency->id . '/' . $doc['name'] . '.pdf',
@@ -499,7 +729,6 @@ class SampleDataSeeder extends Seeder
                     ]);
                 }
             }
-            // If false, leave as pending with no upload
         }
     }
     
@@ -610,9 +839,11 @@ class SampleDataSeeder extends Seeder
         $this->command->info('   Password: password');
         $this->command->info('');
         $this->command->info('👥 PUBLIC USERS (Role: user):');
-        $this->command->info('   user@test.com / password');
-        $this->command->info('   jane.smith@email.com / password');
-        $this->command->info('   bob.johnson@email.com / password');
+        $this->command->info('   ✅ user@test.com / password - Profile APPROVED (Can apply)');
+        $this->command->info('   ⏳ jane.smith@email.com / password - Profile PENDING (Waiting review)');
+        $this->command->info('   ❌ bob.johnson@email.com / password - Profile REJECTED (Needs update)');
+        $this->command->info('   📝 alice.brown@email.com / password - Profile INCOMPLETE (Step 5)');
+        $this->command->info('   🆕 charlie.davis@email.com / password - NO PROFILE (Just registered)');
         $this->command->info('');
         $this->command->info('🏢 AGENCIES (All passwords: password)');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -647,18 +878,20 @@ class SampleDataSeeder extends Seeder
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('');
         $this->command->info('🎯 TESTING FLOW:');
-        $this->command->info('PUBLIC USERS (Test save, enquiry, applications):');
-        $this->command->info('1. user@test.com - Test property browsing, save, enquiry');
-        $this->command->info('2. jane.smith@email.com - Test rental applications');
-        $this->command->info('3. bob.johnson@email.com - Test user dashboard');
+        $this->command->info('PUBLIC USERS:');
+        $this->command->info('1. user@test.com - Test property applications (APPROVED profile)');
+        $this->command->info('2. jane.smith@email.com - View pending profile status');
+        $this->command->info('3. bob.johnson@email.com - Test updating rejected profile');
+        $this->command->info('4. alice.brown@email.com - Continue incomplete profile (Step 5)');
+        $this->command->info('5. charlie.davis@email.com - Start profile from Step 1');
         $this->command->info('');
         $this->command->info('AGENCIES:');
-        $this->command->info('4. jessica@ - Test email verification');
-        $this->command->info('5. emma@ - Test Step 2 onboarding (upload documents)');
-        $this->command->info('6. david@ - Test Step 2 with partial upload');
-        $this->command->info('7. michael@ - Test pending review status');
-        $this->command->info('8. sarah@ - Test approved status (subscription page)');
-        $this->command->info('9. john@ - Test full active agency with dashboard');
+        $this->command->info('6. jessica@ - Test email verification');
+        $this->command->info('7. emma@ - Test Step 2 onboarding (upload documents)');
+        $this->command->info('8. david@ - Test Step 2 with partial upload');
+        $this->command->info('9. michael@ - Test pending review status');
+        $this->command->info('10. sarah@ - Test approved status (subscription page)');
+        $this->command->info('11. john@ - Test full active agency with dashboard');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 
@@ -666,18 +899,17 @@ class SampleDataSeeder extends Seeder
     {
         $propertyCount = rand(5, 12);
         
-        // Get active agents
         $agents = Agent::where('agency_id', $agency->id)
             ->where('status', 'active')
             ->get();
         
         if ($agents->isEmpty()) {
-            return; // No agents, skip properties
+            return;
         }
         
         $propertyTypes = ['house', 'apartment', 'unit', 'townhouse', 'villa'];
         $listingTypes = ['sale', 'rent'];
-        $statuses = ['active', 'active', 'active', 'under_contract', 'sold', 'leased']; // More active
+        $statuses = ['active', 'active', 'active', 'under_contract', 'sold', 'leased'];
         
         $suburbs = $this->getSuburbsForState($agency->state);
         $streetNames = ['Main', 'High', 'Park', 'Church', 'Station', 'Queen', 'King', 'George', 'Victoria', 'Elizabeth'];
@@ -694,7 +926,6 @@ class SampleDataSeeder extends Seeder
             $propertyType = $propertyTypes[array_rand($propertyTypes)];
             $status = $statuses[array_rand($statuses)];
             
-            // Adjust status based on listing type
             if ($listingType === 'sale' && $status === 'leased') {
                 $status = 'sold';
             } elseif ($listingType === 'rent' && $status === 'sold') {
@@ -710,26 +941,21 @@ class SampleDataSeeder extends Seeder
             $bathrooms = rand(1, 3);
             $parkingSpaces = rand(0, 3);
             
-            // Price based on listing type
             if ($listingType === 'sale') {
                 $price = rand(300000, 2000000);
-                $price = round($price / 10000) * 10000; // Round to nearest 10k
+                $price = round($price / 10000) * 10000;
                 $rentPerWeek = null;
                 $bondAmount = null;
             } else {
                 $price = null;
                 $rentPerWeek = rand(250, 1200);
-                $rentPerWeek = round($rentPerWeek / 10) * 10; // Round to nearest 10
+                $rentPerWeek = round($rentPerWeek / 10) * 10;
                 $bondAmount = $rentPerWeek * 4;
             }
             
-            // Select random features
             $selectedFeatures = array_rand(array_flip($features), rand(3, 8));
-            
-            // Randomly assign agent
             $listingAgent = $agents->random();
             
-            // Create address parts
             $unitNumber = ($propertyType === 'apartment' || $propertyType === 'unit') && rand(0, 1) 
                 ? rand(1, 99) 
                 : null;
@@ -738,7 +964,6 @@ class SampleDataSeeder extends Seeder
                 'agency_id' => $agency->id,
                 'listing_agent_id' => $listingAgent->id,
                 'property_manager_id' => $listingType === 'rent' ? $listingAgent->id : null,
-                // property_code auto-generated
                 'property_type' => $propertyType,
                 'listing_type' => $listingType,
                 'status' => $status,
@@ -767,7 +992,7 @@ class SampleDataSeeder extends Seeder
                 'headline' => $this->generatePropertyHeadline($propertyType, $bedrooms, $suburb),
                 'description' => $this->generatePropertyDescription($propertyType, $bedrooms, $bathrooms, $suburb),
                 'features' => $selectedFeatures,
-                'is_featured' => $i < 2, // First 2 properties are featured
+                'is_featured' => $i < 2,
                 'view_count' => rand(10, 500),
                 'enquiry_count' => rand(0, 50),
                 'inspection_count' => rand(0, 20),
@@ -777,16 +1002,12 @@ class SampleDataSeeder extends Seeder
                 'sale_price' => $status === 'sold' ? $price : null,
                 'is_published' => in_array($status, ['active', 'under_contract']),
                 'published_at' => in_array($status, ['active', 'under_contract']) ? now()->subDays(rand(1, 90)) : null,
-                // slug auto-generated
             ]);
             
             $this->command->info("  🏠 Property: {$property->short_address} ({$status})");
         }
     }
 
-    /**
-     * Get suburbs for a state
-     */
     private function getSuburbsForState($state)
     {
         $suburbs = [
@@ -801,9 +1022,6 @@ class SampleDataSeeder extends Seeder
         return $suburbs[$state] ?? ['Capital City', 'Suburb', 'Downtown', 'Uptown'];
     }
 
-    /**
-     * Get postcode for suburb
-     */
     private function getPostcodeForSuburb($suburb, $state)
     {
         $postcodes = [
@@ -819,9 +1037,6 @@ class SampleDataSeeder extends Seeder
         return rand(array_keys($range)[0], array_values($range)[0]);
     }
 
-    /**
-     * Generate property headline
-     */
     private function generatePropertyHeadline($type, $bedrooms, $suburb)
     {
         $adjectives = ['Stunning', 'Beautiful', 'Modern', 'Spacious', 'Charming', 'Luxurious', 'Contemporary', 'Elegant', 'Impressive', 'Stylish'];
@@ -840,9 +1055,6 @@ class SampleDataSeeder extends Seeder
         return "{$adjective} {$bedrooms} Bedroom {$typeName} in {$suburb}";
     }
 
-    /**
-     * Generate property description
-     */
     private function generatePropertyDescription($type, $bedrooms, $bathrooms, $suburb)
     {
         $descriptions = [
