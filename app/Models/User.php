@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -24,7 +26,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'position',
         'agency_id',
-        'is_admin'
+        'is_admin',
+        'profile_completed',
+        'profile_current_step',
     ];
 
     /**
@@ -33,8 +37,10 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'profile_completed' => 'boolean',
+        'profile_current_step' => 'integer',
     ];
 
     /**
@@ -172,5 +178,60 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->savedProperties()->attach($propertyId);
             return true; // Saved
         }
+    }
+
+     public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function incomes(): HasMany
+    {
+        return $this->hasMany(UserIncome::class);
+    }
+
+    public function employments(): HasMany
+    {
+        return $this->hasMany(UserEmployment::class);
+    }
+
+    public function pets(): HasMany
+    {
+        return $this->hasMany(UserPet::class);
+    }
+
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(UserVehicle::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function references(): HasMany
+    {
+        return $this->hasMany(UserReference::class);
+    }
+
+    public function identifications(): HasMany
+    {
+        return $this->hasMany(UserIdentification::class);
+    }
+
+    public function needsProfileCompletion(): bool
+    {
+        if (!$this->profile) {
+            return true;
+        }
+
+        return !$this->profile->isComplete();
+    }
+
+    public function hasRoleUser(): bool
+    {
+        // Assuming you're using Spatie Laravel Permission
+        return $this->hasRole('user');
     }
 }

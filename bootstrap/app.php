@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'agency.active' => \App\Http\Middleware\EnsureAgencyIsActive::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'profile.complete' => \App\Http\Middleware\CheckProfileCompletion::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
