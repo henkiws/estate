@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Log;
 
 class ProfileCompletionController extends Controller
 {
+    /**
+     * Show profile completion form with enhanced UI
+     */
     public function index()
     {
         $user = Auth::user();
@@ -35,7 +38,19 @@ class ProfileCompletionController extends Controller
             return redirect()->route('user.profile.view');
         }
 
+        // Get current step from user record or default to 1
         $currentStep = $user->profile_current_step ?? 1;
+        
+        // Load all related data for the form
+        $user->load([
+            'incomes',
+            'employments',
+            'pets',
+            'vehicles',
+            'addresses',
+            'references',
+            'identifications'
+        ]);
         
         return view('user.profile.complete', [
             'currentStep' => $currentStep,
@@ -44,34 +59,101 @@ class ProfileCompletionController extends Controller
         ]);
     }
 
+    /**
+     * Update step - handle both AJAX and form submission
+     */
     public function updateStep(Request $request)
     {
         $user = Auth::user();
-        $step = $request->input('step');
+        $step = $request->input('step') ?? $request->input('current_step');
         
-        switch ($step) {
-            case 1:
-                return $this->saveStep1($request, $user);
-            case 2:
-                return $this->saveStep2($request, $user);
-            case 3:
-                return $this->saveStep3($request, $user);
-            case 4:
-                return $this->saveStep4($request, $user);
-            case 5:
-                return $this->saveStep5($request, $user);
-            case 6:
-                return $this->saveStep6($request, $user);
-            case 7:
-                return $this->saveStep7($request, $user);
-            case 8:
-                return $this->saveStep8($request, $user);
-            case 9:
-                return $this->saveStep9($request, $user);
-            case 10:
-                return $this->saveStep10($request, $user);
-            default:
-                return redirect()->back()->with('error', 'Invalid step');
+        try {
+            switch ($step) {
+                case 1:
+                    $result = $this->saveStep1($request, $user);
+                    break;
+                case 2:
+                    $result = $this->saveStep2($request, $user);
+                    break;
+                case 3:
+                    $result = $this->saveStep3($request, $user);
+                    break;
+                case 4:
+                    $result = $this->saveStep4($request, $user);
+                    break;
+                case 5:
+                    $result = $this->saveStep5($request, $user);
+                    break;
+                case 6:
+                    $result = $this->saveStep6($request, $user);
+                    break;
+                case 7:
+                    $result = $this->saveStep7($request, $user);
+                    break;
+                case 8:
+                    $result = $this->saveStep8($request, $user);
+                    break;
+                case 9:
+                    $result = $this->saveStep9($request, $user);
+                    break;
+                case 10:
+                    $result = $this->saveStep10($request, $user);
+                    break;
+                default:
+                    return $this->handleResponse($request, false, 'Invalid step', $step);
+            }
+            
+            // Handle successful save
+            if (is_array($result) && isset($result['redirect'])) {
+                // Step 10 complete - redirect to view
+                return redirect($result['redirect'])
+                    ->with('success', $result['message'] ?? 'Profile completed successfully!');
+            }
+            
+            // Move to next step
+            $nextStep = $result['next_step'] ?? ($step + 1);
+            return $this->handleResponse($request, true, 'Progress saved!', $nextStep);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->handleResponse($request, false, 'Please check your form inputs', $step, $e->errors());
+        } catch (\Exception $e) {
+            Log::error('Profile step save error', [
+                'step' => $step,
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return $this->handleResponse($request, false, 'An error occurred. Please try again.', $step);
+        }
+    }
+
+    /**
+     * Handle response - AJAX or redirect
+     */
+    private function handleResponse($request, $success, $message, $step, $errors = [])
+    {
+        if ($request->wantsJson() || $request->ajax()) {
+            $response = [
+                'success' => $success,
+                'message' => $message,
+                'next_step' => $step
+            ];
+            
+            if (!empty($errors)) {
+                $response['errors'] = $errors;
+            }
+            
+            return response()->json($response, $success ? 200 : 422);
+        }
+        
+        // Regular form submission
+        if ($success) {
+            return redirect()->route('user.profile.complete')
+                ->with('success', $message);
+        } else {
+            return redirect()->back()
+                ->withErrors($errors)
+                ->withInput()
+                ->with('error', $message);
         }
     }
 
@@ -83,7 +165,7 @@ class ProfileCompletionController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'surname' => 'nullable|string|max:255',
-            'date_of_birth' => 'required|date',
+            'date_of_birth' => 'required|date|before:' . now()->subYears(18)->format('Y-m-d'),
             'email' => 'required|email',
             'mobile_country_code' => 'required|string',
             'mobile_number' => 'required|string',
@@ -107,7 +189,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 2;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 2]);
+        return ['success' => true, 'next_step' => 2];
     }
 
     private function saveStep2(Request $request, $user)
@@ -122,7 +204,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 3;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 3]);
+        return ['success' => true, 'next_step' => 3];
     }
 
     private function saveStep3(Request $request, $user)
@@ -153,7 +235,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 4;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 4]);
+        return ['success' => true, 'next_step' => 4];
     }
 
     private function saveStep4(Request $request, $user)
@@ -163,7 +245,7 @@ class ProfileCompletionController extends Controller
         if (!$hasEmployment) {
             $user->profile_current_step = 5;
             $user->save();
-            return response()->json(['success' => true, 'next_step' => 5]);
+            return ['success' => true, 'next_step' => 5];
         }
 
         $validated = $request->validate([
@@ -200,7 +282,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 5;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 5]);
+        return ['success' => true, 'next_step' => 5];
     }
 
     private function saveStep5(Request $request, $user)
@@ -210,7 +292,7 @@ class ProfileCompletionController extends Controller
         if (!$hasPets) {
             $user->profile_current_step = 6;
             $user->save();
-            return response()->json(['success' => true, 'next_step' => 6]);
+            return ['success' => true, 'next_step' => 6];
         }
 
         $validated = $request->validate([
@@ -242,7 +324,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 6;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 6]);
+        return ['success' => true, 'next_step' => 6];
     }
 
     private function saveStep6(Request $request, $user)
@@ -252,7 +334,7 @@ class ProfileCompletionController extends Controller
         if (!$hasVehicles) {
             $user->profile_current_step = 7;
             $user->save();
-            return response()->json(['success' => true, 'next_step' => 7]);
+            return ['success' => true, 'next_step' => 7];
         }
 
         $validated = $request->validate([
@@ -277,7 +359,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 7;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 7]);
+        return ['success' => true, 'next_step' => 7];
     }
 
     private function saveStep7(Request $request, $user)
@@ -306,7 +388,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 8;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 8]);
+        return ['success' => true, 'next_step' => 8];
     }
 
     private function saveStep8(Request $request, $user)
@@ -316,11 +398,11 @@ class ProfileCompletionController extends Controller
         if (!$hasReferences) {
             $user->profile_current_step = 9;
             $user->save();
-            return response()->json(['success' => true, 'next_step' => 9]);
+            return ['success' => true, 'next_step' => 9];
         }
 
         $validated = $request->validate([
-            'references' => 'required|array|min:1',
+            'references' => 'required|array|min:2', // Changed to min:2 for at least 2 references
             'references.*.full_name' => 'required|string|max:255',
             'references.*.relationship' => 'required|string|max:255',
             'references.*.mobile_country_code' => 'required|string',
@@ -340,7 +422,7 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 9;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 9]);
+        return ['success' => true, 'next_step' => 9];
     }
 
     private function saveStep9(Request $request, $user)
@@ -354,6 +436,8 @@ class ProfileCompletionController extends Controller
 
         // Delete existing identifications
         $user->identifications()->delete();
+
+        $totalPoints = 0;
 
         foreach ($validated['identifications'] as $index => $idData) {
             $identification = new UserIdentification();
@@ -369,22 +453,25 @@ class ProfileCompletionController extends Controller
             }
             
             $identification->save();
+            $totalPoints += $identification->points;
         }
 
         // Check if user has minimum 80 points
-        $totalPoints = $user->identifications()->sum('points');
         if ($totalPoints < 80) {
-            return response()->json([
-                'success' => false,
-                'error' => 'You must supply at least 80 ID Points for your application to be considered.',
-                'total_points' => $totalPoints
-            ], 422);
+            throw new \Illuminate\Validation\ValidationException(
+                validator([], []),
+                response()->json([
+                    'success' => false,
+                    'message' => 'You must supply at least 80 ID Points for your application to be considered.',
+                    'total_points' => $totalPoints
+                ], 422)
+            );
         }
 
         $user->profile_current_step = 10;
         $user->save();
 
-        return response()->json(['success' => true, 'next_step' => 10]);
+        return ['success' => true, 'next_step' => 10];
     }
 
     private function saveStep10(Request $request, $user)
@@ -405,14 +492,14 @@ class ProfileCompletionController extends Controller
         $user->profile_current_step = 10;
         $user->save();
 
-        // ==================== SEND ADMIN EMAIL NOTIFICATION ====================
+        // Send admin email notification
         $this->sendAdminNotification($user, $profile);
 
-        return response()->json([
+        return [
             'success' => true,
             'message' => 'Profile submitted successfully! Waiting for admin approval.',
             'redirect' => route('user.profile.view')
-        ]);
+        ];
     }
 
     /**
@@ -421,10 +508,7 @@ class ProfileCompletionController extends Controller
     private function sendAdminNotification($user, $profile)
     {
         try {
-            // Get admin email from config or use default
             $adminEmail = config('mail.admin_email', 'admin@sorted.com');
-            
-            // Send notification email
             Mail::to($adminEmail)->send(new ProfileSubmittedNotification($user, $profile));
             
             Log::info('Admin notification sent for user profile', [
@@ -433,7 +517,6 @@ class ProfileCompletionController extends Controller
                 'admin_email' => $adminEmail
             ]);
         } catch (\Exception $e) {
-            // Log error but don't fail the submission
             Log::error('Failed to send admin notification email', [
                 'user_id' => $user->id,
                 'profile_id' => $profile->id,
@@ -444,13 +527,11 @@ class ProfileCompletionController extends Controller
 
     /**
      * View submitted profile (read-only)
-     * Load all related data for comprehensive display
      */
     public function view()
     {
         $user = Auth::user();
         
-        // Load profile with ALL relationships
         $profile = UserProfile::with([
             'user',
             'user.incomes',
@@ -467,12 +548,14 @@ class ProfileCompletionController extends Controller
                 ->with('error', 'Please complete your profile first.');
         }
 
-        // Calculate total ID points
         $totalPoints = $user->identifications->sum('points') ?? 0;
 
         return view('user.profile.view', compact('user', 'profile', 'totalPoints'));
     }
 
+    /**
+     * Go back to previous step
+     */
     public function previousStep(Request $request)
     {
         $user = Auth::user();
@@ -483,9 +566,14 @@ class ProfileCompletionController extends Controller
             $user->save();
         }
 
-        return response()->json([
-            'success' => true,
-            'previous_step' => $user->profile_current_step
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'previous_step' => $user->profile_current_step
+            ]);
+        }
+
+        return redirect()->route('user.profile.complete')
+            ->with('success', 'Moved to previous step');
     }
 }

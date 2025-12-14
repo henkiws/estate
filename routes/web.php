@@ -12,6 +12,13 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\User\ProfileCompletionController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\UserProfileController;
+use App\Http\Controllers\User\PropertyApplicationController;
+use App\Http\Controllers\User\ApplicationController;
+use App\Http\Controllers\User\FavoriteController;
+use App\Http\Controllers\User\SavedPropertyController;
+use App\Http\Controllers\User\EnquiryController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
@@ -361,84 +368,136 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // ============================================
-// User Dashboard Routes (Protected - User Role Only)
+// USER ROUTES - Protected by Auth + User Role
 // ============================================
+
 Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
 
-    // Profile completion routes (NO profile.complete middleware here)
-    Route::get('/profile/complete', [ProfileCompletionController::class, 'index'])
-        ->name('profile.complete');
-    
-    Route::post('/profile/update-step', [ProfileCompletionController::class, 'updateStep'])
-        ->name('profile.update-step');
-    
-    Route::post('/profile/previous-step', [ProfileCompletionController::class, 'previousStep'])
-        ->name('profile.previous-step');
+    // ============================================
+    // PROFILE COMPLETION (No profile.complete middleware)
+    // ============================================
+    Route::prefix('profile')->name('profile.')->group(function () {
+        
+        // Profile completion flow (accessible even if incomplete)
+        Route::get('/complete', [ProfileCompletionController::class, 'index'])
+            ->name('complete');
+        
+        Route::post('/update-step', [ProfileCompletionController::class, 'updateStep'])
+            ->name('update-step');
+        
+        Route::post('/previous-step', [ProfileCompletionController::class, 'previousStep'])
+            ->name('previous-step');
+        
+        // View profile (read-only) - accessible anytime
+        Route::get('/view', [ProfileCompletionController::class, 'view'])
+            ->name('view');
+    });
 
-    Route::get('/profile/view', [ProfileCompletionController::class, 'view'])->name('profile.view');
-    
-    // Apply profile completion check to all other user routes
+    // ============================================
+    // PROTECTED ROUTES (Require completed profile)
+    // ============================================
     Route::middleware(['profile.complete'])->group(function () {
         
+        // ------------------------------------------
         // Dashboard
-        Route::get('/dashboard', [UserDashboardController::class, 'index'])
+        // ------------------------------------------
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
         
-        // Property Applications (requires completed profile)
+        // ------------------------------------------
+        // User Profile (View after completion)
+        // ------------------------------------------
+        Route::get('/profile', [UserProfileController::class, 'show'])
+            ->name('profile.show');
+        
+        // ------------------------------------------
+        // Property Applications
+        // ------------------------------------------
+        Route::prefix('applications')->name('applications.')->group(function () {
+            
+            // List all applications
+            Route::get('/', [ApplicationController::class, 'index'])
+                ->name('index');
+            
+            // View specific application
+            Route::get('/{application}', [ApplicationController::class, 'show'])
+                ->name('show');
+            
+            // Withdraw application
+            Route::post('/{application}/withdraw', [ApplicationController::class, 'withdraw'])
+                ->name('withdraw');
+        });
+        
+        // Apply for property (create application)
+        Route::get('/properties/{code}/apply', [ApplicationController::class, 'create'])
+            ->name('apply');
+        
+        Route::post('/properties/{code}/apply', [ApplicationController::class, 'store'])
+            ->name('apply.store');
+        
+        // Alternative apply route (if using property model instead of code)
         Route::post('/properties/{property}/apply', [PropertyApplicationController::class, 'store'])
             ->name('properties.apply');
         
-        Route::get('/applications', [PropertyApplicationController::class, 'index'])
-            ->name('applications.index');
+        // ------------------------------------------
+        // Saved Properties (Favorites)
+        // ------------------------------------------
+        Route::prefix('saved-properties')->name('saved-properties.')->group(function () {
+            
+            // List saved properties
+            Route::get('/', [SavedPropertyController::class, 'index'])
+                ->name('index');
+            
+            // Remove from saved
+            Route::delete('/{property}', [SavedPropertyController::class, 'destroy'])
+                ->name('destroy');
+        });
         
-        Route::get('/applications/{application}', [PropertyApplicationController::class, 'show'])
-            ->name('applications.show');
-        
-        // Favorites
+        // Toggle favorite (add/remove)
         Route::post('/properties/{property}/favorite', [FavoriteController::class, 'toggle'])
             ->name('properties.favorite');
         
+        // List favorites (alternative to saved-properties)
         Route::get('/favorites', [FavoriteController::class, 'index'])
             ->name('favorites');
         
-        // User Profile View (after completion)
-        Route::get('/profile', [UserProfileController::class, 'show'])
-            ->name('profile.show');
-
-        // Dashboard Overview
-        Route::get('/dashboard', [App\Http\Controllers\User\DashboardController::class, 'index'])
-            ->name('dashboard');
-        
-        // Saved Properties (Favorites)
-        Route::get('/saved-properties', [App\Http\Controllers\User\SavedPropertyController::class, 'index'])
-            ->name('saved-properties');
-        
-        Route::delete('/saved-properties/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'destroy'])
-            ->name('saved-properties.destroy');
-        
-        // Applications (Rentals)
-        Route::get('/applications', [App\Http\Controllers\User\ApplicationController::class, 'index'])
-            ->name('applications');
-        
-        Route::get('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'create'])
-            ->name('apply');
-        
-        Route::post('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'store'])
-            ->name('apply.store');
-        
-        Route::get('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'show'])
-            ->name('applications.show');
-        
-        Route::post('/applications/{application}/withdraw', [App\Http\Controllers\User\ApplicationController::class, 'withdraw'])
-            ->name('applications.withdraw');
-        
+        // ------------------------------------------
         // Enquiries
-        Route::get('/enquiries', [App\Http\Controllers\User\EnquiryController::class, 'index'])
-            ->name('enquiries');
+        // ------------------------------------------
+        Route::prefix('enquiries')->name('enquiries.')->group(function () {
+            
+            // List all enquiries
+            Route::get('/', [EnquiryController::class, 'index'])
+                ->name('index');
+            
+            // View specific enquiry (optional)
+            Route::get('/{enquiry}', [EnquiryController::class, 'show'])
+                ->name('show');
+        });
+        
+        // ------------------------------------------
+        // Groups (Placeholder for future)
+        // ------------------------------------------
+        Route::prefix('groups')->name('groups.')->group(function () {
+            
+            Route::get('/', function() {
+                return view('user.groups.index');
+            })->name('index');
+        });
+        
+    });
 
+    // Application Drafts
+    Route::prefix('drafts')->name('drafts.')->group(function () {
+        Route::get('/', [ApplicationDraftController::class, 'index'])->name('index');
+        Route::get('/create', [ApplicationDraftController::class, 'create'])->name('create');
+        Route::post('/', [ApplicationDraftController::class, 'store'])->name('store');
+        Route::get('/{draft}', [ApplicationDraftController::class, 'show'])->name('show');
+        Route::put('/{draft}', [ApplicationDraftController::class, 'update'])->name('update');
+        Route::delete('/{draft}', [ApplicationDraftController::class, 'destroy'])->name('destroy');
+        Route::get('/{draft}/continue', [ApplicationDraftController::class, 'continue'])->name('continue');
     });
 });
-
 // ============================================
 // Stripe Webhook (No CSRF protection)
 // ============================================
