@@ -23,7 +23,7 @@ class ProfileCompletionController extends Controller
     /**
      * Show profile completion form with enhanced UI
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
@@ -40,6 +40,10 @@ class ProfileCompletionController extends Controller
 
         // Get current step from user record or default to 1
         $currentStep = $user->profile_current_step ?? 1;
+
+        if (!empty($request->query('step'))) {
+            $currentStep = (int) $request->query('step');
+        }  
         
         // Load all related data for the form
         $user->load([
@@ -57,6 +61,33 @@ class ProfileCompletionController extends Controller
             'profile' => $profile,
             'user' => $user,
         ]);
+    }
+
+    public function show(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Get step from query parameter (?step=4)
+        $step = $request->query('step');
+        
+        if ($step === null) {
+            $step = $user->profile_current_step ?? 1;
+        }
+        
+        $step = (int) $step;
+        
+        // Security: Don't allow jumping ahead
+        $maxAllowedStep = $user->profile_current_step ?? 1;
+        if ($step > $maxAllowedStep) {
+            $step = $maxAllowedStep;
+        }
+        
+        $step = max(1, min(10, $step));
+        
+        $profile = $user->profile;
+        
+        // CRITICAL: Pass $step to view!
+        return view('user.profile.complete', compact('user', 'profile', 'step'));
     }
 
     /**
@@ -297,10 +328,10 @@ class ProfileCompletionController extends Controller
 
         $validated = $request->validate([
             'pets' => 'required|array|min:1',
-            'pets.*.type' => 'required|in:dog,cat,other',
+            'pets.*.type' => 'required',
             'pets.*.breed' => 'required|string|max:255',
-            'pets.*.desexed' => 'required|in:yes,no',
-            'pets.*.size' => 'required|in:small,medium,large',
+            'pets.*.desexed' => 'required|boolean',
+            'pets.*.size' => 'required',
             'pets.*.registration_number' => 'nullable|string|max:255',
             'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
@@ -427,11 +458,16 @@ class ProfileCompletionController extends Controller
 
     private function saveStep9(Request $request, $user)
     {
+        // Check if user already has identifications (editing mode)
+        $isEditing = $user->identifications()->exists();
+        
         $validated = $request->validate([
             'identifications' => 'required|array|min:1',
             'identifications.*.identification_type' => 'required|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
-            'identifications.*.document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'identifications.*.expiry_date' => 'nullable|date',
+            'identifications.*.document_number' => 'nullable|string|max:255',
+            // Only require document upload if NOT editing, or if explicitly uploading new file
+            'identifications.*.document' => $isEditing ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'identifications.*.expiry_date' => 'nullable|date|after:today',
         ]);
 
         // Delete existing identifications
@@ -444,8 +480,10 @@ class ProfileCompletionController extends Controller
             $identification->user_id = $user->id;
             $identification->identification_type = $idData['identification_type'];
             $identification->points = UserIdentification::getPointsForType($idData['identification_type']);
+            $identification->document_number = $idData['document_number'] ?? null;
             $identification->expiry_date = $idData['expiry_date'] ?? null;
             
+            // Handle file upload
             if ($request->hasFile("identifications.$index.document")) {
                 $path = $request->file("identifications.$index.document")
                     ->store('identification-documents', 'public');
@@ -457,16 +495,11 @@ class ProfileCompletionController extends Controller
         }
 
         // Check if user has minimum 80 points
-        if ($totalPoints < 80) {
-            throw new \Illuminate\Validation\ValidationException(
-                validator([], []),
-                response()->json([
-                    'success' => false,
-                    'message' => 'You must supply at least 80 ID Points for your application to be considered.',
-                    'total_points' => $totalPoints
-                ], 422)
-            );
-        }
+        // if ($totalPoints < 80) {
+        //     // return back()->withErrors([
+        //     //     'identifications' => "You must supply at least 80 ID Points for your application to be considered. You currently have {$totalPoints} points."
+        //     // ])->withInput();
+        // }
 
         $user->profile_current_step = 10;
         $user->save();

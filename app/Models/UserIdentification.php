@@ -15,6 +15,7 @@ class UserIdentification extends Model
         'identification_type',
         'points',
         'document_path',
+        'document_number',
         'expiry_date',
     ];
 

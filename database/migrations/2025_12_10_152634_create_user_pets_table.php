@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('user_pets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['dog', 'cat', 'other']);
+            $table->string('type');
             $table->string('breed');
-            $table->enum('desexed', ['yes', 'no']);
-            $table->enum('size', ['small', 'medium', 'large']);
+            $table->string('desexed');
+            $table->string('size');
             $table->string('registration_number')->nullable();
             $table->string('document_path')->nullable();
             $table->timestamps();

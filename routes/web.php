@@ -67,6 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if ($user->hasRole('agent')) {
             return redirect()->route('agent.dashboard');
         }
+
+        if ($user->hasRole('user')) {
+            return redirect()->route('user.dashboard');
+        }
         
         return view('dashboard');
     })->name('dashboard');
@@ -391,6 +395,9 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         // View profile (read-only) - accessible anytime
         Route::get('/view', [ProfileCompletionController::class, 'view'])
             ->name('view');
+
+        Route::get('/complete/{step?}', [ProfileCompletionController::class, 'show'])
+            ->name('step');
     });
 
     // ============================================
@@ -413,20 +420,14 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         // ------------------------------------------
         // Property Applications
         // ------------------------------------------
-        Route::prefix('applications')->name('applications.')->group(function () {
-            
-            // List all applications
-            Route::get('/', [ApplicationController::class, 'index'])
-                ->name('index');
-            
-            // View specific application
-            Route::get('/{application}', [ApplicationController::class, 'show'])
-                ->name('show');
-            
-            // Withdraw application
-            Route::post('/{application}/withdraw', [ApplicationController::class, 'withdraw'])
-                ->name('withdraw');
-        });
+        Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/create', [ApplicationController::class, 'create'])->name('applications.create');
+        Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
+        Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+        Route::get('/applications/{application}/edit', [ApplicationController::class, 'edit'])->name('applications.edit');
+        Route::put('/applications/{application}', [ApplicationController::class, 'update'])->name('applications.update');
+        Route::post('/applications/{application}/withdraw', [ApplicationController::class, 'withdraw'])->name('applications.withdraw');
+        Route::post('/applications/{application}/submit', [ApplicationController::class, 'submit'])->name('applications.submit');
         
         // Apply for property (create application)
         Route::get('/properties/{code}/apply', [ApplicationController::class, 'create'])
@@ -487,6 +488,12 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         
     });
 
+    Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+        Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+        Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+        Route::delete('/favorites/{favorite}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+    });
+
     // Application Drafts
     Route::prefix('drafts')->name('drafts.')->group(function () {
         Route::get('/', [ApplicationDraftController::class, 'index'])->name('index');
@@ -503,22 +510,26 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
 // ============================================
 Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 
-// Public Property Listing & Details
-Route::prefix('properties')->name('properties.')->group(function () {
-    // Property listing page
-    Route::get('/', [App\Http\Controllers\PublicPropertyController::class, 'index'])->name('index');
+// // Public Property Listing & Details
+// Route::prefix('properties')->name('properties.')->group(function () {
+//     // Property listing page
+//     Route::get('/', [App\Http\Controllers\PublicPropertyController::class, 'index'])->name('index');
     
-    // Single property page (using property_code or slug)
-    Route::get('/{code}', [App\Http\Controllers\PublicPropertyController::class, 'show'])->name('show');
+//     // Single property page (using property_code or slug)
+//     Route::get('/{code}', [App\Http\Controllers\PublicPropertyController::class, 'show'])->name('show');
     
-    // Submit rental application
-    Route::post('/{code}/apply', [App\Http\Controllers\PublicPropertyController::class, 'submitApplication'])->name('apply');
+//     // Submit rental application
+//     Route::post('/{code}/apply', [App\Http\Controllers\PublicPropertyController::class, 'submitApplication'])->name('apply');
     
-    // Submit enquiry
-    Route::post('/{code}/enquiry', [App\Http\Controllers\PublicPropertyController::class, 'submitEnquiry'])->name('enquiry');
+//     // Submit enquiry
+//     Route::post('/{code}/enquiry', [App\Http\Controllers\PublicPropertyController::class, 'submitEnquiry'])->name('enquiry');
     
-    // Book inspection
-    Route::post('/{code}/inspection', [App\Http\Controllers\PublicPropertyController::class, 'bookInspection'])->name('inspection');
-});
+//     // Book inspection
+//     Route::post('/{code}/inspection', [App\Http\Controllers\PublicPropertyController::class, 'bookInspection'])->name('inspection');
+// });
+
+
+Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
+Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
 
 require __DIR__.'/auth.php';

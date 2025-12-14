@@ -19,6 +19,7 @@ return new class extends Migration
                 'other'
             ]);
             $table->integer('points'); // 40, 40, 30, 20, 10
+            $table->string('document_number');
             $table->string('document_path');
             $table->date('expiry_date')->nullable();
             $table->timestamps();

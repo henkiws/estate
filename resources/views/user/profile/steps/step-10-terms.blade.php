@@ -123,28 +123,38 @@
     </div>
 </div>
 
-<!-- Navigation -->
+@php
+    $previousStep = max(1, $currentStep - 1);
+@endphp
+
+<!-- Navigation Buttons -->
 <div class="flex items-center justify-between mt-6">
-    <button 
-        type="button" 
-        onclick="window.history.back()"
-        class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition flex items-center gap-2"
-    >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Back
-    </button>
+    @if($currentStep > 1)
+        <!-- Back Button (Steps 2-10) -->
+        <a href="{{ route('user.profile.complete', ['step' => $previousStep]) }}" 
+           class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+    @else
+        <!-- Cancel Button (Step 1 only) -->
+        <a href="{{ route('user.dashboard') }}" 
+           class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Cancel
+        </a>
+    @endif
     
-    <button 
-        type="submit"
-        id="final-submit-btn"
-        class="px-8 py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white font-bold rounded-lg hover:from-teal-700 hover:to-teal-800 transition shadow-lg flex items-center gap-2"
-    >
+    <!-- Save & Continue Button (All steps) -->
+    <button type="submit" class="px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition shadow-sm flex items-center gap-2">
+        Save & Continue
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
         </svg>
-        Submit Profile for Approval
     </button>
 </div>
 
