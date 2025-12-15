@@ -217,7 +217,7 @@
                     name="has_emergency_contact" 
                     id="has_emergency_contact"
                     value="1"
-                    {{ old('has_emergency_contact', isset($profile->emergency_contact_name) && $profile->emergency_contact_name ? '1' : '0') ? 'checked' : '' }}
+                    {{ old('has_emergency_contact', $profile->has_emergency_contact ?? false) ? 'checked' : '' }}
                     onchange="toggleEmergencyContact()"
                     class="sr-only peer"
                 >
@@ -227,7 +227,7 @@
         </label>
     </div>
 
-    <div id="emergency-contact-fields" style="display: {{ old('has_emergency_contact', isset($profile->emergency_contact_name) && $profile->emergency_contact_name ? '1' : '0') ? 'block' : 'none' }};">
+    <div id="emergency-contact-fields" style="display: {{ old('has_emergency_contact', $profile->has_emergency_contact ?? false) ? 'block' : 'none' }};">
         <div class="grid md:grid-cols-2 gap-4">
             
             <!-- Emergency Contact Name -->

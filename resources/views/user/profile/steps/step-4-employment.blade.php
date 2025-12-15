@@ -101,7 +101,6 @@
                                     type="number" 
                                     name="employments[{{ $index }}][gross_annual_salary]" 
                                     value="{{ $employment['gross_annual_salary'] ?? '' }}"
-                                    step="1000"
                                     min="0"
                                     required
                                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
@@ -165,7 +164,7 @@
                             <input 
                                 type="date" 
                                 name="employments[{{ $index }}][start_date]" 
-                                value="{{ $employment['start_date'] ?? '' }}"
+                                value="{{ isset($employment['start_date']) ? \Carbon\Carbon::parse($employment['start_date'])->format('Y-m-d') : '' }}"
                                 required
                                 max="{{ now()->format('Y-m-d') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
@@ -196,7 +195,7 @@
                             <input 
                                 type="date" 
                                 name="employments[{{ $index }}][end_date]" 
-                                value="{{ $employment['end_date'] ?? '' }}"
+                                value="{{ isset($employment['end_date']) ? \Carbon\Carbon::parse($employment['end_date'])->format('Y-m-d') : '' }}"
                                 max="{{ now()->format('Y-m-d') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                             >

@@ -77,7 +77,7 @@
                 </tr>
                 <tr>
                     <td>Registered At</td>
-                    <td>{{ $agency->created_at->format('d M Y, h:i A') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($agency->created_at)->format('d M Y, h:i A') }}</td>
                 </tr>
             </table>
             

@@ -58,7 +58,7 @@
         </label>
         @error('terms_accepted')
             <p class="mt-2 ml-8 text-sm text-red-600">{{ $message }}</p>
-        @enderror>
+        @enderror
     </div>
     
 </x-form-section-card>

@@ -71,7 +71,7 @@
         <div class="info-box">
             <p><strong>Applicant Name:</strong> {{ $userName }}</p>
             <p><strong>Email:</strong> {{ $userEmail }}</p>
-            <p><strong>Submitted At:</strong> {{ $submittedAt->format('F j, Y g:i A') }}</p>
+            <p><strong>Submitted At:</strong> {{ \Carbon\Carbon::parse($submittedAt)->format('F j, Y \a\t g:i A') }}</p>
         </div>
         
         <p>Please review the profile and either approve or reject the application.</p>

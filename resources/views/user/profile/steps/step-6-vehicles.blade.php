@@ -54,7 +54,7 @@
                             </label>
                             <select 
                                 name="vehicles[{{ $index }}][vehicle_type]" 
-                                required
+                                
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                             >
                                 <option value="">Select type</option>
@@ -74,7 +74,7 @@
                                 type="number" 
                                 name="vehicles[{{ $index }}][year]" 
                                 value="{{ $vehicle['year'] ?? '' }}"
-                                required
+                                
                                 min="1900"
                                 max="{{ date('Y') + 1 }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
@@ -94,7 +94,7 @@
                                 type="text" 
                                 name="vehicles[{{ $index }}][make]" 
                                 value="{{ $vehicle['make'] ?? '' }}"
-                                required
+                                
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                                 placeholder="Toyota"
                             >
@@ -110,7 +110,7 @@
                                 type="text" 
                                 name="vehicles[{{ $index }}][model]" 
                                 value="{{ $vehicle['model'] ?? '' }}"
-                                required
+                                
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                                 placeholder="Camry"
                             >
@@ -125,7 +125,7 @@
                             </label>
                             <select 
                                 name="vehicles[{{ $index }}][state]" 
-                                required
+                                
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                             >
                                 <option value="">Select state</option>
@@ -150,7 +150,7 @@
                                 type="text" 
                                 name="vehicles[{{ $index }}][registration_number]" 
                                 value="{{ $vehicle['registration_number'] ?? '' }}"
-                                required
+                                
                                 oninput="this.value = this.value.toUpperCase()"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 uppercase"
                                 placeholder="ABC123"
@@ -264,7 +264,7 @@ function addStep6Vehicle() {
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Vehicle Type <span class="text-red-500">*</span></label>
-                    <select name="vehicles[${step6VehicleIndex}][vehicle_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <select name="vehicles[${step6VehicleIndex}][vehicle_type]" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                         <option value="">Select type</option>
                         <option value="car">Car</option>
                         <option value="motorcycle">Motorcycle</option>
@@ -274,23 +274,23 @@ function addStep6Vehicle() {
                 </div>
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Year <span class="text-red-500">*</span></label>
-                    <input type="number" name="vehicles[${step6VehicleIndex}][year]" required min="1900" max="${currentYear + 1}" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="2020">
+                    <input type="number" name="vehicles[${step6VehicleIndex}][year]" min="1900" max="${currentYear + 1}" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="2020">
                 </div>
             </div>
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Make <span class="text-red-500">*</span></label>
-                    <input type="text" name="vehicles[${step6VehicleIndex}][make]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Toyota">
+                    <input type="text" name="vehicles[${step6VehicleIndex}][make]" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Toyota">
                 </div>
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Model <span class="text-red-500">*</span></label>
-                    <input type="text" name="vehicles[${step6VehicleIndex}][model]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Camry">
+                    <input type="text" name="vehicles[${step6VehicleIndex}][model]" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Camry">
                 </div>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">State <span class="text-red-500">*</span></label>
-                    <select name="vehicles[${step6VehicleIndex}][state]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <select name="vehicles[${step6VehicleIndex}][state]" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                         <option value="">Select state</option>
                         <option value="NSW">NSW</option>
                         <option value="VIC">VIC</option>

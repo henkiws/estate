@@ -177,7 +177,7 @@
             </div>
 
             <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
-                <strong>Reviewed on:</strong> {{ $rejectedAt->format('F j, Y \a\t g:i A') }}
+                <strong>Reviewed on:</strong> {{ \Carbon\Carbon::parse($rejectedAt)->format('F j, Y \a\t g:i A') }}
             </p>
 
             <p style="margin-top: 30px;">

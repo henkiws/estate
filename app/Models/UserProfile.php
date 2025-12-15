@@ -27,6 +27,7 @@ class UserProfile extends Model
         'email',
         'mobile_country_code',
         'mobile_number',
+        'has_emergency_contact',
         'emergency_contact_name',
         'emergency_contact_relationship',
         'emergency_contact_country_code',
@@ -45,6 +46,7 @@ class UserProfile extends Model
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'has_emergency_contact' => 'boolean',
         'has_guarantor' => 'boolean',
         'terms_accepted' => 'boolean',
         'submitted_at' => 'datetime',

@@ -42,7 +42,7 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="text-sm font-medium text-gray-700 mb-2 block">Pet Type <span class="text-red-500">*</span></label>
-                            <select name="pets[{{ $index }}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <select name="pets[{{ $index }}][type]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                                 <option value="">Select type</option>
                                 <option value="dog" {{ ($pet['type'] ?? '') == 'dog' ? 'selected' : '' }}>Dog</option>
                                 <option value="cat" {{ ($pet['type'] ?? '') == 'cat' ? 'selected' : '' }}>Cat</option>
@@ -55,12 +55,12 @@
                         
                         <div>
                             <label class="text-sm font-medium text-gray-700 mb-2 block">Breed <span class="text-red-500">*</span></label>
-                            <input type="text" name="pets[{{ $index }}][breed]" value="{{ $pet['breed'] ?? '' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="e.g., Golden Retriever">
+                            <input type="text" name="pets[{{ $index }}][breed]" value="{{ $pet['breed'] ?? '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="e.g., Golden Retriever">
                         </div>
                         
                         <div>
                             <label class="text-sm font-medium text-gray-700 mb-2 block">Desexed <span class="text-red-500">*</span></label>
-                            <select name="pets[{{ $index }}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <select name="pets[{{ $index }}][desexed]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                                 <option value="">Select</option>
                                 <option value="1" {{ ($pet['desexed'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
                                 <option value="0" {{ ($pet['desexed'] ?? '') == '0' ? 'selected' : '' }}>No</option>
@@ -69,7 +69,7 @@
                         
                         <div>
                             <label class="text-sm font-medium text-gray-700 mb-2 block">Size <span class="text-red-500">*</span></label>
-                            <select name="pets[{{ $index }}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <select name="pets[{{ $index }}][size]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                                 <option value="">Select size</option>
                                 <option value="small" {{ ($pet['size'] ?? '') == 'small' ? 'selected' : '' }}>Small (under 10kg)</option>
                                 <option value="medium" {{ ($pet['size'] ?? '') == 'medium' ? 'selected' : '' }}>Medium (10-25kg)</option>
@@ -130,10 +130,6 @@
     @endif
     
     <div class="flex items-center gap-3">
-        <a href="{{ route('user.dashboard') }}" class="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition">
-            Save & Exit
-        </a>
-        
         <button type="submit" class="px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition shadow-sm flex items-center gap-2">
             Save & Continue
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +188,7 @@ function addAnotherPet() {
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Pet Type <span class="text-red-500">*</span></label>
-                    <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <select name="pets[${petIndex}][type]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                         <option value="">Select type</option>
                         <option value="dog">Dog</option>
                         <option value="cat">Cat</option>
@@ -205,12 +201,12 @@ function addAnotherPet() {
                 
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Breed <span class="text-red-500">*</span></label>
-                    <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="e.g., Golden Retriever">
+                    <input type="text" name="pets[${petIndex}][breed]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="e.g., Golden Retriever">
                 </div>
                 
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Desexed <span class="text-red-500">*</span></label>
-                    <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <select name="pets[${petIndex}][desexed]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                         <option value="">Select</option>
                         <option value="1">Yes</option>
                         <option value="0">No</option>
@@ -219,7 +215,7 @@ function addAnotherPet() {
                 
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Size <span class="text-red-500">*</span></label>
-                    <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <select name="pets[${petIndex}][size]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                         <option value="">Select size</option>
                         <option value="small">Small (under 10kg)</option>
                         <option value="medium">Medium (10-25kg)</option>

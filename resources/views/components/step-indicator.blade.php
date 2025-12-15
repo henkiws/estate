@@ -40,29 +40,45 @@
             <!-- Steps -->
             <div class="relative flex justify-between" style="z-index: 2;">
                 @foreach($steps as $stepNum => $step)
-                    <div class="flex flex-col items-center">
-                        <!-- Circle -->
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
-                            {{ $stepNum < $currentStep ? 'bg-teal-500 text-white' : '' }}
-                            {{ $stepNum == $currentStep ? 'bg-teal-600 text-white ring-4 ring-teal-100' : '' }}
-                            {{ $stepNum > $currentStep ? 'bg-gray-200 text-gray-500' : '' }}
-                        ">
-                            @if($stepNum < $currentStep)
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                            @else
+                    @if($stepNum <= $currentStep)
+                        <a href="{{ route('user.profile.complete', ['step' => $stepNum]) }}" 
+                           class="flex flex-col items-center group">
+                            <!-- Circle -->
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
+                                {{ $stepNum < $currentStep ? 'bg-teal-500 text-white group-hover:bg-teal-600 group-hover:scale-110' : '' }}
+                                {{ $stepNum == $currentStep ? 'bg-teal-600 text-white ring-4 ring-teal-100' : '' }}
+                                cursor-pointer
+                            ">
+                                @if($stepNum < $currentStep)
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                @else
+                                    {{ $stepNum }}
+                                @endif
+                            </div>
+                            
+                            <!-- Label -->
+                            <span class="mt-2 text-xs font-medium text-center transition-colors
+                                {{ $stepNum == $currentStep ? 'text-teal-600' : 'text-gray-600' }}
+                                group-hover:text-teal-600
+                            ">
+                                {{ $step['name'] }}
+                            </span>
+                        </a>
+                    @else
+                        <div class="flex flex-col items-center opacity-50 cursor-not-allowed">
+                            <!-- Circle -->
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 bg-gray-200 text-gray-500">
                                 {{ $stepNum }}
-                            @endif
+                            </div>
+                            
+                            <!-- Label -->
+                            <span class="mt-2 text-xs font-medium text-center text-gray-600">
+                                {{ $step['name'] }}
+                            </span>
                         </div>
-                        
-                        <!-- Label -->
-                        <span class="mt-2 text-xs font-medium text-center
-                            {{ $stepNum == $currentStep ? 'text-teal-600' : 'text-gray-600' }}
-                        ">
-                            {{ $step['name'] }}
-                        </span>
-                    </div>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -76,6 +92,21 @@
                 <span class="text-teal-600">•</span>
                 <span class="text-teal-700">{{ $steps[$currentStep]['name'] }}</span>
             </div>
+        </div>
+        
+        <!-- Mobile Navigation Dots -->
+        <div class="flex justify-center gap-2 mt-4">
+            @foreach($steps as $stepNum => $step)
+                @if($stepNum <= $currentStep)
+                    <a href="{{ route('user.profile.complete', ['step' => $stepNum]) }}" 
+                       class="w-2 h-2 rounded-full transition-all
+                           {{ $stepNum == $currentStep ? 'bg-teal-600 w-8' : 'bg-teal-400 hover:bg-teal-500' }}
+                       ">
+                    </a>
+                @else
+                    <div class="w-2 h-2 rounded-full bg-gray-300 cursor-not-allowed"></div>
+                @endif
+            @endforeach
         </div>
     </div>
     

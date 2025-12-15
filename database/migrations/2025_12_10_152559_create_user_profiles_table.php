@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('mobile_number')->nullable();
             
             // Emergency Contact
+            $table->boolean('has_emergency_contact')->default(false);
             $table->string('emergency_contact_name')->nullable();
             $table->string('emergency_contact_relationship')->nullable();
             $table->string('emergency_contact_country_code')->nullable();

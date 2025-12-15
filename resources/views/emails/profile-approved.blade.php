@@ -157,7 +157,7 @@
             </center>
 
             <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
-                <strong>Approved on:</strong> {{ $approvedAt->format('F j, Y \a\t g:i A') }}
+                <strong>Approved on:</strong> {{ \Carbon\Carbon::parse($approvedAt)->format('F j, Y \a\t g:i A') }}
             </p>
 
             <p style="margin-top: 30px;">
