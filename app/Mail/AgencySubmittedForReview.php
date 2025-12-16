@@ -10,18 +10,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AgencyApproved extends Mailable implements ShouldQueue
+class AgencySubmittedForReview extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public Agency $agency;
+    public int $documentsUploaded;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Agency $agency)
+    public function __construct(Agency $agency, int $documentsUploaded)
     {
         $this->agency = $agency;
+        $this->documentsUploaded = $documentsUploaded;
     }
 
     /**
@@ -30,7 +32,7 @@ class AgencyApproved extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Congratulations! Your Agency Has Been Approved - ' . $this->agency->agency_name,
+            subject: 'New Agency Submitted for Review - ' . $this->agency->agency_name,
         );
     }
 
@@ -40,9 +42,10 @@ class AgencyApproved extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.agency.approved',
+            view: 'emails.admin.agency-submitted',
             with: [
                 'agency' => $this->agency,
+                'documentsUploaded' => $this->documentsUploaded,
             ],
         );
     }

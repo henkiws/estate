@@ -193,14 +193,16 @@
                         </svg>
                         Contact Support
                     </a>
-                    
-                    <a href="{{ route('register.agency') }}" 
-                       class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Submit New Application
-                    </a>
+                    <form method="POST" action="{{ route('agency.onboarding.new-application') }}" class="flex-1">
+                        @csrf
+                        <button type="submit" 
+                                class="lex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            New Application
+                        </button>
+                    </form>
                     
                     <form method="POST" action="{{ route('logout') }}" class="flex-1">
                         @csrf

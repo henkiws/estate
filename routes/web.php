@@ -33,13 +33,9 @@ Route::get('/', function () {
 // ============================================
 Route::middleware('guest')->group(function () {
     // Show registration form
-    Route::get('/register/agency', [AgencyRegistrationController::class, 'showRegistrationForm'])
-        ->name('register.agency');
-    
+    Route::get('/register/agency', [AgencyRegistrationController::class, 'showRegistrationForm'])->name('register.agency');
     // Handle registration submission
-    Route::post('/register/agency', [AgencyRegistrationController::class, 'register'])
-        ->name('register.agency.store');
-    
+    Route::post('/register/agency', [AgencyRegistrationController::class, 'register'])->name('register.agency.store');
     // AJAX validation endpoints
     Route::prefix('register/agency/check')->name('register.agency.check.')->group(function () {
         Route::get('abn/{abn}', [AgencyRegistrationController::class, 'checkABN'])->name('abn');
@@ -88,28 +84,17 @@ Route::middleware('auth')->group(function () {
 // ============================================
 Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency/onboarding')->name('agency.onboarding.')->group(function () {
     // Show onboarding steps
-    Route::get('/{step?}', [OnboardingController::class, 'show'])
-        ->name('show')
-        ->where('step', '[1-2]');
-    
+    Route::get('/file-preview/{path}', [OnboardingController::class, 'filePreview'])->where('path', '.*')->name('file-preview');
+    Route::get('/{step?}', [OnboardingController::class, 'show'])->name('show')->where('step', '[1-2]');
     // Complete Step 1 (Welcome)
-    Route::post('/step1/complete', [OnboardingController::class, 'completeStep1'])
-        ->name('complete-step1');
-    
+    Route::post('/step1/complete', [OnboardingController::class, 'completeStep1'])->name('complete-step1');
     // Document Upload/Delete
-    Route::post('/documents/upload', [OnboardingController::class, 'uploadDocument'])
-        ->name('documents.upload');
-    
-    Route::delete('/documents/{id}', [OnboardingController::class, 'deleteDocument'])
-        ->name('documents.delete');
-    
+    Route::post('/documents/upload', [OnboardingController::class, 'uploadDocument'])->name('documents.upload');
+    Route::delete('/documents/{id}', [OnboardingController::class, 'deleteDocument'])->name('documents.delete');
     // Submit for Admin Approval
-    Route::post('/submit', [OnboardingController::class, 'submitForApproval'])
-        ->name('submit');
-    
+    Route::post('/submit', [OnboardingController::class, 'submitForApproval'])->name('submit');
     // Skip Onboarding
-    Route::post('/skip', [OnboardingController::class, 'skip'])
-        ->name('skip');
+    Route::post('/skip', [OnboardingController::class, 'skip'])->name('skip');
 });
 
 // ============================================
@@ -124,6 +109,7 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
     Route::get('/documents', [AgencyDashboardController::class, 'documents'])->name('documents');
     Route::post('/documents/upload', [AgencyDashboardController::class, 'uploadDocument'])->name('documents.upload');
     Route::delete('/documents/{id}', [AgencyDashboardController::class, 'deleteDocument'])->name('documents.delete');
+    Route::post('/onboarding/new-application', [AgencyDashboardController::class, 'newApplication'])->name('onboarding.new-application');
     
     // Subscription Routes
     Route::prefix('subscription')->name('subscription.')->group(function () {

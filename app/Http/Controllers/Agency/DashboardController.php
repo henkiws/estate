@@ -264,4 +264,29 @@ class DashboardController extends Controller
             ]);
         }
     }
+
+    public function newApplication(Request $request)
+    {
+        $user = Auth::user();
+        $agency = $user->agency;
+
+        if (!$agency) {
+            return redirect()->route('register.agency');
+        }
+
+        // Reset agency status and onboarding
+        $agency->update([
+            'status' => 'pending',
+            'onboarding_completed_at' => null,
+            'rejection_reason' => null,
+            'reviewed_at' => null,
+        ]);
+
+        // Delete existing document requirements
+        AgencyDocumentRequirement::where('agency_id', $agency->id)->delete();
+
+        return redirect()->route('agency.onboarding.show', ['step' => 1])
+            ->with('success', 'You have started a new application. Please complete the onboarding process again.');
+
+    }
 }

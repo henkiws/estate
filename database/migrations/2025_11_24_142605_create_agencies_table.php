@@ -38,6 +38,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'active', 'suspended', 'inactive'])->default('pending');
             $table->timestamp('verified_at')->nullable();
             $table->foreignId('verified_by')->nullable()->constrained('users')->onDelete('set null');
+
+            $table->foreignId('rejected_by')->nullable()->constrained('users')->onDelete('set null');
             
             $table->timestamps();
             $table->softDeletes();

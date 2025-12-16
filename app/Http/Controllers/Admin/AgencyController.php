@@ -182,7 +182,7 @@ class AgencyController extends Controller
         }
     }
 
-    /**
+   /**
      * Approve the agency
      */
     public function approve($id)
@@ -225,11 +225,20 @@ class AgencyController extends Controller
                 ]
             );
 
-            // Send approval email
+            // Send approval email using queue
             try {
-                Mail::to($agency->business_email)->send(new AgencyApproved($agency));
+                Mail::to($agency->business_email)->queue(new AgencyApproved($agency));
+                
+                Log::info('Agency approval email queued', [
+                    'agency_id' => $id,
+                    'agency_email' => $agency->business_email,
+                ]);
             } catch (\Exception $e) {
-                Log::error('Failed to send approval email: ' . $e->getMessage());
+                Log::error('Failed to queue approval email', [
+                    'agency_id' => $id,
+                    'error' => $e->getMessage(),
+                ]);
+                // Don't fail the approval if email queuing fails
             }
 
             Log::info('Agency approved', [
@@ -286,11 +295,20 @@ class AgencyController extends Controller
                 ]
             );
 
-            // Send rejection email
+            // Send rejection email using queue
             try {
-                Mail::to($agency->business_email)->send(new AgencyRejected($agency));
+                Mail::to($agency->business_email)->queue(new AgencyRejected($agency));
+                
+                Log::info('Agency rejection email queued', [
+                    'agency_id' => $id,
+                    'agency_email' => $agency->business_email,
+                ]);
             } catch (\Exception $e) {
-                Log::error('Failed to send rejection email: ' . $e->getMessage());
+                Log::error('Failed to queue rejection email', [
+                    'agency_id' => $id,
+                    'error' => $e->getMessage(),
+                ]);
+                // Don't fail the rejection if email queuing fails
             }
 
             Log::info('Agency rejected', [

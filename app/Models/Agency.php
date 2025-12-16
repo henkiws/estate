@@ -35,9 +35,16 @@ class Agency extends Model
         'verified_at',
         'onboarding_completed_at',
         'verified_by',
+        'rejection_reason',
+        'rejected_at',
+        'rejected_by',
+        'approved_at',
+        'verified_by',
+        'approved_by'
     ];
 
     protected $casts = [
+        'rejected_at' => 'datetime',
         'verified_at' => 'datetime',
         'license_expiry_date' => 'date',
     ];

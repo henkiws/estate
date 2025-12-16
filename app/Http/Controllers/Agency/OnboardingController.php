@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\AgencyDocumentRequirement;
 use App\Models\ActivityLog;
+use App\Models\User;
+use App\Mail\AgencySubmittedForReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\Response;
 
 class OnboardingController extends Controller
 {
@@ -45,6 +49,16 @@ class OnboardingController extends Controller
             'currentStep' => $step,
             'agency' => $agency,
         ], $data));
+    }
+
+    public function filePreview($path) {
+        if (!Storage::disk('private')->exists($path)) {
+            abort(404);
+        }
+
+        return response()->file(
+            Storage::disk('private')->path($path)
+        );
     }
 
     /**
@@ -249,6 +263,26 @@ class OnboardingController extends Controller
             'agency_id' => $agency->id,
             'agency_name' => $agency->agency_name,
         ]);
+
+        // Send notification to all admins using queue
+        try {
+            $admins = User::role('admin')->get();
+            
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->queue(new AgencySubmittedForReview($agency, $uploadedCount));
+            }
+            
+            Log::info('Agency submission notifications queued for admins', [
+                'agency_id' => $agency->id,
+                'admin_count' => $admins->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to queue admin notifications for agency submission', [
+                'agency_id' => $agency->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the submission if email queuing fails
+        }
 
         return redirect()->route('agency.dashboard')
             ->with('success', 'Documents submitted successfully! Your application is now pending admin review. You will receive an email once your agency is approved.');

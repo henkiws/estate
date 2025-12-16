@@ -15,9 +15,55 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        // ==================== Mobile Menu Toggle ====================
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            // Toggle hamburger animation
+            const spans = mobileMenuToggle.querySelectorAll('span');
+            spans[0].classList.toggle('rotate-45');
+            spans[0].classList.toggle('translate-y-2');
+            spans[1].classList.toggle('opacity-0');
+            spans[2].classList.toggle('-rotate-45');
+            spans[2].classList.toggle('-translate-y-2');
+            
+            // Toggle menu visibility
+            navMenu.classList.toggle('translate-x-full');
+            document.body.style.overflow = navMenu.classList.contains('translate-x-full') ? '' : 'hidden';
+        });
+
+        // Close menu when clicking nav links
+        const navLinks = document.querySelectorAll('.nav-links a, #navMenu a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const spans = mobileMenuToggle.querySelectorAll('span');
+                spans[0].classList.remove('rotate-45', 'translate-y-2');
+                spans[1].classList.remove('opacity-0');
+                spans[2].classList.remove('-rotate-45', '-translate-y-2');
+                navMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && 
+                !mobileMenuToggle.contains(e.target) && 
+                !navMenu.classList.contains('translate-x-full')) {
+                const spans = mobileMenuToggle.querySelectorAll('span');
+                spans[0].classList.remove('rotate-45', 'translate-y-2');
+                spans[1].classList.remove('opacity-0');
+                spans[2].classList.remove('-rotate-45', '-translate-y-2');
+                navMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            }
+        });
+
         
         // ==================== Global Element References ====================
-        const layoutMobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const layoutMobileMenuToggle = document.getElementById('mobileMenuToggle');
         const layoutNavMenu = document.getElementById('nav-menu');
         const layoutNavbar = document.getElementById('navbar');
         
