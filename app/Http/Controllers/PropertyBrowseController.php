@@ -124,30 +124,44 @@ class PropertyBrowseController extends Controller
     /**
      * Display property detail page
      */
-    public function show(Property $property)
+    public function show($publicUrlCode)
     {
-        $property->load(['images', 'agency', 'features']);
+        // Find property by public_url_code
+        $property = Property::where('public_url_code', $publicUrlCode)
+            ->where('status', 'active')
+            ->with(['images', 'agency', 'agents'])
+            ->firstOrFail();
+        
+        // Increment view count
+        $property->increment('view_count');
         
         // Check if favorited (if logged in)
         $isFavorited = false;
         if (Auth::check()) {
-            $isFavorited = Favorite::isFavorited(Auth::id(), $property->id);
+            $isFavorited = Favorite::where('user_id', Auth::id())
+                ->where('property_id', $property->id)
+                ->exists();
         }
         
-        // Get similar properties
+        // Get similar properties (same suburb, similar price)
         $similarProperties = Property::with(['images'])
             ->where('suburb', $property->suburb)
             ->where('id', '!=', $property->id)
-            ->where('status', 'available')
-            ->whereBetween('price_per_week', [
-                $property->price_per_week * 0.8,
-                $property->price_per_week * 1.2
-            ])
+            ->where('status', 'active')
+            ->when($property->listing_type == 'rent', function($query) use ($property) {
+                $query->whereBetween('rent_per_week', [
+                    $property->rent_per_week * 0.8,
+                    $property->rent_per_week * 1.2
+                ]);
+            })
+            ->when($property->listing_type == 'sale', function($query) use ($property) {
+                $query->whereBetween('price', [
+                    $property->price * 0.8,
+                    $property->price * 1.2
+                ]);
+            })
             ->take(3)
             ->get();
-        
-        // Increment views (optional)
-        // $property->increment('views');
         
         return view('properties.show', compact(
             'property',

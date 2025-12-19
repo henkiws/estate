@@ -77,23 +77,8 @@
 
                 <div>
                     <label for="street_name" class="block text-sm font-medium text-gray-700 mb-2">Street Name *</label>
-                    <input type="text" name="street_name" id="street_name" required placeholder="e.g., Main"
+                    <input type="text" name="street_name" id="street_name" required placeholder="e.g., Main Street"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-
-                <div>
-                    <label for="street_type" class="block text-sm font-medium text-gray-700 mb-2">Street Type</label>
-                    <select name="street_type" id="street_type"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Select...</option>
-                        <option value="Street">Street</option>
-                        <option value="Road">Road</option>
-                        <option value="Avenue">Avenue</option>
-                        <option value="Drive">Drive</option>
-                        <option value="Court">Court</option>
-                        <option value="Lane">Lane</option>
-                        <option value="Place">Place</option>
-                    </select>
                 </div>
 
                 <div>
@@ -156,23 +141,10 @@
                 </div>
 
                 <div>
-                    <label for="building_size" class="block text-sm font-medium text-gray-700 mb-2">Building Size (sqm)</label>
-                    <input type="number" name="building_size" id="building_size" min="0" step="0.01" placeholder="0"
+                    <label for="unit_size" class="block text-sm font-medium text-gray-700 mb-2">Unit Size (sqm)</label>
+                    <input type="number" name="unit_size" id="unit_size" min="0" step="0.01" placeholder="0"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
-            </div>
-
-            <!-- Description -->
-            <div class="mt-6">
-                <label for="headline" class="block text-sm font-medium text-gray-700 mb-2">Property Headline</label>
-                <input type="text" name="headline" id="headline" placeholder="e.g., Modern 3BR Home in Prime Location" maxlength="255"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-
-            <div class="mt-4">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Property Description</label>
-                <textarea name="description" id="description" rows="6" placeholder="Describe the property features, location, and benefits..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
             </div>
         </div>
 
@@ -237,7 +209,7 @@
 
         <!-- 5. Floorplan & Images -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">5. Floorplan & Property Images</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-6">5. Upload Image / Floorplan</h2>
             
             <!-- Floorplan -->
             <div class="mb-6">
@@ -254,91 +226,11 @@
                 </div>
                 <div id="floorplanPreview" class="mt-2 hidden"></div>
             </div>
-
-            <!-- Property Images -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Property Images (Multiple)</label>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
-                    <input type="file" name="images[]" id="images" accept=".jpg,.jpeg,.png" multiple class="hidden" onchange="previewImages(this)">
-                    <label for="images" class="cursor-pointer">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">Click to upload property images</p>
-                        <p class="text-xs text-gray-500">JPG or PNG, Max 5MB each, Up to 20 images</p>
-                    </label>
-                </div>
-                <div id="imagesPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-            </div>
         </div>
 
-        <!-- 6. Features -->
+        <!-- 6. Availability & Agent Assignment -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">6. Property Features</h2>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Air Conditioning" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Air Conditioning</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Heating" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Heating</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Built-in Wardrobes" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Built-in Wardrobes</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Dishwasher" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Dishwasher</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Swimming Pool" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Swimming Pool</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Garage" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Garage</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Balcony/Deck" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Balcony/Deck</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Pet Friendly" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Pet Friendly</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Fully Furnished" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Fully Furnished</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Alarm System" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Alarm System</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Broadband Internet" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Broadband Internet</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="features[]" value="Garden/Yard" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                    <span class="text-sm text-gray-700">Garden/Yard</span>
-                </label>
-            </div>
-
-            <!-- Custom Features -->
-            <div class="mt-6">
-                <label for="custom_features" class="block text-sm font-medium text-gray-700 mb-2">Custom Features (comma-separated)</label>
-                <input type="text" name="custom_features" id="custom_features" placeholder="e.g., Solar panels, Rainwater tank, EV charging"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <p class="mt-1 text-xs text-gray-500">Add additional features separated by commas</p>
-            </div>
-        </div>
-
-        <!-- 7. Availability & Agent Assignment -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">7. Availability & Agent Assignment</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-6">6. Availability & Agent Assignment</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Availability -->
@@ -361,13 +253,13 @@
                 <!-- Agent Assignment -->
                 <div class="md:col-span-2">
                     <label for="agents" class="block text-sm font-medium text-gray-700 mb-2">Assign Agents</label>
-                    <select name="agents[]" id="agents" multiple size="5"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select name="agents[]" id="agents" multiple
+                            class="w-full select2-agents">
                         @foreach($agents as $agent)
                             <option value="{{ $agent->id }}">{{ $agent->first_name }} {{ $agent->last_name }} - {{ $agent->position }}</option>
                         @endforeach
                     </select>
-                    <p class="mt-1 text-xs text-gray-500">Hold Ctrl/Cmd to select multiple agents. First selected will be the listing agent.</p>
+                    <p class="mt-1 text-xs text-gray-500">You can select multiple agents. First selected will be the listing agent.</p>
                 </div>
             </div>
         </div>
@@ -390,55 +282,130 @@
 
 <!-- Success Modal -->
 <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all scale-95" id="modalContent">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 transform transition-all scale-95" id="modalContent">
         <!-- Success Icon -->
         <div class="flex justify-center mb-6">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
                 <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
         </div>
 
         <!-- Title -->
-        <h2 class="text-2xl font-bold text-center text-gray-900 mb-2">Property Added Successfully!</h2>
-        <p class="text-center text-gray-600 mb-6">Your property listing is now live</p>
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-2">🎉 Congratulations!</h2>
+        <p class="text-center text-gray-600 mb-8 text-lg">Your property has been successfully listed</p>
 
-        <!-- URL Display -->
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-            <label class="block text-xs font-medium text-gray-700 mb-2">Property Link:</label>
-            <div class="flex items-center gap-2">
-                <input type="text" id="propertyUrl" readonly
-                       class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <!-- Share Section Title -->
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Share your property listing</h3>
+
+        <!-- Copy Link Section -->
+        <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-6">
+            <div class="flex items-center gap-3">
                 <button onclick="copyUrl()" id="copyBtn"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="px-5 py-2.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition flex items-center gap-2 font-medium shadow-sm flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
-                    <span id="copyText">Copy</span>
+                    <span id="copyText">Copy link</span>
                 </button>
+
+                <input type="text" id="propertyUrl" readonly
+                       class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-mono text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                       onclick="this.select(); copyUrl();">
+
+                <a href="#" id="viewPropertyBtn" target="_blank"
+                   class="px-4 py-2.5 text-gray-600 hover:text-gray-900 transition flex items-center gap-2 flex-shrink-0">
+                    <span class="text-sm font-medium">Edit</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                </a>
             </div>
         </div>
 
-        <p class="text-sm text-gray-600 text-center mb-6">
-            Share this link with potential tenants/buyers. They can view property details and submit applications directly.
-        </p>
+        <!-- Link Preview Card -->
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 hover:border-gray-300 transition">
+            <div class="flex items-start gap-4">
+                <!-- Preview Icon/Image -->
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </div>
+                
+                <!-- Preview Info -->
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-gray-900 text-sm mb-1">Property Listing</h4>
+                    <p class="text-xs text-gray-500 truncate" id="previewUrl">Loading...</p>
+                </div>
+
+                <!-- Preview Button -->
+                <a href="#" id="viewPropertyBtn2" target="_blank"
+                   class="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition flex items-center gap-1 flex-shrink-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    Preview
+                </a>
+            </div>
+        </div>
+
+        <!-- Info Message -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+            <p class="text-sm text-blue-800 text-center flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Share this link with potential tenants or buyers to view the property details</span>
+            </p>
+        </div>
 
         <!-- Action Buttons -->
-        <div class="flex gap-3">
-            <a href="#" id="viewPropertyBtn" target="_blank"
-               class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center font-medium">
-                View Property
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="#" id="viewPropertyBtnMain" target="_blank"
+               class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition text-center font-semibold shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                View Property Page
             </a>
             <button onclick="closeModal()" 
-                    class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
-                Close
+                    class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold">
+                Done
             </button>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{{ route('agency.properties.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Properties List
+            </a>
         </div>
     </div>
 </div>
 
+<!-- Add Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Add jQuery and Select2 JS before closing body tag -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
+// Initialize Select2 for agents
+$(document).ready(function() {
+    $('.select2-agents').select2({
+        placeholder: 'Select agents...',
+        allowClear: true,
+        width: '100%',
+        theme: 'default'
+    });
+});
+
 // Toggle pricing section based on listing type
 function togglePricing() {
     const listingType = document.getElementById('listing_type').value;
@@ -496,29 +463,6 @@ function previewFloorplan(input) {
     }
 }
 
-// Preview property images
-function previewImages(input) {
-    const preview = document.getElementById('imagesPreview');
-    preview.innerHTML = '';
-    
-    if (input.files) {
-        Array.from(input.files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const div = document.createElement('div');
-                div.className = 'relative group';
-                div.innerHTML = `
-                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
-                    ${index === 0 ? '<div class="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">Featured</div>' : ''}
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition rounded-lg"></div>
-                `;
-                preview.appendChild(div);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-}
-
 // Form submission with AJAX
 document.getElementById('propertyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -530,20 +474,29 @@ document.getElementById('propertyForm').addEventListener('submit', async functio
     const formData = new FormData(this);
     
     try {
+        // Get CSRF token from the form
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+        
         const response = await fetch('{{ route("agency.properties.store") }}', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
             }
         });
         
         const data = await response.json();
         
         if (data.success) {
-            // Show success modal
+            // Populate all URL fields in the modal
             document.getElementById('propertyUrl').value = data.public_url;
+            document.getElementById('previewUrl').textContent = data.public_url;
             document.getElementById('viewPropertyBtn').href = data.public_url;
+            document.getElementById('viewPropertyBtn2').href = data.public_url;
+            document.getElementById('viewPropertyBtnMain').href = data.public_url;
+            
+            // Show success modal
             document.getElementById('successModal').classList.remove('hidden');
             setTimeout(() => {
                 document.getElementById('modalContent').classList.remove('scale-95');
@@ -566,19 +519,31 @@ document.getElementById('propertyForm').addEventListener('submit', async functio
 function copyUrl() {
     const input = document.getElementById('propertyUrl');
     input.select();
-    document.execCommand('copy');
+    input.setSelectionRange(0, 99999); // For mobile devices
     
-    const copyBtn = document.getElementById('copyBtn');
-    const copyText = document.getElementById('copyText');
-    copyText.textContent = 'Copied!';
-    copyBtn.classList.add('bg-green-600');
-    copyBtn.classList.remove('bg-blue-600');
-    
-    setTimeout(() => {
-        copyText.textContent = 'Copy';
-        copyBtn.classList.remove('bg-green-600');
-        copyBtn.classList.add('bg-blue-600');
-    }, 2000);
+    // Modern clipboard API
+    navigator.clipboard.writeText(input.value).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        const copyText = document.getElementById('copyText');
+        
+        copyText.textContent = '✓ Copied!';
+        copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        copyBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        
+        setTimeout(() => {
+            copyText.textContent = 'Copy';
+            copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            copyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        }, 2000);
+    }).catch(() => {
+        // Fallback for older browsers
+        document.execCommand('copy');
+        const copyText = document.getElementById('copyText');
+        copyText.textContent = '✓ Copied!';
+        setTimeout(() => {
+            copyText.textContent = 'Copy';
+        }, 2000);
+    });
 }
 
 // Close modal
@@ -593,5 +558,67 @@ document.getElementById('successModal').addEventListener('click', function(e) {
         closeModal();
     }
 });
+
+// Prevent modal close on content click
+document.getElementById('modalContent').addEventListener('click', function(e) {
+    e.stopPropagation();
+});
 </script>
+
+<style>
+/* Custom Select2 styling to match your design */
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 0.375rem !important;
+    min-height: 42px !important;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #3b82f6 !important;
+    border: none !important;
+    border-radius: 0.375rem !important;
+    padding: 0.25rem 0.5rem !important;
+    color: white !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white !important;
+    margin-right: 0.25rem !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #dbeafe !important;
+}
+
+.select2-dropdown {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #3b82f6 !important;
+}
+
+/* Animation for modal */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#modalContent {
+    animation: modalFadeIn 0.3s ease-out;
+}
+</style>
 @endsection

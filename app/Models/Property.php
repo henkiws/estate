@@ -268,10 +268,12 @@ class Property extends Model
         return null;
     }
 
+    /**
+     * Get the public URL for the property
+     */
     public function getPublicUrlAttribute()
     {
-        // Use property_code for SEO-friendly public URLs
-        return route('properties.show', $this->property_code);
+        return route('properties.show', $this->public_url_code);
     }
 
     /**
@@ -487,4 +489,5 @@ class Property extends Model
     {
         return $this->savedByUsers()->count();
     }
+
 }

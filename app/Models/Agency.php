@@ -31,6 +31,12 @@ class Agency extends Model
         'business_phone',
         'business_email',
         'website_url',
+        'logo_path',                    // NEW
+        'description',                  // NEW
+        'facebook_url',                 // NEW
+        'linkedin_url',                 // NEW
+        'instagram_url',                // NEW
+        'twitter_url',                  // NEW
         'status',
         'verified_at',
         'onboarding_completed_at',
@@ -48,6 +54,37 @@ class Agency extends Model
         'verified_at' => 'datetime',
         'license_expiry_date' => 'date',
     ];
+
+    /**
+     * Get the logo URL
+     */
+    public function getLogoUrlAttribute()
+    {
+        if ($this->logo_path) {
+            return Storage::url($this->logo_path);
+        }
+        return null;
+    }
+
+    /**
+     * Check if agency has a logo
+     */
+    public function hasLogo(): bool
+    {
+        return !is_null($this->logo_path);
+    }
+
+    /**
+     * Get agency initials for avatar fallback
+     */
+    public function getInitialsAttribute(): string
+    {
+        $words = explode(' ', $this->agency_name);
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+        }
+        return strtoupper(substr($this->agency_name, 0, 2));
+    }
 
     // Relationships
     public function users(): HasMany

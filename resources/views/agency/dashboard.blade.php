@@ -149,7 +149,7 @@
                     </div>
                 </div>
                 <div class="mt-6 pt-6 border-t border-gray-100">
-                    <a href="{{ route('agency.profile') }}" class="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm">
+                    <a href="{{ route('agency.profile.edit') }}" class="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm">
                         View Full Profile
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>

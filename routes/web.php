@@ -130,12 +130,19 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
     
     // Protected routes (only for ACTIVE agencies)
     Route::middleware('agency.active')->group(function () {
-        
-        // Agency Profile
-        Route::get('/profile', function () {
-            $agency = auth()->user()->agency;
-            return view('agency.profile', compact('agency'));
-        })->name('profile');
+
+        // Agency Profile Management
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/edit', [App\Http\Controllers\Agency\AgencyProfileController::class, 'edit'])->name('edit');
+            Route::patch('/update', [App\Http\Controllers\Agency\AgencyProfileController::class, 'update'])->name('update');
+            Route::delete('/delete-logo', [App\Http\Controllers\Agency\AgencyProfileController::class, 'deleteLogo'])->name('delete-logo');
+        });
+
+        // Billing & Subscription History
+        Route::prefix('billing')->name('billing.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Agency\BillingController::class, 'index'])->name('index');
+            Route::get('/invoice/{transaction}', [App\Http\Controllers\Agency\BillingController::class, 'downloadInvoice'])->name('download-invoice');
+        });
         
         // Agency Settings
         Route::get('/settings', function () {
@@ -514,8 +521,8 @@ Route::post('/webhook/stripe', [SubscriptionController::class, 'webhook'])->with
 //     Route::post('/{code}/inspection', [App\Http\Controllers\PublicPropertyController::class, 'bookInspection'])->name('inspection');
 // });
 
-
-Route::get('/properties', [PropertyBrowseController::class, 'index'])->name('properties.index');
-Route::get('/properties/{property}', [PropertyBrowseController::class, 'show'])->name('properties.show');
+// Property browse and detail pages
+Route::get('/properties', [App\Http\Controllers\PropertyBrowseController::class, 'index'])->name('properties.index');
+Route::get('/properties/{publicUrlCode}', [App\Http\Controllers\PropertyBrowseController::class, 'show'])->name('properties.show');
 
 require __DIR__.'/auth.php';

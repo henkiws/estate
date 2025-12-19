@@ -72,7 +72,7 @@ class PropertyController extends Controller
         return view('agency.properties.create', compact('agents'));
     }
 
-    /**
+   /**
      * Store a newly created property.
      */
     public function store(Request $request)
@@ -87,7 +87,6 @@ class PropertyController extends Controller
             // Address
             'street_number' => 'nullable|string|max:20',
             'street_name' => 'required|string|max:255',
-            'street_type' => 'nullable|string|max:50',
             'unit_number' => 'nullable|string|max:20',
             'suburb' => 'required|string|max:100',
             'state' => 'required|string|max:50',
@@ -98,55 +97,46 @@ class PropertyController extends Controller
             'bathrooms' => 'nullable|integer|min:0',
             'parking_spaces' => 'nullable|integer|min:0',
             'land_size' => 'nullable|numeric|min:0',
-            'building_size' => 'nullable|numeric|min:0',
+            'unit_size' => 'nullable|numeric|min:0', // Changed from building_size
             
             // Pricing
             'price' => 'nullable|numeric|min:0',
             'rent_per_week' => 'nullable|numeric|min:0',
             'bond_weeks' => 'nullable|integer|min:1|max:52',
-            
-            // Description
-            'headline' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            
-            // Features
-            'features' => 'nullable|array',
-            'custom_features' => 'nullable|string',
+            'price_text' => 'nullable|string|max:255',
             
             // Availability
             'available_from' => 'nullable|date',
             'status' => 'required|in:draft,active',
             
             // Files
-            'floorplan' => 'nullable|image|mimes:jpeg,jpg,png,pdf|max:5120',
-            'images.*' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            'floorplan' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120',
             
             // Agents
             'agents' => 'nullable|array',
             'agents.*' => 'exists:agents,id',
         ]);
 
-        // Build full address
+        // Build full address (without street_type)
         $addressParts = array_filter([
             $validated['unit_number'] ?? null,
             $validated['street_number'] ?? null,
             $validated['street_name'],
-            $validated['street_type'] ?? null,
             $validated['suburb'],
             $validated['state'],
             $validated['postcode'],
         ]);
         $validated['full_address'] = implode(' ', $addressParts);
 
-        // Merge custom features with selected features
-        if (!empty($validated['custom_features'])) {
-            $customFeatures = array_map('trim', explode(',', $validated['custom_features']));
-            $validated['features'] = array_merge($validated['features'] ?? [], $customFeatures);
-        }
-
         // Set bond weeks default
         if ($validated['listing_type'] === 'rent' && empty($validated['bond_weeks'])) {
             $validated['bond_weeks'] = 4;
+        }
+
+        // Map unit_size to building_size for database compatibility
+        if (isset($validated['unit_size'])) {
+            $validated['building_size'] = $validated['unit_size'];
+            unset($validated['unit_size']);
         }
 
         // Create property
@@ -158,23 +148,6 @@ class PropertyController extends Controller
         if ($request->hasFile('floorplan')) {
             $path = $request->file('floorplan')->store('properties/floorplans', 'public');
             $property->update(['floorplan_path' => $path]);
-        }
-
-        // Handle property images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('properties/images', 'public');
-                
-                PropertyImage::create([
-                    'property_id' => $property->id,
-                    'file_path' => $path,
-                    'file_name' => $image->getClientOriginalName(),
-                    'file_type' => $image->getMimeType(),
-                    'file_size' => $image->getSize(),
-                    'sort_order' => $index,
-                    'is_featured' => $index === 0, // First image is featured
-                ]);
-            }
         }
 
         // Assign agents
@@ -192,7 +165,7 @@ class PropertyController extends Controller
             'success' => true,
             'message' => 'Property added successfully!',
             'property_id' => $property->id,
-            'public_url' => $property->public_url,
+            'public_url' => route('properties.show', $property->public_url_code),
             'public_url_code' => $property->public_url_code,
         ]);
     }
@@ -234,52 +207,59 @@ class PropertyController extends Controller
         // $this->authorize('update', $property);
 
         $validated = $request->validate([
-            // Same validation as store
+            // Property Type
             'property_type' => 'required|string',
             'listing_type' => 'required|in:sale,rent',
+            
+            // Address (removed street_type)
             'street_number' => 'nullable|string|max:20',
             'street_name' => 'required|string|max:255',
-            'street_type' => 'nullable|string|max:50',
             'unit_number' => 'nullable|string|max:20',
             'suburb' => 'required|string|max:100',
             'state' => 'required|string|max:50',
             'postcode' => 'required|string|max:10',
+            
+            // Details (changed building_size to unit_size)
             'bedrooms' => 'nullable|integer|min:0',
             'bathrooms' => 'nullable|integer|min:0',
             'parking_spaces' => 'nullable|integer|min:0',
             'land_size' => 'nullable|numeric|min:0',
-            'building_size' => 'nullable|numeric|min:0',
+            'unit_size' => 'nullable|numeric|min:0',
+            
+            // Pricing
             'price' => 'nullable|numeric|min:0',
             'rent_per_week' => 'nullable|numeric|min:0',
             'bond_weeks' => 'nullable|integer|min:1|max:52',
-            'headline' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'features' => 'nullable|array',
-            'custom_features' => 'nullable|string',
+            'price_text' => 'nullable|string|max:255',
+            
+            // Availability
             'available_from' => 'nullable|date',
             'status' => 'required|in:draft,active',
-            'floorplan' => 'nullable|image|mimes:jpeg,jpg,png,pdf|max:5120',
+            
+            // Files
+            'floorplan' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120',
             'images.*' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            
+            // Agents
             'agents' => 'nullable|array',
             'agents.*' => 'exists:agents,id',
         ]);
 
-        // Update full address
+        // Update full address (without street_type)
         $addressParts = array_filter([
             $validated['unit_number'] ?? null,
             $validated['street_number'] ?? null,
             $validated['street_name'],
-            $validated['street_type'] ?? null,
             $validated['suburb'],
             $validated['state'],
             $validated['postcode'],
         ]);
         $validated['full_address'] = implode(' ', $addressParts);
 
-        // Merge custom features
-        if (!empty($validated['custom_features'])) {
-            $customFeatures = array_map('trim', explode(',', $validated['custom_features']));
-            $validated['features'] = array_merge($validated['features'] ?? [], $customFeatures);
+        // Map unit_size to building_size for database compatibility
+        if (isset($validated['unit_size'])) {
+            $validated['building_size'] = $validated['unit_size'];
+            unset($validated['unit_size']);
         }
 
         // Update property
@@ -326,8 +306,14 @@ class PropertyController extends Controller
             }
         }
 
-        return redirect()->route('agency.properties.show', $property)
-            ->with('success', 'Property updated successfully!');
+        // Return JSON response for AJAX
+        return response()->json([
+            'success' => true,
+            'message' => 'Property updated successfully!',
+            'property_id' => $property->id,
+            'public_url' => route('properties.show', $property->public_url_code),
+            'public_url_code' => $property->public_url_code,
+        ]);
     }
 
     /**

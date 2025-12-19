@@ -118,36 +118,13 @@
                             <div class="text-sm text-gray-600 mt-1">Land (sqm)</div>
                         </div>
                     @endif
-                </div>
-
-                <!-- Headline -->
-                @if($property->headline)
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ $property->headline }}</h3>
-                @endif
-
-                <!-- Description -->
-                @if($property->description)
-                    <div class="prose prose-sm max-w-none text-gray-700 mb-6">
-                        {!! nl2br(e($property->description)) !!}
-                    </div>
-                @endif
-
-                <!-- Features -->
-                @if($property->features && count($property->features) > 0)
-                    <div class="border-t border-gray-200 pt-6">
-                        <h4 class="font-semibold text-gray-900 mb-3">Features</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            @foreach($property->features as $feature)
-                                <div class="flex items-center gap-2 text-sm text-gray-700">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    {{ $feature }}
-                                </div>
-                            @endforeach
+                    @if($property->building_size)
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div class="text-3xl font-bold text-gray-900">{{ number_format($property->building_size) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Unit (sqm)</div>
                         </div>
-                    </div>
-                @endif
+                    @endif
+                </div>
 
                 <!-- Floorplan -->
                 @if($property->floorplan_path)
@@ -184,7 +161,7 @@
                                 </div>
                                 <div>
                                     <div class="font-semibold text-gray-900">{{ $agent->first_name }} {{ $agent->last_name }}</div>
-                                    <div class="text-sm text-gray-600">{{ ucfirst($agent->pivot->role) }}</div>
+                                    <div class="text-sm text-gray-600">{{ ucfirst(str_replace('_', ' ', $agent->pivot->role)) }}</div>
                                     @if($agent->email)
                                         <div class="text-sm text-blue-600">{{ $agent->email }}</div>
                                     @endif
@@ -333,13 +310,24 @@ function changeMainImage(url) {
 function copyPublicUrl() {
     const input = document.getElementById('publicUrl');
     input.select();
-    document.execCommand('copy');
+    input.setSelectionRange(0, 99999); // For mobile devices
     
-    const btnText = document.getElementById('copyBtnText');
-    btnText.textContent = 'Copied!';
-    setTimeout(() => {
-        btnText.textContent = 'Copy Link';
-    }, 2000);
+    // Modern clipboard API
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        btnText.textContent = '✓ Copied!';
+        setTimeout(() => {
+            btnText.textContent = 'Copy Link';
+        }, 2000);
+    }).catch(() => {
+        // Fallback for older browsers
+        document.execCommand('copy');
+        const btnText = document.getElementById('copyBtnText');
+        btnText.textContent = '✓ Copied!';
+        setTimeout(() => {
+            btnText.textContent = 'Copy Link';
+        }, 2000);
+    });
 }
 </script>
 @endsection
