@@ -17,35 +17,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ProfileCompletionController extends Controller
 {
     /**
-     * Show profile completion form with enhanced UI
+     * Show profile overview with all sections (card-based UI)
      */
-    public function index(Request $request)
+    public function overview()
     {
         $user = Auth::user();
         $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
         
-        // Check if profile is already approved
-        if ($profile->exists && $profile->isComplete()) {
-            return redirect()->route('user.dashboard')
-                ->with('info', 'Your profile is already complete and approved.');
-        }
-
-        if ($profile->exists && $profile->isPending()) {
-            return redirect()->route('user.profile.view');
-        }
-
-        // Get current step from user record or default to 1
-        $currentStep = $user->profile_current_step ?? 1;
-
-        if (!empty($request->query('step'))) {
-            $currentStep = (int) $request->query('step');
-        }  
-        
-        // Load all related data for the form
+        // Load all related data for the overview with eager loading
         $user->load([
             'incomes',
             'employments',
@@ -56,42 +40,126 @@ class ProfileCompletionController extends Controller
             'identifications'
         ]);
         
-        return view('user.profile.complete', [
-            'currentStep' => $currentStep,
+        // Calculate total ID points
+        $totalPoints = $user->identifications->sum('points') ?? 0;
+        
+        // Calculate completion percentage for each section
+        $completionStats = $this->calculateCompletionStats($user, $profile);
+        
+        // Calculate overall completion
+        $overallCompletion = count(array_filter($completionStats)) / count($completionStats) * 100;
+        $totalProfilePoints = ($overallCompletion / 100) * 80;
+        
+        return view('user.profile.overview', [
             'profile' => $profile,
             'user' => $user,
+            'totalPoints' => $totalPoints,
+            'completionStats' => $completionStats,
+            'overallCompletion' => round($overallCompletion, 2),
+            'totalProfilePoints' => round($totalProfilePoints, 2),
         ]);
+    }
+
+    /**
+     * Calculate completion statistics for all sections
+     */
+    private function calculateCompletionStats($user, $profile)
+    {
+        return [
+            'personal_details' => $this->isStep1Complete($profile),
+            'introduction' => $this->isStep2Complete($profile),
+            'income' => $this->isStep3Complete($user),
+            'employment' => $this->isStep4Complete($user),
+            'pets' => $this->isStep5Complete($user),
+            'vehicles' => $this->isStep6Complete($user),
+            'address_history' => $this->isStep7Complete($user),
+            'references' => $this->isStep8Complete($user),
+            'identification' => $this->isStep9Complete($user),
+            'terms' => $this->isStep10Complete($profile),
+        ];
+    }
+    
+    // ==================== COMPLETION CHECK METHODS ====================
+    
+    private function isStep1Complete($profile)
+    {
+        return $profile && 
+               $profile->title &&
+               $profile->first_name && 
+               $profile->last_name && 
+               $profile->date_of_birth && 
+               $profile->email &&
+               $profile->mobile_country_code &&
+               $profile->mobile_number;
+    }
+    
+    private function isStep2Complete($profile)
+    {
+        // Introduction is optional, so always complete
+        return true;
+    }
+    
+    private function isStep3Complete($user)
+    {
+        return $user->incomes()->count() > 0;
+    }
+    
+    private function isStep4Complete($user)
+    {
+        // Employment is optional, so always complete
+        return true;
+    }
+    
+    private function isStep5Complete($user)
+    {
+        // Pets are optional, so always complete
+        return true;
+    }
+    
+    private function isStep6Complete($user)
+    {
+        // Vehicles are optional, so always complete
+        return true;
+    }
+    
+    private function isStep7Complete($user)
+    {
+        return $user->addresses()->count() > 0;
+    }
+    
+    private function isStep8Complete($user)
+    {
+        return $user->references()->count() >= 2;
+    }
+    
+    private function isStep9Complete($user)
+    {
+        $totalPoints = $user->identifications->sum('points') ?? 0;
+        return $totalPoints >= 80;
+    }
+    
+    private function isStep10Complete($profile)
+    {
+        return $profile && 
+               $profile->terms_accepted && 
+               $profile->signature;
+    }
+
+    /**
+     * Show profile completion form (redirects to overview for card-based UI)
+     */
+    public function index(Request $request)
+    {
+        return redirect()->route('user.profile.overview');
     }
 
     public function show(Request $request)
     {
-        $user = auth()->user();
-        
-        // Get step from query parameter (?step=4)
-        $step = $request->query('step');
-        
-        if ($step === null) {
-            $step = $user->profile_current_step ?? 1;
-        }
-        
-        $step = (int) $step;
-        
-        // Security: Don't allow jumping ahead
-        $maxAllowedStep = $user->profile_current_step ?? 1;
-        if ($step > $maxAllowedStep) {
-            $step = $maxAllowedStep;
-        }
-        
-        $step = max(1, min(10, $step));
-        
-        $profile = $user->profile;
-        
-        // CRITICAL: Pass $step to view!
-        return view('user.profile.complete', compact('user', 'profile', 'step'));
+        return redirect()->route('user.profile.overview');
     }
 
     /**
-     * Update step - handle both AJAX and form submission
+     * Update step - handle form submission from cards
      */
     public function updateStep(Request $request)
     {
@@ -99,6 +167,8 @@ class ProfileCompletionController extends Controller
         $step = $request->input('step') ?? $request->input('current_step');
         
         try {
+            DB::beginTransaction();
+            
             switch ($step) {
                 case 1:
                     $result = $this->saveStep1($request, $user);
@@ -131,86 +201,70 @@ class ProfileCompletionController extends Controller
                     $result = $this->saveStep10($request, $user);
                     break;
                 default:
-                    return $this->handleResponse($request, false, 'Invalid step', $step);
+                    throw new \Exception('Invalid step');
             }
             
-            // Handle successful save
+            DB::commit();
+            
+            // Handle step 10 completion (redirect to view page)
             if (is_array($result) && isset($result['redirect'])) {
-                // Step 10 complete - redirect to view
                 return redirect($result['redirect'])
                     ->with('success', $result['message'] ?? 'Profile completed successfully!');
             }
             
-            // Move to next step
-            $nextStep = $result['next_step'] ?? ($step + 1);
-            return $this->handleResponse($request, true, 'Progress saved!', $nextStep);
+            // For all other steps, redirect back to overview
+            return redirect()->route('user.profile.overview')
+                ->with('success', 'Section saved successfully!');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->handleResponse($request, false, 'Please check your form inputs', $step, $e->errors());
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('error', 'Please fix the validation errors');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Profile step save error', [
                 'step' => $step,
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-            return $this->handleResponse($request, false, 'An error occurred. Please try again.', $step);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Handle response - AJAX or redirect
-     */
-    private function handleResponse($request, $success, $message, $step, $errors = [])
-    {
-        if ($request->wantsJson() || $request->ajax()) {
-            $response = [
-                'success' => $success,
-                'message' => $message,
-                'next_step' => $step
-            ];
-            
-            if (!empty($errors)) {
-                $response['errors'] = $errors;
-            }
-            
-            return response()->json($response, $success ? 200 : 422);
-        }
-        
-        // Regular form submission
-        if ($success) {
-            return redirect()->route('user.profile.complete')
-                ->with('success', $message);
-        } else {
-            return redirect()->back()
-                ->withErrors($errors)
-                ->withInput()
-                ->with('error', $message);
-        }
-    }
+    // ==================== STEP SAVE METHODS ====================
 
     private function saveStep1(Request $request, $user)
     {
         $validated = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|in:Mr,Mrs,Ms,Miss,Dr,Prof',
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'surname' => 'nullable|string|max:255',
             'date_of_birth' => 'required|date|before:' . now()->subYears(18)->format('Y-m-d'),
-            'email' => 'required|email',
+            'email' => 'required|email|max:255',
             'mobile_country_code' => 'required|string',
-            'mobile_number' => 'required|string',
-            'has_emergency_contact' => 'boolean',
-            'emergency_contact_name' => 'required_if:has_emergency_contact,true|nullable|string|max:255',
-            'emergency_contact_relationship' => 'required_if:has_emergency_contact,true|nullable|string|max:255',
-            'emergency_contact_country_code' => 'required_if:has_emergency_contact,true|nullable|string',
-            'emergency_contact_number' => 'required_if:has_emergency_contact,true|nullable|string',
-            'emergency_contact_email' => 'required_if:has_emergency_contact,true|nullable|email',
-            'has_guarantor' => 'boolean',
-            'guarantor_name' => 'required_if:has_guarantor,true|nullable|string|max:255',
-            'guarantor_country_code' => 'required_if:has_guarantor,true|nullable|string',
-            'guarantor_number' => 'required_if:has_guarantor,true|nullable|string',
-            'guarantor_email' => 'required_if:has_guarantor,true|nullable|email',
+            'mobile_number' => 'required|string|max:20',
+            
+            // Emergency Contact (optional section)
+            'has_emergency_contact' => 'nullable|boolean',
+            'emergency_contact_name' => 'nullable|required_if:has_emergency_contact,1|string|max:255',
+            'emergency_contact_relationship' => 'nullable|required_if:has_emergency_contact,1|string|max:255',
+            'emergency_contact_country_code' => 'nullable|required_if:has_emergency_contact,1|string',
+            'emergency_contact_number' => 'nullable|required_if:has_emergency_contact,1|string|max:20',
+            'emergency_contact_email' => 'nullable|required_if:has_emergency_contact,1|email|max:255',
+            
+            // Guarantor (optional section)
+            'has_guarantor' => 'nullable|boolean',
+            'guarantor_name' => 'nullable|required_if:has_guarantor,1|string|max:255',
+            'guarantor_country_code' => 'nullable|required_if:has_guarantor,1|string',
+            'guarantor_number' => 'nullable|required_if:has_guarantor,1|string|max:20',
+            'guarantor_email' => 'nullable|required_if:has_guarantor,1|email|max:255',
         ]);
 
         $profile = $user->profile ?: new UserProfile();
@@ -218,10 +272,11 @@ class ProfileCompletionController extends Controller
         $profile->user_id = $user->id;
         $profile->save();
 
-        $user->profile_current_step = 2;
+        // Update current step (allow non-sequential completion)
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 1);
         $user->save();
 
-        return ['success' => true, 'next_step' => 2];
+        return ['success' => true];
     }
 
     private function saveStep2(Request $request, $user)
@@ -230,31 +285,42 @@ class ProfileCompletionController extends Controller
             'introduction' => 'nullable|string|max:1000',
         ]);
 
-        $profile = $user->profile;
-        $profile->update($validated);
+        $profile = $user->profile ?: new UserProfile();
+        $profile->introduction = $validated['introduction'];
+        $profile->user_id = $user->id;
+        $profile->save();
 
-        $user->profile_current_step = 3;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 2);
         $user->save();
 
-        return ['success' => true, 'next_step' => 3];
+        return ['success' => true];
     }
 
     private function saveStep3(Request $request, $user)
     {
         $validated = $request->validate([
             'incomes' => 'required|array|min:1',
-            'incomes.*.source_of_income' => 'required|string|max:255',
-            'incomes.*.net_weekly_amount' => 'required|numeric|min:0',
+            'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employment,centrelink,pension,investment_income,savings,other',
+            'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
             'incomes.*.bank_statement' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
-        // Delete existing incomes
+        // Delete existing incomes and their files
+        foreach ($user->incomes as $income) {
+            if ($income->bank_statement_path) {
+                Storage::disk('public')->delete($income->bank_statement_path);
+            }
+        }
         $user->incomes()->delete();
 
+        // Create new income records
         foreach ($validated['incomes'] as $index => $incomeData) {
-            $income = new UserIncome($incomeData);
+            $income = new UserIncome();
             $income->user_id = $user->id;
+            $income->source_of_income = $incomeData['source_of_income'];
+            $income->net_weekly_amount = $incomeData['net_weekly_amount'];
             
+            // Handle file upload
             if ($request->hasFile("incomes.$index.bank_statement")) {
                 $path = $request->file("incomes.$index.bank_statement")
                     ->store('bank-statements', 'public');
@@ -264,44 +330,70 @@ class ProfileCompletionController extends Controller
             $income->save();
         }
 
-        $user->profile_current_step = 4;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 3);
         $user->save();
 
-        return ['success' => true, 'next_step' => 4];
+        return ['success' => true];
     }
 
     private function saveStep4(Request $request, $user)
     {
-        $hasEmployment = $request->input('has_employment', false);
+        $hasEmployment = $request->boolean('has_employment');
 
         if (!$hasEmployment) {
-            $user->profile_current_step = 5;
+            // Delete all employments if user says they have no employment
+            foreach ($user->employments as $employment) {
+                if ($employment->employment_letter_path) {
+                    Storage::disk('public')->delete($employment->employment_letter_path);
+                }
+            }
+            $user->employments()->delete();
+            
+            $user->profile_current_step = max($user->profile_current_step ?? 1, 4);
             $user->save();
-            return ['success' => true, 'next_step' => 5];
+            
+            return ['success' => true];
         }
 
         $validated = $request->validate([
             'employments' => 'required|array|min:1',
             'employments.*.company_name' => 'required|string|max:255',
-            'employments.*.address' => 'required|string',
+            'employments.*.address' => 'required|string|max:500',
             'employments.*.position' => 'required|string|max:255',
-            'employments.*.gross_annual_salary' => 'required|numeric|min:0',
+            'employments.*.gross_annual_salary' => 'required|numeric|min:0|max:9999999.99',
             'employments.*.manager_full_name' => 'required|string|max:255',
-            'employments.*.contact_number' => 'required|string',
-            'employments.*.email' => 'required|email',
+            'employments.*.contact_number' => 'required|string|max:20',
+            'employments.*.email' => 'required|email|max:255',
+            'employments.*.start_date' => 'required|date|before_or_equal:today',
+            'employments.*.still_employed' => 'nullable|boolean',
+            'employments.*.end_date' => 'nullable|date|before_or_equal:today|after:employments.*.start_date',
             'employments.*.employment_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'employments.*.start_date' => 'required|date',
-            'employments.*.still_employed' => 'boolean',
-            'employments.*.end_date' => 'nullable|date|required_if:employments.*.still_employed,false',
         ]);
 
-        // Delete existing employments
+        // Delete existing employments and their files
+        foreach ($user->employments as $employment) {
+            if ($employment->employment_letter_path) {
+                Storage::disk('public')->delete($employment->employment_letter_path);
+            }
+        }
         $user->employments()->delete();
 
+        // Create new employment records
         foreach ($validated['employments'] as $index => $employmentData) {
-            $employment = new UserEmployment($employmentData);
+            $employment = new UserEmployment();
             $employment->user_id = $user->id;
+            $employment->company_name = $employmentData['company_name'];
+            $employment->address = $employmentData['address'];
+            $employment->position = $employmentData['position'];
+            $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
+            $employment->manager_full_name = $employmentData['manager_full_name'];
+            $employment->contact_number = $employmentData['contact_number'];
+            $employment->email = $employmentData['email'];
+            $employment->start_date = $employmentData['start_date'];
+            $employment->still_employed = $employmentData['still_employed'] ?? false;
+            $employment->end_date = $employmentData['end_date'] ?? null;
             
+            // Handle file upload
             if ($request->hasFile("employments.$index.employment_letter")) {
                 $path = $request->file("employments.$index.employment_letter")
                     ->store('employment-letters', 'public');
@@ -311,39 +403,60 @@ class ProfileCompletionController extends Controller
             $employment->save();
         }
 
-        $user->profile_current_step = 5;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 4);
         $user->save();
 
-        return ['success' => true, 'next_step' => 5];
+        return ['success' => true];
     }
 
     private function saveStep5(Request $request, $user)
     {
-        $hasPets = $request->input('has_pets', false);
+        $hasPets = $request->boolean('has_pets');
 
         if (!$hasPets) {
-            $user->profile_current_step = 6;
+            // Delete all pets if user says they have no pets
+            foreach ($user->pets as $pet) {
+                if ($pet->document_path) {
+                    Storage::disk('public')->delete($pet->document_path);
+                }
+            }
+            $user->pets()->delete();
+            
+            $user->profile_current_step = max($user->profile_current_step ?? 1, 5);
             $user->save();
-            return ['success' => true, 'next_step' => 6];
+            
+            return ['success' => true];
         }
 
         $validated = $request->validate([
             'pets' => 'required|array|min:1',
-            'pets.*.type' => 'required',
+            'pets.*.type' => 'required|string|in:dog,cat,bird,fish,rabbit,other',
             'pets.*.breed' => 'required|string|max:255',
             'pets.*.desexed' => 'required|boolean',
-            'pets.*.size' => 'required',
-            'pets.*.registration_number' => 'nullable|string|max:255',
+            'pets.*.size' => 'required|string|in:small,medium,large',
+            'pets.*.registration_number' => 'nullable|string|max:100',
             'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
-        // Delete existing pets
+        // Delete existing pets and their files
+        foreach ($user->pets as $pet) {
+            if ($pet->document_path) {
+                Storage::disk('public')->delete($pet->document_path);
+            }
+        }
         $user->pets()->delete();
 
+        // Create new pet records
         foreach ($validated['pets'] as $index => $petData) {
-            $pet = new UserPet($petData);
+            $pet = new UserPet();
             $pet->user_id = $user->id;
+            $pet->type = $petData['type'];
+            $pet->breed = $petData['breed'];
+            $pet->desexed = $petData['desexed'];
+            $pet->size = $petData['size'];
+            $pet->registration_number = $petData['registration_number'] ?? null;
             
+            // Handle file upload
             if ($request->hasFile("pets.$index.document")) {
                 $path = $request->file("pets.$index.document")
                     ->store('pet-documents', 'public');
@@ -353,134 +466,166 @@ class ProfileCompletionController extends Controller
             $pet->save();
         }
 
-        $user->profile_current_step = 6;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 5);
         $user->save();
 
-        return ['success' => true, 'next_step' => 6];
+        return ['success' => true];
     }
 
     private function saveStep6(Request $request, $user)
     {
-        $hasVehicles = $request->input('has_vehicles', false);
+        $hasVehicles = $request->boolean('has_vehicles');
 
         if (!$hasVehicles) {
-            $user->profile_current_step = 7;
+            // Delete all vehicles if user says they have no vehicles
+            $user->vehicles()->delete();
+            
+            $user->profile_current_step = max($user->profile_current_step ?? 1, 6);
             $user->save();
-            return ['success' => true, 'next_step' => 7];
+            
+            return ['success' => true];
         }
 
         $validated = $request->validate([
             'vehicles' => 'required|array|min:1',
-            'vehicles.*.vehicle_type' => 'required|in:car,motorcycle',
-            'vehicles.*.year' => 'required|string|max:4',
+            'vehicles.*.vehicle_type' => 'required|string|in:car,motorcycle,truck,van',
+            'vehicles.*.year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'vehicles.*.make' => 'required|string|max:255',
             'vehicles.*.model' => 'required|string|max:255',
-            'vehicles.*.state' => 'required|string|max:255',
-            'vehicles.*.registration_number' => 'required|string|max:255',
+            'vehicles.*.state' => 'required|string|in:NSW,VIC,QLD,SA,WA,TAS,NT,ACT',
+            'vehicles.*.registration_number' => 'required|string|max:20',
         ]);
 
         // Delete existing vehicles
         $user->vehicles()->delete();
 
+        // Create new vehicle records
         foreach ($validated['vehicles'] as $vehicleData) {
-            $vehicle = new UserVehicle($vehicleData);
+            $vehicle = new UserVehicle();
             $vehicle->user_id = $user->id;
+            $vehicle->vehicle_type = $vehicleData['vehicle_type'];
+            $vehicle->year = $vehicleData['year'];
+            $vehicle->make = $vehicleData['make'];
+            $vehicle->model = $vehicleData['model'];
+            $vehicle->state = $vehicleData['state'];
+            $vehicle->registration_number = strtoupper($vehicleData['registration_number']);
             $vehicle->save();
         }
 
-        $user->profile_current_step = 7;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 6);
         $user->save();
 
-        return ['success' => true, 'next_step' => 7];
+        return ['success' => true];
     }
 
     private function saveStep7(Request $request, $user)
     {
         $validated = $request->validate([
             'addresses' => 'required|array|min:1',
-            'addresses.*.living_arrangement' => 'required|in:owner,renting_agent,renting_privately,with_parents,sharing,other',
-            'addresses.*.address' => 'required|string',
-            'addresses.*.years_lived' => 'required|integer|min:0',
+            'addresses.*.living_arrangement' => 'required|string|in:owner,renting_agent,renting_privately,with_parents,sharing,other',
+            'addresses.*.address' => 'required|string|max:500',
+            'addresses.*.years_lived' => 'required|integer|min:0|max:100',
             'addresses.*.months_lived' => 'required|integer|min:0|max:11',
-            'addresses.*.reason_for_leaving' => 'nullable|string',
-            'addresses.*.different_postal_address' => 'boolean',
-            'addresses.*.postal_code' => 'nullable|string|required_if:addresses.*.different_postal_address,true',
-            'addresses.*.is_current' => 'boolean',
+            'addresses.*.reason_for_leaving' => 'nullable|string|max:1000',
+            'addresses.*.different_postal_address' => 'nullable|boolean',
+            'addresses.*.postal_code' => 'nullable|string|max:500',
+            'addresses.*.is_current' => 'nullable|boolean',
         ]);
 
         // Delete existing addresses
         $user->addresses()->delete();
 
+        // Create new address records
         foreach ($validated['addresses'] as $addressData) {
-            $address = new UserAddress($addressData);
+            $address = new UserAddress();
             $address->user_id = $user->id;
+            $address->living_arrangement = $addressData['living_arrangement'];
+            $address->address = $addressData['address'];
+            $address->years_lived = $addressData['years_lived'];
+            $address->months_lived = $addressData['months_lived'];
+            $address->reason_for_leaving = $addressData['reason_for_leaving'] ?? null;
+            $address->different_postal_address = $addressData['different_postal_address'] ?? false;
+            $address->postal_code = $addressData['postal_code'] ?? null;
+            $address->is_current = $addressData['is_current'] ?? false;
             $address->save();
         }
 
-        $user->profile_current_step = 8;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 7);
         $user->save();
 
-        return ['success' => true, 'next_step' => 8];
+        return ['success' => true];
     }
 
     private function saveStep8(Request $request, $user)
     {
-        $hasReferences = $request->input('has_references', false);
-
-        if (!$hasReferences) {
-            $user->profile_current_step = 9;
-            $user->save();
-            return ['success' => true, 'next_step' => 9];
-        }
-
         $validated = $request->validate([
-            'references' => 'required|array|min:2', // Changed to min:2 for at least 2 references
+            'references' => 'required|array|min:2|max:10',
             'references.*.full_name' => 'required|string|max:255',
             'references.*.relationship' => 'required|string|max:255',
             'references.*.mobile_country_code' => 'required|string',
-            'references.*.mobile_number' => 'required|string',
-            'references.*.email' => 'required|email',
+            'references.*.mobile_number' => 'required|string|max:20',
+            'references.*.email' => 'required|email|max:255',
+        ], [
+            'references.min' => 'You must provide at least 2 references.',
         ]);
 
         // Delete existing references
         $user->references()->delete();
 
+        // Create new reference records
         foreach ($validated['references'] as $referenceData) {
-            $reference = new UserReference($referenceData);
+            $reference = new UserReference();
             $reference->user_id = $user->id;
+            $reference->full_name = $referenceData['full_name'];
+            $reference->relationship = $referenceData['relationship'];
+            $reference->mobile_country_code = $referenceData['mobile_country_code'];
+            $reference->mobile_number = $referenceData['mobile_number'];
+            $reference->email = $referenceData['email'];
             $reference->save();
         }
 
-        $user->profile_current_step = 9;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 8);
         $user->save();
 
-        return ['success' => true, 'next_step' => 9];
+        return ['success' => true];
     }
 
     private function saveStep9(Request $request, $user)
     {
-        // Check if user already has identifications (editing mode)
-        $isEditing = $user->identifications()->exists();
-        
         $validated = $request->validate([
             'identifications' => 'required|array|min:1',
-            'identifications.*.identification_type' => 'required|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
-            'identifications.*.document_number' => 'nullable|string|max:255',
-            // Only require document upload if NOT editing, or if explicitly uploading new file
-            'identifications.*.document' => $isEditing ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240' : 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'identifications.*.identification_type' => 'required|string|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
+            'identifications.*.document_number' => 'nullable|string|max:100',
+            'identifications.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'identifications.*.expiry_date' => 'nullable|date|after:today',
         ]);
 
-        // Delete existing identifications
+        // Delete existing identifications and their files
+        foreach ($user->identifications as $identification) {
+            if ($identification->document_path) {
+                Storage::disk('public')->delete($identification->document_path);
+            }
+        }
         $user->identifications()->delete();
 
         $totalPoints = 0;
 
+        // Create new identification records
         foreach ($validated['identifications'] as $index => $idData) {
             $identification = new UserIdentification();
             $identification->user_id = $user->id;
             $identification->identification_type = $idData['identification_type'];
-            $identification->points = UserIdentification::getPointsForType($idData['identification_type']);
+            
+            // Calculate points based on document type
+            $pointsMap = [
+                'australian_drivers_licence' => 40,
+                'passport' => 70,
+                'birth_certificate' => 70,
+                'medicare' => 25,
+                'other' => 0,
+            ];
+            $identification->points = $pointsMap[$idData['identification_type']] ?? 0;
+            
             $identification->document_number = $idData['document_number'] ?? null;
             $identification->expiry_date = $idData['expiry_date'] ?? null;
             
@@ -495,27 +640,30 @@ class ProfileCompletionController extends Controller
             $totalPoints += $identification->points;
         }
 
-        // Check if user has minimum 80 points
-        // if ($totalPoints < 80) {
-        //     // return back()->withErrors([
-        //     //     'identifications' => "You must supply at least 80 ID Points for your application to be considered. You currently have {$totalPoints} points."
-        //     // ])->withInput();
-        // }
+        // Validate total points
+        if ($totalPoints < 80) {
+            throw new \Exception('You need at least 80 identification points. Current total: ' . $totalPoints . ' points.');
+        }
 
-        $user->profile_current_step = 10;
+        $user->profile_current_step = max($user->profile_current_step ?? 1, 9);
         $user->save();
 
-        return ['success' => true, 'next_step' => 10];
+        return ['success' => true];
     }
 
     private function saveStep10(Request $request, $user)
     {
         $validated = $request->validate([
             'terms_accepted' => 'required|accepted',
-            'signature' => 'required|string|max:255',
+            'signature' => 'required|string|max:255|min:3',
+        ], [
+            'terms_accepted.accepted' => 'You must accept the terms and conditions.',
+            'signature.required' => 'Your signature is required.',
+            'signature.min' => 'Please enter your full name as signature.',
         ]);
 
-        $profile = $user->profile;
+        $profile = $user->profile ?: new UserProfile();
+        $profile->user_id = $user->id;
         $profile->terms_accepted = true;
         $profile->signature = $validated['signature'];
         $profile->terms_accepted_at = now();
@@ -531,7 +679,7 @@ class ProfileCompletionController extends Controller
 
         return [
             'success' => true,
-            'message' => 'Profile submitted successfully! Waiting for admin approval.',
+            'message' => 'Profile submitted successfully! Your application is now pending admin approval.',
             'redirect' => route('user.profile.view')
         ];
     }
@@ -543,7 +691,10 @@ class ProfileCompletionController extends Controller
     {
         try {
             $adminEmail = config('mail.admin_email', 'admin@sorted.com');
-            Mail::to($adminEmail)->send(new ProfileSubmittedNotification($user, $profile));
+            
+            if (class_exists(ProfileSubmittedNotification::class)) {
+                Mail::to($adminEmail)->send(new ProfileSubmittedNotification($user, $profile));
+            }
             
             Log::info('Admin notification sent for user profile', [
                 'user_id' => $user->id,
@@ -553,9 +704,10 @@ class ProfileCompletionController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to send admin notification email', [
                 'user_id' => $user->id,
-                'profile_id' => $profile->id,
+                'profile_id' => $profile->id ?? null,
                 'error' => $e->getMessage()
             ]);
+            // Don't throw error - email failure shouldn't stop profile submission
         }
     }
 
@@ -566,48 +718,26 @@ class ProfileCompletionController extends Controller
     {
         $user = Auth::user();
         
-        $profile = UserProfile::with([
-            'user',
-            'user.incomes',
-            'user.employments',
-            'user.pets',
-            'user.vehicles',
-            'user.addresses',
-            'user.references',
-            'user.identifications'
-        ])->where('user_id', $user->id)->first();
+        $profile = $user->profile;
 
-        if (!$profile) {
-            return redirect()->route('user.profile.complete')
-                ->with('error', 'Please complete your profile first.');
+        if (!$profile || !$profile->submitted_at) {
+            return redirect()->route('user.profile.overview')
+                ->with('error', 'Please complete and submit your profile first.');
         }
+
+        // Load all related data
+        $user->load([
+            'incomes',
+            'employments',
+            'pets',
+            'vehicles',
+            'addresses',
+            'references',
+            'identifications'
+        ]);
 
         $totalPoints = $user->identifications->sum('points') ?? 0;
 
         return view('user.profile.view', compact('user', 'profile', 'totalPoints'));
-    }
-
-    /**
-     * Go back to previous step
-     */
-    public function previousStep(Request $request)
-    {
-        $user = Auth::user();
-        $currentStep = $user->profile_current_step;
-
-        if ($currentStep > 1) {
-            $user->profile_current_step = $currentStep - 1;
-            $user->save();
-        }
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'previous_step' => $user->profile_current_step
-            ]);
-        }
-
-        return redirect()->route('user.profile.complete')
-            ->with('success', 'Moved to previous step');
     }
 }

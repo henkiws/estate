@@ -12,6 +12,8 @@
     
     <!-- Tailwind CSS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @include('user.profile.shared-assets-styles')
     
     <style>
         body {
@@ -84,7 +86,7 @@
                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
                         style="display: none;"
                     >
-                        <a href="{{ route('user.profile.show') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <a href="{{ route('user.profile.view') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
                             Profile
                         </a>
                         <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-50">
@@ -141,6 +143,7 @@
         });
     </script>
     
+    @include('user.profile.shared-assets-scripts')
     @stack('scripts')
 </body>
 </html>

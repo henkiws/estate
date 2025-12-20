@@ -370,15 +370,20 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
 
-    // ============================================
+   // ============================================
     // PROFILE COMPLETION (No profile.complete middleware)
     // ============================================
     Route::prefix('profile')->name('profile.')->group(function () {
         
-        // Profile completion flow (accessible even if incomplete)
+        // Profile overview - NEW card-based interface (main entry point)
+        Route::get('/overview', [ProfileCompletionController::class, 'overview'])
+            ->name('overview');
+        
+        // Profile completion flow (legacy - redirects to overview)
         Route::get('/complete', [ProfileCompletionController::class, 'index'])
             ->name('complete');
         
+        // Update any step (handles form submissions from cards)
         Route::post('/update-step', [ProfileCompletionController::class, 'updateStep'])
             ->name('update-step');
         
@@ -389,6 +394,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::get('/view', [ProfileCompletionController::class, 'view'])
             ->name('view');
 
+        // Legacy step-based route (for backward compatibility)
         Route::get('/complete/{step?}', [ProfileCompletionController::class, 'show'])
             ->name('step');
     });
