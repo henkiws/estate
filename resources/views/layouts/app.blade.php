@@ -1,14 +1,176 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title','Sorted')</title>
+  <title>@yield('title','plyform')</title>
   @vite(['resources/css/app.css','resources/js/app.js'])
   @stack('styles')
+  
+  <style>
+    /* Plyform Brand Colors */
+    :root {
+      --plyform-mint: #DDEECD;
+      --plyform-dark: #1E1C1C;
+      --plyform-yellow: #E6FF4B;
+      --plyform-orange: #FF3600;
+      --plyform-purple: #5E17EB;
+    }
+
+    /* Custom Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes fadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { 
+        box-shadow: 0 0 20px rgba(230, 255, 75, 0.3);
+      }
+      50% { 
+        box-shadow: 0 0 40px rgba(230, 255, 75, 0.5);
+      }
+    }
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .animate-float-delay-1 {
+      animation: float 3s ease-in-out 0.5s infinite;
+    }
+
+    .animate-float-delay-2 {
+      animation: float 3s ease-in-out 1s infinite;
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .animate-slideInRight {
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--plyform-yellow), var(--plyform-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+      background-color: var(--plyform-yellow);
+      color: var(--plyform-dark);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #d4f039;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(230, 255, 75, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: var(--plyform-dark);
+      color: var(--plyform-mint);
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: #2d2a2a;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(30, 28, 28, 0.3);
+    }
+
+    .btn-outline {
+      border: 2px solid var(--plyform-yellow);
+      color: var(--plyform-dark);
+      background: transparent;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+      background-color: var(--plyform-yellow);
+      transform: translateY(-2px);
+    }
+
+    /* Card Styles */
+    .card-plyform {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .card-plyform:hover {
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      transform: translateY(-5px);
+    }
+
+    /* Asterisk/Star Element */
+    .plyform-star {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      background-color: var(--plyform-yellow);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+
+    /* Loading Spinner */
+    .plyform-spinner {
+      border: 3px solid var(--plyform-mint);
+      border-top: 3px solid var(--plyform-yellow);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Navbar Scroll Effect */
+    .navbar-scrolled {
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-plyform-mint text-plyform-dark antialiased">
   @yield('content')
 
   @stack('scripts')
@@ -17,61 +179,13 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         // ==================== Mobile Menu Toggle ====================
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const navMenu = document.getElementById('navMenu');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
 
-        mobileMenuToggle.addEventListener('click', () => {
-            // Toggle hamburger animation
-            const spans = mobileMenuToggle.querySelectorAll('span');
-            spans[0].classList.toggle('rotate-45');
-            spans[0].classList.toggle('translate-y-2');
-            spans[1].classList.toggle('opacity-0');
-            spans[2].classList.toggle('-rotate-45');
-            spans[2].classList.toggle('-translate-y-2');
-            
-            // Toggle menu visibility
-            navMenu.classList.toggle('translate-x-full');
-            document.body.style.overflow = navMenu.classList.contains('translate-x-full') ? '' : 'hidden';
-        });
-
-        // Close menu when clicking nav links
-        const navLinks = document.querySelectorAll('.nav-links a, #navMenu a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                const spans = mobileMenuToggle.querySelectorAll('span');
-                spans[0].classList.remove('rotate-45', 'translate-y-2');
-                spans[1].classList.remove('opacity-0');
-                spans[2].classList.remove('-rotate-45', '-translate-y-2');
-                navMenu.classList.add('translate-x-full');
-                document.body.style.overflow = '';
-            });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!navMenu.contains(e.target) && 
-                !mobileMenuToggle.contains(e.target) && 
-                !navMenu.classList.contains('translate-x-full')) {
-                const spans = mobileMenuToggle.querySelectorAll('span');
-                spans[0].classList.remove('rotate-45', 'translate-y-2');
-                spans[1].classList.remove('opacity-0');
-                spans[2].classList.remove('-rotate-45', '-translate-y-2');
-                navMenu.classList.add('translate-x-full');
-                document.body.style.overflow = '';
-            }
-        });
-
-        
-        // ==================== Global Element References ====================
-        const layoutMobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const layoutNavMenu = document.getElementById('nav-menu');
-        const layoutNavbar = document.getElementById('navbar');
-        
-        // ==================== Mobile Menu Toggle ====================
-        if (layoutMobileMenuToggle && layoutNavMenu) {
-            layoutMobileMenuToggle.addEventListener('click', () => {
+        if (mobileMenuToggle && navMenu) {
+            mobileMenuToggle.addEventListener('click', () => {
                 // Toggle hamburger animation
-                const spans = layoutMobileMenuToggle.querySelectorAll('span');
+                const spans = mobileMenuToggle.querySelectorAll('span');
                 if (spans.length >= 3) {
                     spans[0].classList.toggle('rotate-45');
                     spans[0].classList.toggle('translate-y-2');
@@ -81,76 +195,78 @@
                 }
                 
                 // Toggle menu visibility
-                layoutNavMenu.classList.toggle('translate-x-full');
-                document.body.style.overflow = layoutNavMenu.classList.contains('translate-x-full') ? '' : 'hidden';
+                navMenu.classList.toggle('translate-x-full');
+                document.body.style.overflow = navMenu.classList.contains('translate-x-full') ? '' : 'hidden';
             });
 
             // Close menu when clicking nav links
-            const navLinks = layoutNavMenu.querySelectorAll('a');
+            const navLinks = navMenu.querySelectorAll('a');
             navLinks.forEach(link => {
                 link.addEventListener('click', () => {
-                    const spans = layoutMobileMenuToggle.querySelectorAll('span');
+                    const spans = mobileMenuToggle.querySelectorAll('span');
                     if (spans.length >= 3) {
                         spans[0].classList.remove('rotate-45', 'translate-y-2');
                         spans[1].classList.remove('opacity-0');
                         spans[2].classList.remove('-rotate-45', '-translate-y-2');
                     }
-                    layoutNavMenu.classList.add('translate-x-full');
+                    navMenu.classList.add('translate-x-full');
                     document.body.style.overflow = '';
                 });
             });
 
             // Close menu when clicking outside
             document.addEventListener('click', (e) => {
-                if (!layoutNavMenu.contains(e.target) && 
-                    !layoutMobileMenuToggle.contains(e.target) && 
-                    !layoutNavMenu.classList.contains('translate-x-full')) {
-                    const spans = layoutMobileMenuToggle.querySelectorAll('span');
+                if (!navMenu.contains(e.target) && 
+                    !mobileMenuToggle.contains(e.target) && 
+                    !navMenu.classList.contains('translate-x-full')) {
+                    const spans = mobileMenuToggle.querySelectorAll('span');
                     if (spans.length >= 3) {
                         spans[0].classList.remove('rotate-45', 'translate-y-2');
                         spans[1].classList.remove('opacity-0');
                         spans[2].classList.remove('-rotate-45', '-translate-y-2');
                     }
-                    layoutNavMenu.classList.add('translate-x-full');
+                    navMenu.classList.add('translate-x-full');
                     document.body.style.overflow = '';
                 }
             });
 
             // Close mobile menu on Escape key
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !layoutNavMenu.classList.contains('translate-x-full')) {
-                    const spans = layoutMobileMenuToggle.querySelectorAll('span');
+                if (e.key === 'Escape' && !navMenu.classList.contains('translate-x-full')) {
+                    const spans = mobileMenuToggle.querySelectorAll('span');
                     if (spans.length >= 3) {
                         spans[0].classList.remove('rotate-45', 'translate-y-2');
                         spans[1].classList.remove('opacity-0');
                         spans[2].classList.remove('-rotate-45', '-translate-y-2');
                     }
-                    layoutNavMenu.classList.add('translate-x-full');
+                    navMenu.classList.add('translate-x-full');
                     document.body.style.overflow = '';
                 }
             });
         }
 
         // ==================== Navbar Scroll Behavior ====================
-        if (layoutNavbar) {
+        const navbar = document.getElementById('navbar');
+        
+        if (navbar) {
             let lastScrollY = window.scrollY;
             let ticking = false;
 
             function updateNavbar() {
                 const currentScrollY = window.scrollY;
                 
-                // Add shadow on scroll
+                // Add background and shadow on scroll
                 if (currentScrollY > 50) {
-                    layoutNavbar.classList.add('shadow-md');
+                    navbar.classList.add('navbar-scrolled');
                 } else {
-                    layoutNavbar.classList.remove('shadow-md');
+                    navbar.classList.remove('navbar-scrolled');
                 }
                 
                 // Hide/show navbar on scroll
                 if (currentScrollY > lastScrollY && currentScrollY > 200) {
-                    layoutNavbar.classList.add('-translate-y-full');
+                    navbar.classList.add('-translate-y-full');
                 } else {
-                    layoutNavbar.classList.remove('-translate-y-full');
+                    navbar.classList.remove('-translate-y-full');
                 }
                 
                 lastScrollY = currentScrollY;
@@ -209,7 +325,7 @@
                     
                     if (dots.length > 0) {
                         dots.forEach(dot => {
-                            dot.classList.remove('bg-primary', 'w-8');
+                            dot.classList.remove('bg-plyform-yellow', 'w-8');
                             dot.classList.add('bg-gray-300', 'w-3');
                         });
                     }
@@ -220,7 +336,7 @@
                     
                     if (dots.length > index) {
                         dots[index].classList.remove('bg-gray-300', 'w-3');
-                        dots[index].classList.add('bg-primary', 'w-8');
+                        dots[index].classList.add('bg-plyform-yellow', 'w-8');
                     }
                     
                     currentSlide = index;
@@ -327,7 +443,6 @@
         }
 
         // ==================== Smooth Scroll for Anchor Links ====================
-        // Use navbar variable from earlier (line 87)
         const anchorLinks = document.querySelectorAll('a[href^="#"]');
         
         anchorLinks.forEach(anchor => {
@@ -344,7 +459,7 @@
                 
                 if (target) {
                     e.preventDefault();
-                    const navbarHeight = layoutNavbar ? layoutNavbar.offsetHeight : 0;
+                    const navbarHeight = navbar ? navbar.offsetHeight : 0;
                     const targetPosition = target.offsetTop - navbarHeight - 20;
                     
                     window.scrollTo({
@@ -401,10 +516,8 @@
         }
 
         // ==================== Accessibility Enhancements ====================
-        // Use layoutMobileMenuToggle and layoutNavMenu variables from top
-        
         // Focus trap for mobile menu
-        if (layoutMobileMenuToggle && layoutNavMenu) {
+        if (mobileMenuToggle && navMenu) {
             function trapFocus(element) {
                 const focusableElements = element.querySelectorAll(
                     'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
@@ -434,9 +547,9 @@
 
             // Apply focus trap when mobile menu is open
             let focusTrapActive = false;
-            layoutMobileMenuToggle.addEventListener('click', () => {
-                if (!layoutNavMenu.classList.contains('translate-x-full') && !focusTrapActive) {
-                    trapFocus(layoutNavMenu);
+            mobileMenuToggle.addEventListener('click', () => {
+                if (!navMenu.classList.contains('translate-x-full') && !focusTrapActive) {
+                    trapFocus(navMenu);
                     focusTrapActive = true;
                 }
             });
@@ -458,15 +571,15 @@
 
         // ==================== Global Utility Functions ====================
         
-        // Show toast notification
+        // Show toast notification with plyform colors
         window.showToast = function(message, type = 'info') {
             const toastContainer = document.getElementById('toast-container') || createToastContainer();
             
             const colors = {
-                success: 'bg-green-50 border-green-500 text-green-800',
-                error: 'bg-red-50 border-red-500 text-red-800',
-                warning: 'bg-yellow-50 border-yellow-500 text-yellow-800',
-                info: 'bg-blue-50 border-blue-500 text-blue-800'
+                success: 'bg-plyform-mint border-plyform-yellow text-plyform-dark',
+                error: 'bg-red-50 border-plyform-orange text-red-800',
+                warning: 'bg-yellow-50 border-plyform-yellow text-yellow-800',
+                info: 'bg-white border-plyform-purple text-plyform-dark'
             };
             
             const icons = {
@@ -477,14 +590,14 @@
             };
             
             const toast = document.createElement('div');
-            toast.className = `${colors[type]} border-l-4 p-4 rounded-lg shadow-lg mb-2 transition-all duration-300`;
+            toast.className = `${colors[type]} border-l-4 p-4 rounded-lg shadow-lg mb-2 transition-all duration-300 animate-slideInRight`;
             toast.innerHTML = `
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <span class="text-xl mr-3">${icons[type]}</span>
-                        <span>${message}</span>
+                        <span class="font-medium">${message}</span>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-2xl font-bold opacity-50 hover:opacity-100">×</button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-2xl font-bold opacity-50 hover:opacity-100 transition-opacity">×</button>
                 </div>
             `;
             
@@ -506,17 +619,17 @@
             return container;
         }
 
-        // Show loading overlay
+        // Show loading overlay with plyform branding
         window.showLoading = function() {
             let loading = document.getElementById('loading-overlay');
             if (!loading) {
                 loading = document.createElement('div');
                 loading.id = 'loading-overlay';
-                loading.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                loading.className = 'fixed inset-0 bg-plyform-dark bg-opacity-75 flex items-center justify-center z-50';
                 loading.innerHTML = `
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center">
-                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <p class="mt-4 text-gray-700">Loading...</p>
+                    <div class="bg-white rounded-2xl p-8 flex flex-col items-center shadow-2xl">
+                        <div class="plyform-spinner"></div>
+                        <p class="mt-4 text-plyform-dark font-semibold">Loading...</p>
                     </div>
                 `;
                 document.body.appendChild(loading);
@@ -535,8 +648,8 @@
         // ==================== Console Message ====================
         if (console && console.log) {
             try {
-                console.log('%cSorted Services', 'font-size: 24px; font-weight: bold; color: #0066FF;');
-                console.log('%cBuilt with Tailwind CSS and vanilla JavaScript', 'font-size: 14px; color: #6B7280;');
+                console.log('%cplyform', 'font-size: 32px; font-weight: bold; color: #E6FF4B; background: #1E1C1C; padding: 10px 20px; border-radius: 8px;');
+                console.log('%cModern Real Estate Platform', 'font-size: 14px; color: #DDEECD; background: #1E1C1C; padding: 5px 10px;');
             } catch (e) {
                 // Suppress console errors in production
             }

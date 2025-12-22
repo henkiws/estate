@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Auth Page' }}</title>
+    <title>{{ $title ?? 'Auth Page' }} - plyform</title>
 
     {{-- Vite + Tailwind --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -18,14 +18,14 @@
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #0066FF, #FF9500);
+            background: linear-gradient(135deg, #E6FF4B, #5E17EB);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 via-white to-blue-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-plyform-mint via-white to-plyform-mint/50 min-h-screen flex items-center justify-center p-4">
 
     {{ $slot }}
 

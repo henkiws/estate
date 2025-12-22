@@ -1,21 +1,18 @@
-<x-guest-layout title="Login - Sorted Services">
+<x-guest-layout title="Login - plyform">
 
     <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center animate-fadeIn">
 
-        {{-- LEFT SIDE SAME AS ORIGINAL --}}
+        {{-- LEFT SIDE - Brand Information --}}
         <div class="hidden lg:block space-y-8 p-12">
             <!-- Logo -->
-            <a href="{{ route('homepage') }}" class="flex items-center space-x-3 mb-12 cursor-pointer">
-                <div class="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center">
-                    <span class="text-white font-bold text-2xl">S</span>
-                </div>
-                <span class="text-3xl font-bold text-gray-900">Sorted</span>
+            <a href="{{ route('homepage') }}" class="flex items-center space-x-3 mb-12 cursor-pointer group">
+                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105">
             </a>
             
             <div class="space-y-6">
-                <h1 class="text-4xl lg:text-5xl font-bold leading-tight">
+                <h1 class="text-4xl lg:text-5xl font-bold leading-tight text-plyform-dark">
                     Welcome back to<br>
-                    <span class="gradient-text">Sorted</span>
+                    <span class="gradient-text">plyform</span>
                 </h1>
                 
                 <p class="text-xl text-gray-600 leading-relaxed">
@@ -26,24 +23,24 @@
             <!-- Features List -->
             <div class="space-y-4 pt-8">
                 <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-6 h-6 bg-plyform-yellow rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
                     <span class="text-gray-700">Centralized property management</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-6 h-6 bg-plyform-yellow rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
                     <span class="text-gray-700">Real-time notifications & updates</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-6 h-6 bg-plyform-yellow rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
@@ -52,33 +49,40 @@
             </div>
             
             <!-- Testimonial -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mt-12">
-                <div class="flex gap-1 text-yellow-400 mb-3">
+            <div class="bg-white p-6 rounded-2xl shadow-plyform border border-gray-100 mt-12">
+                <div class="flex gap-1 text-plyform-yellow mb-3">
                     <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
                 </div>
-                <p class="text-gray-700 mb-4">"Sorted has completely transformed how I manage my properties. Can't imagine going back!"</p>
+                <p class="text-gray-700 mb-4">"plyform has completely transformed how I manage my properties. Can't imagine going back!"</p>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">SJ</div>
+                    <div class="w-10 h-10 bg-plyform-yellow rounded-full flex items-center justify-center text-plyform-dark font-bold text-sm">SJ</div>
                     <div>
-                        <div class="font-semibold text-gray-900 text-sm">Sarah Johnson</div>
+                        <div class="font-semibold text-plyform-dark text-sm">Sarah Johnson</div>
                         <div class="text-gray-600 text-xs">Property Manager</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- RIGHT SIDE LOGIN FORM --}}
+        {{-- RIGHT SIDE - Login Form --}}
         <div class="w-full max-w-md mx-auto">
             <div class="bg-white rounded-3xl shadow-2xl p-8 sm:p-10">
 
-                <h2 class="text-center text-3xl font-bold mb-6">Welcome back</h2>
+                <!-- Mobile Logo -->
+                <div class="lg:hidden mb-8 flex justify-center">
+                    <a href="{{ route('homepage') }}">
+                        <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-10 w-auto">
+                    </a>
+                </div>
+
+                <h2 class="text-center text-3xl font-bold mb-6 text-plyform-dark">Welcome back</h2>
 
                 <form method="POST" action="{{ route('login') }}" id="loginForm" class="space-y-6">
                     @csrf
 
                     <!-- Email Field -->
                     <div>
-                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                        <label for="email" class="block text-sm font-semibold text-plyform-dark mb-2">Email Address</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,15 +94,19 @@
                                 id="email" 
                                 name="email"
                                 required
-                                class="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                                class="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-plyform-yellow focus:ring-4 focus:ring-plyform-yellow/10 outline-none transition-all"
                                 placeholder="you@example.com"
+                                value="{{ old('email') }}"
                             >
                         </div>
+                        @error('email')
+                            <p class="mt-1 text-sm text-plyform-orange">{{ $message }}</p>
+                        @enderror
                     </div>
                     
                     <!-- Password Field -->
                     <div>
-                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                        <label for="password" class="block text-sm font-semibold text-plyform-dark mb-2">Password</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,13 +118,13 @@
                                 id="password" 
                                 name="password"
                                 required
-                                class="w-full pl-12 pr-12 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                                class="w-full pl-12 pr-12 py-3.5 border-2 border-gray-200 rounded-xl focus:border-plyform-yellow focus:ring-4 focus:ring-plyform-yellow/10 outline-none transition-all"
                                 placeholder="Enter your password"
                             >
                             <button 
                                 type="button"
                                 id="togglePassword"
-                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-plyform-dark transition-colors"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -124,33 +132,73 @@
                                 </svg>
                             </button>
                         </div>
+                        @error('password')
+                            <p class="mt-1 text-sm text-plyform-orange">{{ $message }}</p>
+                        @enderror
                     </div>
                     
                     <!-- Remember Me & Forgot Password -->
                     <div class="flex items-center justify-between">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-2 focus:ring-primary/20">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="remember" class="w-4 h-4 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20">
                             <span class="ml-2 text-sm text-gray-600">Remember me</span>
                         </label>
-                        {{-- <a href="{{ route('forgot-password') }}" class="text-sm font-semibold text-primary hover:text-primary-dark">Forgot password?</a> --}}
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}" class="text-sm font-semibold text-plyform-purple hover:text-plyform-dark transition-colors">Forgot password?</a>
+                        @endif
                     </div>
                     
                     <!-- Submit Button -->
                     <button 
                         type="submit"
-                        class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+                        class="w-full py-4 bg-plyform-yellow hover:bg-plyform-yellow/90 text-plyform-dark font-semibold rounded-xl shadow-lg shadow-plyform-yellow/30 hover:shadow-xl hover:shadow-plyform-yellow/40 transition-all hover:-translate-y-0.5"
                     >
                         Log In
                     </button>
                 </form>
 
-                <p class="text-center text-gray-600 mt-8">
+                <!-- Divider -->
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500">or</span>
+                    </div>
+                </div>
+
+                <!-- Sign Up Link -->
+                <p class="text-center text-gray-600">
                     Don't have an account? 
-                    <a href="{{ route('register') }}" class="font-semibold text-primary">Sign Up</a>
+                    <a href="{{ route('register') }}" class="font-semibold text-plyform-purple hover:text-plyform-dark transition-colors">Sign Up</a>
                 </p>
 
             </div>
+
+            <!-- Back to Homepage Link -->
+            <div class="text-center mt-6">
+                <a href="{{ route('homepage') }}" class="text-sm text-gray-600 hover:text-plyform-purple transition-colors inline-flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Homepage
+                </a>
+            </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword')?.addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle eye icon
+            this.querySelector('svg').classList.toggle('text-plyform-yellow');
+        });
+    </script>
+    @endpush
 
 </x-guest-layout>

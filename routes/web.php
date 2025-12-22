@@ -45,6 +45,20 @@ Route::middleware('guest')->group(function () {
 });
 
 // ============================================
+// User Registration Routes (Guest Only)
+// ============================================
+Route::middleware('guest')->group(function () {
+    // Show user registration form
+    Route::get('/register/user', [App\Http\Controllers\Auth\UserRegistrationController::class, 'showRegistrationForm'])->name('register.user');
+    
+    // Handle user registration submission
+    Route::post('/register/user', [App\Http\Controllers\Auth\UserRegistrationController::class, 'register'])->name('register.user.store');
+    
+    // Optional: AJAX validation endpoint for email uniqueness
+    Route::get('/register/user/check-email/{email}', [App\Http\Controllers\Auth\UserRegistrationController::class, 'checkEmail'])->name('register.user.check.email');
+});
+
+// ============================================
 // Authenticated Routes
 // ============================================
 Route::middleware(['auth', 'verified'])->group(function () {
