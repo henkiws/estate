@@ -1,5 +1,5 @@
 <!-- Income Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4" id="income-card">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="income-card">
     
     <!-- Card Header (Always Visible) -->
     <div class="p-6">
@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -16,8 +16,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Current Income</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="income-summary">
+                    <h3 class="text-lg font-semibold text-plyform-dark">Current Income</h3>
+                    <p class="text-sm text-gray-600 mt-1" id="income-summary">
                         @if($user->incomes && $user->incomes->count() > 0)
                             @php
                                 $totalWeekly = $user->incomes->sum('net_weekly_amount');
@@ -31,7 +31,7 @@
                     
                     <!-- Status Badge -->
                     <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $user->incomes && $user->incomes->count() > 0 ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-gray-50 text-gray-700 border border-gray-200' }}" id="income-status">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $user->incomes && $user->incomes->count() > 0 ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="income-status">
                             @if($user->incomes && $user->incomes->count() > 0)
                                 Complete
                             @else
@@ -45,8 +45,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->incomes && $user->incomes->count() > 0 ? 'border-teal-500' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $user->incomes && $user->incomes->count() > 0 ? 'text-teal-600' : 'text-gray-400' }}" id="income-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->incomes && $user->incomes->count() > 0 ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $user->incomes && $user->incomes->count() > 0 ? 'text-plyform-yellow' : 'text-gray-400' }}" id="income-percentage">
                         @if($user->incomes && $user->incomes->count() > 0)
                             100%
                         @else
@@ -59,7 +59,7 @@
                 <button 
                     type="button" 
                     onclick="toggleIncome()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
                     id="income-edit-btn"
                 >
                     <span>Edit</span>
@@ -82,10 +82,10 @@
             <div class="bg-white rounded-lg p-6 space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">Income Sources</h4>
-                        <p class="text-sm text-gray-500 mt-1">Tell us about your income sources to demonstrate your ability to pay rent</p>
+                        <h4 class="text-base font-semibold text-plyform-dark">Income Sources</h4>
+                        <p class="text-sm text-gray-600 mt-1">Tell us about your income sources to demonstrate your ability to pay rent</p>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">* Required</span>
+                    <span class="text-plyform-orange text-sm font-medium">* Required</span>
                 </div>
                 
                 <div id="income-container">
@@ -94,14 +94,14 @@
                     @endphp
                     
                     @foreach($incomes as $index => $income)
-                        <div class="income-item p-4 border border-gray-200 rounded-lg mb-4" data-index="{{ $index }}">
+                        <div class="income-item p-4 border border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors" data-index="{{ $index }}">
                             <div class="flex items-center justify-between mb-4">
-                                <h4 class="font-semibold text-gray-900">Income Source {{ $index + 1 }}</h4>
+                                <h4 class="font-semibold text-plyform-dark">Income Source {{ $index + 1 }}</h4>
                                 @if($index > 0)
                                     <button 
                                         type="button" 
                                         onclick="removeIncome({{ $index }})"
-                                        class="text-red-600 hover:text-red-700 text-sm font-medium"
+                                        class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
                                     >
                                         Remove
                                     </button>
@@ -111,13 +111,13 @@
                             <div class="grid md:grid-cols-2 gap-4">
                                 <!-- Source of Income -->
                                 <div>
-                                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                        Source of Income <span class="text-red-500">*</span>
+                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                        Source of Income <span class="text-plyform-orange">*</span>
                                     </label>
                                     <select 
                                         name="incomes[{{ $index }}][source_of_income]" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                     >
                                         <option value="">Select source</option>
                                         <option value="full_time_employment" {{ ($income['source_of_income'] ?? '') == 'full_time_employment' ? 'selected' : '' }}>Full-time Employment</option>
@@ -134,11 +134,11 @@
                                 
                                 <!-- Net Weekly Amount -->
                                 <div>
-                                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                        Net Weekly Amount <span class="text-red-500">*</span>
+                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                        Net Weekly Amount <span class="text-plyform-orange">*</span>
                                     </label>
                                     <div class="relative">
-                                        <span class="absolute left-4 top-3.5 text-gray-500">$</span>
+                                        <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
                                         <input 
                                             type="number" 
                                             name="incomes[{{ $index }}][net_weekly_amount]" 
@@ -147,7 +147,7 @@
                                             min="0"
                                             required
                                             onchange="calculateTotal()"
-                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
+                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                             placeholder="0.00"
                                         >
                                     </div>
@@ -156,14 +156,14 @@
                             
                             <!-- Bank Statement Upload -->
                             <div class="mt-4">
-                                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                     Bank Statement (Optional)
                                 </label>
                                 <input 
                                     type="file" 
                                     name="incomes[{{ $index }}][bank_statement]"
                                     accept=".pdf,.jpg,.jpeg,.png"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30"
                                 >
                                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
                             </div>
@@ -175,7 +175,7 @@
                 <button 
                     type="button" 
                     onclick="addIncome()"
-                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-teal-500 hover:text-teal-600 transition flex items-center justify-center gap-2"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -184,12 +184,14 @@
                 </button>
                 
                 <!-- Total Income Display -->
-                <div class="mt-6 p-4 bg-teal-50 border border-teal-200 rounded-lg">
+                <div class="mt-6 p-5 bg-plyform-mint/20 border border-plyform-mint/50 rounded-lg">
                     <div class="flex items-center justify-between">
-                        <span class="font-semibold text-gray-900">Total Weekly Income:</span>
-                        <span class="text-2xl font-bold text-teal-600" id="total-income">$0.00</span>
+                        <div>
+                            <span class="font-semibold text-plyform-dark">Total Weekly Income:</span>
+                            <p class="text-sm text-gray-600 mt-1">This helps property managers assess affordability</p>
+                        </div>
+                        <span class="text-3xl font-bold text-plyform-dark" id="total-income">$0.00</span>
                     </div>
-                    <p class="text-sm text-gray-600 mt-1">This helps property managers assess affordability</p>
                 </div>
                 
             </div>
@@ -206,7 +208,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-teal-700 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -255,20 +257,20 @@ function toggleIncome() {
 function addIncome() {
     const container = document.getElementById('income-container');
     const newIncome = `
-        <div class="income-item p-4 border border-gray-200 rounded-lg mb-4" data-index="${incomeIndex}">
+        <div class="income-item p-4 border border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors" data-index="${incomeIndex}">
             <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-gray-900">Income Source ${incomeIndex + 1}</h4>
-                <button type="button" onclick="removeIncome(${incomeIndex})" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                <h4 class="font-semibold text-plyform-dark">Income Source ${incomeIndex + 1}</h4>
+                <button type="button" onclick="removeIncome(${incomeIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
                     Remove
                 </button>
             </div>
             
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">
-                        Source of Income <span class="text-red-500">*</span>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                        Source of Income <span class="text-plyform-orange">*</span>
                     </label>
-                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
                         <option value="">Select source</option>
                         <option value="full_time_employment">Full-time Employment</option>
                         <option value="part_time_employment">Part-time Employment</option>
@@ -283,25 +285,29 @@ function addIncome() {
                 </div>
                 
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">
-                        Net Weekly Amount <span class="text-red-500">*</span>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                        Net Weekly Amount <span class="text-plyform-orange">*</span>
                     </label>
                     <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500">$</span>
-                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="0.00" onchange="calculateTotal()">
+                        <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
+                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
                     </div>
                 </div>
             </div>
             
             <div class="mt-4">
-                <label class="text-sm font-medium text-gray-700 mb-2 block">Bank Statement (Optional)</label>
-                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
+                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
             </div>
         </div>
     `;
     
     container.insertAdjacentHTML('beforeend', newIncome);
+    if (typeof reinitializePlugins === 'function') {
+        const newElement = container.lastElementChild;
+        reinitializePlugins(newElement);
+    }
     incomeIndex++;
     calculateTotal();
 }

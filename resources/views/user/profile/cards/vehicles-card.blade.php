@@ -1,5 +1,5 @@
 <!-- Vehicles Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4" id="vehicles-card">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="vehicles-card">
     
     <!-- Card Header (Always Visible) -->
     <div class="p-6">
@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
                     </svg>
@@ -16,8 +16,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Vehicles</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="vehicles-summary">
+                    <h3 class="text-lg font-semibold text-plyform-dark">Vehicles</h3>
+                    <p class="text-sm text-gray-600 mt-1" id="vehicles-summary">
                         @if($user->vehicles && $user->vehicles->count() > 0)
                             {{ $user->vehicles->count() }} {{ Str::plural('vehicle', $user->vehicles->count()) }}
                         @else
@@ -27,7 +27,7 @@
                     
                     <!-- Status Badge -->
                     <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200" id="vehicles-status">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-plyform-mint text-plyform-dark border border-plyform-mint" id="vehicles-status">
                             Complete
                         </span>
                     </div>
@@ -37,15 +37,15 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 border-teal-500 bg-white">
-                    <span class="text-sm font-bold text-teal-600" id="vehicles-percentage">100%</span>
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 border-plyform-yellow bg-white">
+                    <span class="text-sm font-bold text-plyform-yellow" id="vehicles-percentage">100%</span>
                 </div>
                 
                 <!-- Edit Button -->
                 <button 
                     type="button" 
                     onclick="toggleVehicles()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
                     id="vehicles-edit-btn"
                 >
                     <span>Edit</span>
@@ -74,9 +74,9 @@
                         value="1"
                         onchange="toggleVehiclesSection()"
                         {{ old('has_vehicles', $user->vehicles->count() > 0) ? 'checked' : '' }}
-                        class="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-teal-500"
+                        class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
                     >
-                    <span class="font-medium text-gray-900">I have vehicles</span>
+                    <span class="font-medium text-plyform-dark">I have vehicles</span>
                 </label>
                 <p class="text-sm text-gray-600 mt-2 ml-8">Check this if you have any vehicles that will be parked at the property</p>
             </div>
@@ -86,10 +86,10 @@
                 <div class="bg-white rounded-lg p-6 space-y-4">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h4 class="text-base font-semibold text-gray-900">Vehicle Information</h4>
-                            <p class="text-sm text-gray-500 mt-1">Provide details about your vehicles</p>
+                            <h4 class="text-base font-semibold text-plyform-dark">Vehicle Information</h4>
+                            <p class="text-sm text-gray-600 mt-1">Provide details about your vehicles</p>
                         </div>
-                        <span class="text-red-500 text-sm font-medium">* Required</span>
+                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
                     </div>
                     
                     <div id="vehicles-container">
@@ -98,14 +98,14 @@
                         @endphp
                         
                         @foreach($vehicles as $index => $vehicle)
-                            <div class="vehicle-item p-4 border-2 border-gray-200 rounded-lg mb-4" data-index="{{ $index }}">
+                            <div class="vehicle-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors" data-index="{{ $index }}">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-semibold text-gray-900">Vehicle {{ $index + 1 }}</h4>
+                                    <h4 class="font-semibold text-plyform-dark">Vehicle {{ $index + 1 }}</h4>
                                     @if($index > 0)
                                         <button 
                                             type="button" 
                                             onclick="removeVehicleItem({{ $index }})"
-                                            class="text-red-600 hover:text-red-700 text-sm font-medium"
+                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
                                         >
                                             Remove
                                         </button>
@@ -115,13 +115,13 @@
                                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                                     <!-- Vehicle Type -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Vehicle Type <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Vehicle Type <span class="text-plyform-orange">*</span>
                                         </label>
                                         <select 
                                             name="vehicles[{{ $index }}][vehicle_type]" 
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                         >
                                             <option value="">Select type</option>
                                             <option value="car" {{ ($vehicle['vehicle_type'] ?? '') == 'car' ? 'selected' : '' }}>Car</option>
@@ -133,8 +133,8 @@
                                     
                                     <!-- Year -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Year <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Year <span class="text-plyform-orange">*</span>
                                         </label>
                                         <input 
                                             type="number" 
@@ -143,7 +143,7 @@
                                             required
                                             min="1900"
                                             max="{{ date('Y') + 1 }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                             placeholder="2020"
                                         >
                                     </div>
@@ -152,30 +152,30 @@
                                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                                     <!-- Make -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Make <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Make <span class="text-plyform-orange">*</span>
                                         </label>
                                         <input 
                                             type="text" 
                                             name="vehicles[{{ $index }}][make]" 
                                             value="{{ $vehicle['make'] ?? '' }}"
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                             placeholder="Toyota"
                                         >
                                     </div>
                                     
                                     <!-- Model -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Model <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Model <span class="text-plyform-orange">*</span>
                                         </label>
                                         <input 
                                             type="text" 
                                             name="vehicles[{{ $index }}][model]" 
                                             value="{{ $vehicle['model'] ?? '' }}"
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                             placeholder="Camry"
                                         >
                                     </div>
@@ -184,13 +184,13 @@
                                 <div class="grid md:grid-cols-2 gap-4">
                                     <!-- State -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Registered State <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Registered State <span class="text-plyform-orange">*</span>
                                         </label>
                                         <select 
                                             name="vehicles[{{ $index }}][state]" 
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                         >
                                             <option value="">Select state</option>
                                             <option value="NSW" {{ ($vehicle['state'] ?? '') == 'NSW' ? 'selected' : '' }}>NSW</option>
@@ -206,8 +206,8 @@
                                     
                                     <!-- Registration Number -->
                                     <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                            Registration Number <span class="text-red-500">*</span>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Registration Number <span class="text-plyform-orange">*</span>
                                         </label>
                                         <input 
                                             type="text" 
@@ -215,7 +215,7 @@
                                             value="{{ $vehicle['registration_number'] ?? '' }}"
                                             required
                                             oninput="this.value = this.value.toUpperCase()"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 uppercase"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all uppercase"
                                             placeholder="ABC123"
                                         >
                                     </div>
@@ -228,7 +228,7 @@
                     <button 
                         type="button" 
                         onclick="addVehicleItem()"
-                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-teal-500 hover:text-teal-600 transition flex items-center justify-center gap-2"
+                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -251,7 +251,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-teal-700 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -321,15 +321,15 @@ function addVehicleItem() {
     const currentYear = new Date().getFullYear();
     
     const newVehicleHtml = `
-        <div class="vehicle-item p-4 border-2 border-gray-200 rounded-lg mb-4" data-index="${vehicleIndex}">
+        <div class="vehicle-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors" data-index="${vehicleIndex}">
             <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-gray-900">Vehicle ${vehicleIndex + 1}</h4>
-                <button type="button" onclick="removeVehicleItem(${vehicleIndex})" class="text-red-600 hover:text-red-700 text-sm font-medium">Remove</button>
+                <h4 class="font-semibold text-plyform-dark">Vehicle ${vehicleIndex + 1}</h4>
+                <button type="button" onclick="removeVehicleItem(${vehicleIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
             </div>
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Vehicle Type <span class="text-red-500">*</span></label>
-                    <select name="vehicles[${vehicleIndex}][vehicle_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Vehicle Type <span class="text-plyform-orange">*</span></label>
+                    <select name="vehicles[${vehicleIndex}][vehicle_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
                         <option value="">Select type</option>
                         <option value="car">Car</option>
                         <option value="motorcycle">Motorcycle</option>
@@ -338,24 +338,24 @@ function addVehicleItem() {
                     </select>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Year <span class="text-red-500">*</span></label>
-                    <input type="number" name="vehicles[${vehicleIndex}][year]" required min="1900" max="${currentYear + 1}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="2020">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Year <span class="text-plyform-orange">*</span></label>
+                    <input type="number" name="vehicles[${vehicleIndex}][year]" required min="1900" max="${currentYear + 1}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="2020">
                 </div>
             </div>
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Make <span class="text-red-500">*</span></label>
-                    <input type="text" name="vehicles[${vehicleIndex}][make]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="Toyota">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Make <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="vehicles[${vehicleIndex}][make]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="Toyota">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Model <span class="text-red-500">*</span></label>
-                    <input type="text" name="vehicles[${vehicleIndex}][model]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="Camry">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Model <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="vehicles[${vehicleIndex}][model]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="Camry">
                 </div>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">State <span class="text-red-500">*</span></label>
-                    <select name="vehicles[${vehicleIndex}][state]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">State <span class="text-plyform-orange">*</span></label>
+                    <select name="vehicles[${vehicleIndex}][state]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
                         <option value="">Select state</option>
                         <option value="NSW">NSW</option>
                         <option value="VIC">VIC</option>
@@ -368,8 +368,8 @@ function addVehicleItem() {
                     </select>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Registration <span class="text-red-500">*</span></label>
-                    <input type="text" name="vehicles[${vehicleIndex}][registration_number]" required oninput="this.value = this.value.toUpperCase()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 uppercase" placeholder="ABC123">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="vehicles[${vehicleIndex}][registration_number]" required oninput="this.value = this.value.toUpperCase()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all uppercase" placeholder="ABC123">
                 </div>
             </div>
         </div>
@@ -378,7 +378,9 @@ function addVehicleItem() {
     container.insertAdjacentHTML('beforeend', newVehicleHtml);
 
     const newElement = container.lastElementChild;
-    reinitializePlugins(newElement);
+    if (typeof reinitializePlugins === 'function') {
+        reinitializePlugins(newElement);
+    }
 
     vehicleIndex++;
 }

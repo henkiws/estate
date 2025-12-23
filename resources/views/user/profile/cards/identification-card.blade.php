@@ -1,5 +1,5 @@
 <!-- Identification Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4" id="identification-card">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="identification-card">
     
     <!-- Card Header (Always Visible) -->
     <div class="p-6">
@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
                     </svg>
@@ -16,8 +16,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Identification</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="identification-summary">
+                    <h3 class="text-lg font-semibold text-plyform-dark">Identification</h3>
+                    <p class="text-sm text-gray-600 mt-1" id="identification-summary">
                         @php
                             $totalPoints = $user->identifications->sum('points') ?? 0;
                         @endphp
@@ -30,7 +30,7 @@
                     
                     <!-- Status Badge -->
                     <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $totalPoints >= 80 ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-gray-50 text-gray-700 border border-gray-200' }}" id="identification-status">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $totalPoints >= 80 ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="identification-status">
                             @if($totalPoints >= 80)
                                 Complete
                             @else
@@ -44,8 +44,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $totalPoints >= 80 ? 'border-teal-500' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $totalPoints >= 80 ? 'text-teal-600' : 'text-gray-400' }}" id="identification-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $totalPoints >= 80 ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $totalPoints >= 80 ? 'text-plyform-yellow' : 'text-gray-400' }}" id="identification-percentage">
                         @if($totalPoints >= 80)
                             100%
                         @else
@@ -58,7 +58,7 @@
                 <button 
                     type="button" 
                     onclick="toggleIdentification()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
                     id="identification-edit-btn"
                 >
                     <span>Edit</span>
@@ -81,24 +81,31 @@
             <div class="bg-white rounded-lg p-6 space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">Identification Documents</h4>
-                        <p class="text-sm text-gray-500 mt-1">Upload identification documents to verify your identity (minimum 80 points required)</p>
+                        <h4 class="text-base font-semibold text-plyform-dark">Identification Documents</h4>
+                        <p class="text-sm text-gray-600 mt-1">Upload identification documents to verify your identity (minimum 80 points required)</p>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">* Required</span>
+                    <span class="text-plyform-orange text-sm font-medium">* Required</span>
                 </div>
                 
                 <!-- Points Information -->
-                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6">
-                    <h4 class="font-semibold text-blue-900 mb-2">Document Points System:</h4>
-                    <div class="grid md:grid-cols-2 gap-2 text-sm text-blue-800">
-                        <div>• Australian Driver's Licence: <strong>40 points</strong></div>
-                        <div>• Passport: <strong>70 points</strong></div>
-                        <div>• Birth Certificate: <strong>70 points</strong></div>
-                        <div>• Medicare Card: <strong>25 points</strong></div>
+                <div class="p-4 bg-plyform-yellow/10 border border-plyform-yellow/30 rounded-lg mb-6">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-plyform-dark mb-2">Document Points System:</h4>
+                            <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                <div>• Australian Driver's Licence: <strong>40 points</strong></div>
+                                <div>• Passport: <strong>70 points</strong></div>
+                                <div>• Birth Certificate: <strong>70 points</strong></div>
+                                <div>• Medicare Card: <strong>25 points</strong></div>
+                            </div>
+                            <p class="text-sm text-plyform-dark mt-2">
+                                <strong>You need at least 80 points total.</strong> Example: Driver's Licence (40) + Medicare (25) + Birth Certificate (70) = 135 points ✓
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-sm text-blue-800 mt-2">
-                        <strong>You need at least 80 points total.</strong> Example: Driver's Licence (40) + Medicare (25) + Birth Certificate (70) = 135 points ✓
-                    </p>
                 </div>
                 
                 <div id="identification-container">
@@ -107,14 +114,14 @@
                     @endphp
                     
                     @foreach($identifications as $index => $id)
-                        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4" data-index="{{ $index }}">
+                        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-yellow/50 transition-colors" data-index="{{ $index }}">
                             <div class="flex items-center justify-between mb-4">
-                                <h4 class="font-semibold text-gray-900">Document {{ $index + 1 }}</h4>
+                                <h4 class="font-semibold text-plyform-dark">Document {{ $index + 1 }}</h4>
                                 @if($index > 0)
                                     <button 
                                         type="button" 
                                         onclick="removeIdentificationItem({{ $index }})"
-                                        class="text-red-600 hover:text-red-700 text-sm font-medium"
+                                        class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
                                     >
                                         Remove
                                     </button>
@@ -124,14 +131,14 @@
                             <div class="grid md:grid-cols-2 gap-4">
                                 <!-- ID Type -->
                                 <div>
-                                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                        Document Type <span class="text-red-500">*</span>
+                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                        Document Type <span class="text-plyform-orange">*</span>
                                     </label>
                                     <select 
                                         name="identifications[{{ $index }}][identification_type]" 
                                         required
                                         onchange="updatePoints({{ $index }})"
-                                        class="id-type-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                        class="id-type-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                         data-index="{{ $index }}"
                                     >
                                         <option value="">Select document type</option>
@@ -145,9 +152,9 @@
                                 
                                 <!-- Points Display -->
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 mb-2 block">Points Value</label>
-                                    <div class="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
-                                        <span class="text-2xl font-bold text-teal-600 points-display" data-index="{{ $index }}">
+                                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Points Value</label>
+                                    <div class="px-4 py-3 bg-gradient-to-br from-plyform-yellow/10 to-plyform-mint/10 border border-plyform-yellow/30 rounded-lg">
+                                        <span class="text-2xl font-bold text-plyform-dark points-display" data-index="{{ $index }}">
                                             @php
                                                 $pointsMap = [
                                                     'australian_drivers_licence' => 40,
@@ -166,38 +173,43 @@
                             
                             <!-- Document Number (Optional) -->
                             <div class="mt-4">
-                                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                     Document Number (Optional)
                                 </label>
                                 <input 
                                     type="text" 
                                     name="identifications[{{ $index }}][document_number]"
                                     value="{{ $id['document_number'] ?? '' }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                     placeholder="e.g., ABC123456"
                                 >
                             </div>
                             
                             <!-- Document Upload -->
                             <div class="mt-4">
-                                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                    Upload Document <span class="text-red-500">*</span>
+                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                    Upload Document <span class="text-plyform-orange">*</span>
                                 </label>
                                 <input 
                                     type="file" 
                                     name="identifications[{{ $index }}][document]"
                                     accept=".pdf,.jpg,.jpeg,.png"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all"
                                 >
                                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
                                 @if(isset($id['document_path']))
-                                    <p class="mt-1 text-xs text-green-600">✓ Document already uploaded</p>
+                                    <p class="mt-1 text-xs text-green-600 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        Document already uploaded
+                                    </p>
                                 @endif
                             </div>
                             
                             <!-- Expiry Date (Optional) -->
                             <div class="mt-4">
-                                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                     Expiry Date (if applicable)
                                 </label>
                                 <input 
@@ -205,7 +217,7 @@
                                     name="identifications[{{ $index }}][expiry_date]"
                                     value="{{ isset($id['expiry_date']) ? \Carbon\Carbon::parse($id['expiry_date'])->format('Y-m-d') : '' }}"
                                     min="{{ now()->format('Y-m-d') }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                                 >
                             </div>
                         </div>
@@ -216,7 +228,7 @@
                 <button 
                     type="button" 
                     onclick="addIdentificationItem()"
-                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-teal-500 hover:text-teal-600 transition flex items-center justify-center gap-2"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -227,13 +239,13 @@
                 <!-- Total Points Tracker -->
                 <div class="mt-6 p-6 rounded-xl" id="points-tracker">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-lg font-semibold text-gray-900">Total Points:</span>
+                        <span class="text-lg font-semibold text-plyform-dark">Total Points:</span>
                         <span class="text-4xl font-bold" id="total-points">0</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-4 mt-3">
                         <div id="points-progress" class="h-4 rounded-full transition-all duration-500 bg-gray-400" style="width: 0%"></div>
                     </div>
-                    <p class="text-sm mt-2 text-center" id="points-message">You need at least 80 points</p>
+                    <p class="text-sm mt-2 text-center font-medium" id="points-message">You need at least 80 points</p>
                 </div>
                 
             </div>
@@ -250,7 +262,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-teal-700 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -338,17 +350,17 @@ function calculateTotalPoints() {
     progressBar.style.width = percentage + '%';
     
     if (total >= 80) {
-        progressBar.className = 'h-4 rounded-full transition-all duration-500 bg-green-500';
-        tracker.className = 'mt-6 p-6 rounded-xl bg-green-50 border-2 border-green-500';
-        totalDisplay.className = 'text-4xl font-bold text-green-600';
+        progressBar.className = 'h-4 rounded-full transition-all duration-500 bg-plyform-mint';
+        tracker.className = 'mt-6 p-6 rounded-xl bg-plyform-mint/30 border-2 border-plyform-mint';
+        totalDisplay.className = 'text-4xl font-bold text-plyform-dark';
         message.textContent = '✓ You have enough points!';
-        message.className = 'text-sm mt-2 text-center text-green-700 font-semibold';
+        message.className = 'text-sm mt-2 text-center font-semibold text-plyform-dark';
     } else {
-        progressBar.className = 'h-4 rounded-full transition-all duration-500 bg-orange-500';
-        tracker.className = 'mt-6 p-6 rounded-xl bg-orange-50 border-2 border-orange-300';
-        totalDisplay.className = 'text-4xl font-bold text-orange-600';
+        progressBar.className = 'h-4 rounded-full transition-all duration-500 bg-plyform-orange';
+        tracker.className = 'mt-6 p-6 rounded-xl bg-plyform-orange/10 border-2 border-plyform-orange/30';
+        totalDisplay.className = 'text-4xl font-bold text-plyform-orange';
         message.textContent = `You need ${80 - total} more points to reach 80`;
-        message.className = 'text-sm mt-2 text-center text-orange-700';
+        message.className = 'text-sm mt-2 text-center font-medium text-plyform-orange';
     }
 }
 
@@ -361,15 +373,15 @@ function addIdentificationItem() {
     const today = new Date().toISOString().split('T')[0];
     
     const newIdHtml = `
-        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4" data-index="${idIndex}">
+        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-yellow/50 transition-colors" data-index="${idIndex}">
             <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-gray-900">Document ${idIndex + 1}</h4>
-                <button type="button" onclick="removeIdentificationItem(${idIndex})" class="text-red-600 hover:text-red-700 text-sm font-medium">Remove</button>
+                <h4 class="font-semibold text-plyform-dark">Document ${idIndex + 1}</h4>
+                <button type="button" onclick="removeIdentificationItem(${idIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
             </div>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Document Type <span class="text-red-500">*</span></label>
-                    <select name="identifications[${idIndex}][identification_type]" required onchange="updatePoints(${idIndex})" class="id-type-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" data-index="${idIndex}">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Type <span class="text-plyform-orange">*</span></label>
+                    <select name="identifications[${idIndex}][identification_type]" required onchange="updatePoints(${idIndex})" class="id-type-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" data-index="${idIndex}">
                         <option value="">Select document type</option>
                         <option value="australian_drivers_licence" data-points="40">Australian Driver's Licence (40 pts)</option>
                         <option value="passport" data-points="70">Passport (70 pts)</option>
@@ -379,25 +391,25 @@ function addIdentificationItem() {
                     </select>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Points Value</label>
-                    <div class="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
-                        <span class="text-2xl font-bold text-teal-600 points-display" data-index="${idIndex}">0</span>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Points Value</label>
+                    <div class="px-4 py-3 bg-gradient-to-br from-plyform-yellow/10 to-plyform-mint/10 border border-plyform-yellow/30 rounded-lg">
+                        <span class="text-2xl font-bold text-plyform-dark points-display" data-index="${idIndex}">0</span>
                         <span class="text-gray-600 ml-1">points</span>
                     </div>
                 </div>
             </div>
             <div class="mt-4">
-                <label class="text-sm font-medium text-gray-700 mb-2 block">Document Number (Optional)</label>
-                <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="e.g., ABC123456">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Number (Optional)</label>
+                <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., ABC123456">
             </div>
             <div class="mt-4">
-                <label class="text-sm font-medium text-gray-700 mb-2 block">Upload Document <span class="text-red-500">*</span></label>
-                <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
+                <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all">
                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
             </div>
             <div class="mt-4">
-                <label class="text-sm font-medium text-gray-700 mb-2 block">Expiry Date (if applicable)</label>
-                <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Expiry Date (if applicable)</label>
+                <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
             </div>
         </div>
     `;
@@ -405,7 +417,9 @@ function addIdentificationItem() {
     container.insertAdjacentHTML('beforeend', newIdHtml);
 
     const newElement = container.lastElementChild;
-    reinitializePlugins(newElement);
+    if (typeof reinitializePlugins === 'function') {
+        reinitializePlugins(newElement);
+    }
     
     idIndex++;
 }

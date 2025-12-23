@@ -1,5 +1,5 @@
 <!-- Introduction Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4" id="introduction-card">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="introduction-card">
     
     <!-- Card Header (Always Visible) -->
     <div class="p-6">
@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
@@ -16,8 +16,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Introduction</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="introduction-summary">
+                    <h3 class="text-lg font-semibold text-plyform-dark">Introduction</h3>
+                    <p class="text-sm text-gray-600 mt-1" id="introduction-summary">
                         @if($profile && $profile->introduction)
                             {{ Str::limit($profile->introduction, 100) }}
                         @else
@@ -27,7 +27,7 @@
                     
                     <!-- Status Badge -->
                     <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $profile && $profile->introduction ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-gray-50 text-gray-700 border border-gray-200' }}" id="introduction-status">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $profile && $profile->introduction ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="introduction-status">
                             @if($profile && $profile->introduction)
                                 Complete
                             @else
@@ -41,8 +41,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->introduction ? 'border-teal-500' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $profile && $profile->introduction ? 'text-teal-600' : 'text-gray-400' }}" id="introduction-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->introduction ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $profile && $profile->introduction ? 'text-plyform-yellow' : 'text-gray-400' }}" id="introduction-percentage">
                         @if($profile && $profile->introduction)
                             100%
                         @else
@@ -55,7 +55,7 @@
                 <button 
                     type="button" 
                     onclick="toggleIntroduction()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
                     id="introduction-edit-btn"
                 >
                     <span>Edit</span>
@@ -78,43 +78,55 @@
             <div class="bg-white rounded-lg p-6 space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">Tell Us About Yourself</h4>
-                        <p class="text-sm text-gray-500 mt-1">Share a brief introduction to help property managers get to know you better</p>
+                        <h4 class="text-base font-semibold text-plyform-dark">Tell Us About Yourself</h4>
+                        <p class="text-sm text-gray-600 mt-1">Share a brief introduction to help property managers get to know you better</p>
                     </div>
                 </div>
                 
                 <!-- Introduction Textarea -->
                 <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                         Introduction
                     </label>
                     <textarea 
                         name="introduction" 
                         rows="6"
                         maxlength="1000"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition @error('introduction') border-red-500 @enderror"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all resize-none @error('introduction') border-red-500 @enderror"
                         placeholder="Tell us about yourself, your hobbies, lifestyle, work, and what kind of tenant you'd be..."
                     >{{ old('introduction', $profile->introduction ?? '') }}</textarea>
                     
                     <div class="flex items-center justify-between mt-2">
                         <p class="text-xs text-gray-500">Maximum 1000 characters</p>
-                        <span class="text-xs text-gray-500" id="intro-char-count">0 / 1000</span>
+                        <span class="text-xs text-gray-500 font-medium" id="intro-char-count">0 / 1000</span>
                     </div>
                     
                     @error('introduction')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
                     @enderror
                 </div>
                 
                 <!-- Example -->
-                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 class="font-semibold text-blue-900 mb-2 text-sm">Example:</h4>
-                    <p class="text-sm text-blue-800">
-                        "I'm a professional working in IT, and I value a clean, peaceful living environment. 
-                        In my free time, I enjoy reading, cooking, and staying active. I'm a responsible tenant 
-                        who takes pride in maintaining my home and building positive relationships with neighbors. 
-                        I'm looking for a long-term rental where I can settle down."
-                    </p>
+                <div class="p-4 bg-plyform-yellow/10 border border-plyform-yellow/30 rounded-lg">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-plyform-dark mb-2 text-sm">Example:</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed">
+                                "I'm a professional working in IT, and I value a clean, peaceful living environment. 
+                                In my free time, I enjoy reading, cooking, and staying active. I'm a responsible tenant 
+                                who takes pride in maintaining my home and building positive relationships with neighbors. 
+                                I'm looking for a long-term rental where I can settle down."
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
             </div>
@@ -131,7 +143,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-teal-700 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -183,11 +195,14 @@ document.addEventListener('DOMContentLoaded', function() {
             charCount.textContent = count + ' / 1000';
             
             if (count > 900) {
-                charCount.classList.add('text-orange-600');
-                charCount.classList.remove('text-gray-500');
+                charCount.classList.add('text-plyform-orange', 'font-semibold');
+                charCount.classList.remove('text-gray-500', 'font-medium');
+            } else if (count > 0) {
+                charCount.classList.add('text-plyform-dark', 'font-semibold');
+                charCount.classList.remove('text-gray-500', 'font-medium');
             } else {
-                charCount.classList.remove('text-orange-600');
-                charCount.classList.add('text-gray-500');
+                charCount.classList.remove('text-plyform-orange', 'text-plyform-dark', 'font-semibold');
+                charCount.classList.add('text-gray-500', 'font-medium');
             }
         }
         

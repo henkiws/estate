@@ -1,5 +1,5 @@
 <!-- Terms & Conditions Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4" id="terms-card">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="terms-card">
     
     <!-- Card Header (Always Visible) -->
     <div class="p-6">
@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -16,8 +16,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Terms & Conditions</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="terms-summary">
+                    <h3 class="text-lg font-semibold text-plyform-dark">Terms & Conditions</h3>
+                    <p class="text-sm text-gray-600 mt-1" id="terms-summary">
                         @if($profile && $profile->terms_accepted)
                             Accepted on {{ $profile->terms_accepted_at?->format('M d, Y') }}
                         @else
@@ -27,7 +27,7 @@
                     
                     <!-- Status Badge -->
                     <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $profile && $profile->terms_accepted ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-gray-50 text-gray-700 border border-gray-200' }}" id="terms-status">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $profile && $profile->terms_accepted ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="terms-status">
                             @if($profile && $profile->terms_accepted)
                                 Complete
                             @else
@@ -41,8 +41,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->terms_accepted ? 'border-teal-500' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $profile && $profile->terms_accepted ? 'text-teal-600' : 'text-gray-400' }}" id="terms-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->terms_accepted ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $profile && $profile->terms_accepted ? 'text-plyform-yellow' : 'text-gray-400' }}" id="terms-percentage">
                         @if($profile && $profile->terms_accepted)
                             100%
                         @else
@@ -55,7 +55,7 @@
                 <button 
                     type="button" 
                     onclick="toggleTerms()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
                     id="terms-edit-btn"
                 >
                     <span>Edit</span>
@@ -78,51 +78,51 @@
             <div class="bg-white rounded-lg p-6 space-y-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">Terms & Conditions</h4>
-                        <p class="text-sm text-gray-500 mt-1">Please review and accept the terms and conditions to complete your profile</p>
+                        <h4 class="text-base font-semibold text-plyform-dark">Terms & Conditions</h4>
+                        <p class="text-sm text-gray-600 mt-1">Please review and accept the terms and conditions to complete your profile</p>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">* Required</span>
+                    <span class="text-plyform-orange text-sm font-medium">* Required</span>
                 </div>
                 
                 <!-- Terms Content -->
-                <div class="p-6 bg-gray-50 border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
-                    <h3 class="font-bold text-gray-900 mb-4">Rental Application Terms & Conditions</h3>
+                <div class="p-6 bg-gray-50 border-2 border-gray-200 rounded-lg max-h-96 overflow-y-auto custom-scrollbar">
+                    <h3 class="font-bold text-plyform-dark mb-4">Rental Application Terms & Conditions</h3>
                     
-                    <div class="space-y-4 text-sm text-gray-700">
-                        <p><strong>1. Application Information</strong></p>
+                    <div class="space-y-4 text-sm text-gray-700 leading-relaxed">
+                        <p><strong class="text-plyform-dark">1. Application Information</strong></p>
                         <p>I declare that the information provided in this application is true and correct. I understand that providing false or misleading information may result in the rejection of my application or termination of any tenancy agreement.</p>
                         
-                        <p><strong>2. Privacy & Data Protection</strong></p>
+                        <p><strong class="text-plyform-dark">2. Privacy & Data Protection</strong></p>
                         <p>I consent to the collection, use, and disclosure of my personal information for the purposes of processing this rental application. This includes but is not limited to: identity verification, credit checks, reference checks, and assessment of rental suitability.</p>
                         
-                        <p><strong>3. Reference & Background Checks</strong></p>
+                        <p><strong class="text-plyform-dark">3. Reference & Background Checks</strong></p>
                         <p>I authorize the property manager to contact my references, current and previous landlords, employers, and other parties as necessary to verify the information provided in this application.</p>
                         
-                        <p><strong>4. Credit Check Authorization</strong></p>
+                        <p><strong class="text-plyform-dark">4. Credit Check Authorization</strong></p>
                         <p>I authorize the property manager to obtain my credit report and credit score from credit reporting agencies for the purpose of assessing my rental application.</p>
                         
-                        <p><strong>5. Document Verification</strong></p>
+                        <p><strong class="text-plyform-dark">5. Document Verification</strong></p>
                         <p>I understand that all documents provided (including identification, employment letters, and bank statements) may be verified for authenticity.</p>
                         
-                        <p><strong>6. Application Fee</strong></p>
+                        <p><strong class="text-plyform-dark">6. Application Fee</strong></p>
                         <p>I understand that any application fees paid are non-refundable, regardless of whether my application is successful.</p>
                         
-                        <p><strong>7. No Guarantee of Approval</strong></p>
+                        <p><strong class="text-plyform-dark">7. No Guarantee of Approval</strong></p>
                         <p>I understand that submitting this application does not guarantee approval or secure the rental property. The property manager reserves the right to accept or reject any application.</p>
                         
-                        <p><strong>8. Data Retention</strong></p>
+                        <p><strong class="text-plyform-dark">8. Data Retention</strong></p>
                         <p>I understand that my application information will be retained for a period as required by law, after which it will be securely destroyed.</p>
                         
-                        <p><strong>9. Communication</strong></p>
+                        <p><strong class="text-plyform-dark">9. Communication</strong></p>
                         <p>I consent to receiving communications regarding my application via email, phone, or SMS to the contact details provided.</p>
                         
-                        <p><strong>10. Accuracy of Information</strong></p>
+                        <p><strong class="text-plyform-dark">10. Accuracy of Information</strong></p>
                         <p>I agree to notify the property manager immediately if any information provided in this application changes before a tenancy agreement is signed.</p>
                     </div>
                 </div>
                 
                 <!-- Acceptance Checkbox -->
-                <div>
+                <div class="p-4 border-2 border-plyform-yellow/30 bg-plyform-yellow/5 rounded-lg">
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input 
                             type="checkbox" 
@@ -130,12 +130,12 @@
                             value="1"
                             {{ old('terms_accepted', $profile?->terms_accepted ?? false) ? 'checked' : '' }}
                             required
-                            class="mt-1 w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-2 focus:ring-teal-500"
+                            class="mt-1 w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
                         >
-                        <span class="text-sm text-gray-700">
+                        <span class="text-sm text-plyform-dark font-medium">
                             I have read, understood, and agree to the above terms and conditions. 
                             I declare that all information provided is true and accurate to the best of my knowledge.
-                            <span class="text-red-500">*</span>
+                            <span class="text-plyform-orange">*</span>
                         </span>
                     </label>
                 </div>
@@ -146,23 +146,23 @@
             <div class="bg-white rounded-lg p-6 space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h4 class="text-base font-semibold text-gray-900">Electronic Signature</h4>
-                        <p class="text-sm text-gray-500 mt-1">Please sign below to confirm your agreement</p>
+                        <h4 class="text-base font-semibold text-plyform-dark">Electronic Signature</h4>
+                        <p class="text-sm text-gray-600 mt-1">Please sign below to confirm your agreement</p>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">* Required</span>
+                    <span class="text-plyform-orange text-sm font-medium">* Required</span>
                 </div>
                 
                 <!-- Signature Field -->
                 <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                        Full Name (as signature) <span class="text-red-500">*</span>
+                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                        Full Name (as signature) <span class="text-plyform-orange">*</span>
                     </label>
                     <input 
                         type="text" 
                         name="signature" 
                         value="{{ old('signature', $profile->signature ?? '') }}"
                         required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent font-serif text-2xl"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all font-serif text-2xl"
                         placeholder="Your Full Name"
                     >
                     <p class="mt-2 text-xs text-gray-500">By typing your name, you agree that this constitutes a legal electronic signature</p>
@@ -170,7 +170,7 @@
                 
                 <!-- Date Display -->
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Date</label>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Date</label>
                     <input 
                         type="text" 
                         value="{{ now()->format('F j, Y') }}"
@@ -182,13 +182,13 @@
             </div>
             
             <!-- Final Submission Notice -->
-            <div class="p-6 bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl">
+            <div class="p-6 bg-gradient-to-r from-plyform-mint/20 to-plyform-yellow/10 border-2 border-plyform-mint rounded-xl">
                 <div class="flex items-start gap-4">
-                    <svg class="w-8 h-8 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8 text-plyform-dark flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <div>
-                        <h4 class="font-bold text-gray-900 mb-2">Ready to Submit?</h4>
+                        <h4 class="font-bold text-plyform-dark mb-2">Ready to Submit?</h4>
                         <p class="text-sm text-gray-700 mb-3">
                             Once you submit your profile, it will be sent to our admin team for review. 
                             You'll receive an email notification once your profile has been approved.
@@ -216,7 +216,7 @@
                 <button 
                     type="submit" 
                     id="final-submit-btn"
-                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-teal-700 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -229,6 +229,26 @@
     </div>
     
 </div>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E6FF4B;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #d4ed39;
+}
+</style>
 
 <script>
 function toggleTerms() {
