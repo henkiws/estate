@@ -6,7 +6,7 @@
         <div class="hidden lg:block space-y-8 p-12">
             <!-- Logo -->
             <a href="{{ route('homepage') }}" class="flex items-center space-x-3 mb-12 cursor-pointer group">
-                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105">
+                <img src="{{ asset('assets/images/logo-yellow.png') }}" alt="plyform" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105">
             </a>
             
             <div class="space-y-6">
@@ -71,7 +71,7 @@
                 <!-- Mobile Logo -->
                 <div class="lg:hidden mb-8 flex justify-center">
                     <a href="{{ route('homepage') }}">
-                        <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-10 w-auto">
+                        <img src="{{ asset('assets/images/logo-yellow.png') }}" alt="plyform" class="h-10 w-auto">
                     </a>
                 </div>
 

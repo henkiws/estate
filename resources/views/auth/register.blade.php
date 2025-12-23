@@ -6,7 +6,7 @@
         <div class="text-center mb-12">
             <!-- Logo -->
             <a href="{{ route('homepage') }}" class="inline-block mb-8 group">
-                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-14 w-auto transition-transform duration-300 group-hover:scale-105">
+                <img src="{{ asset('assets/images/logo-yellow.png') }}" alt="plyform" class="h-14 w-auto transition-transform duration-300 group-hover:scale-105">
             </a>
             
             <h1 class="text-4xl md:text-5xl font-bold text-plyform-dark mb-4">

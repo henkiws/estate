@@ -24,7 +24,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('homepage') }}" class="inline-flex items-center group">
-                    <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105">
+                    <img src="{{ asset('assets/images/logo-yellow.png') }}" alt="plyform" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105">
                 </a>
             </div>
 

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between h-20">
             <!-- Logo -->
             <a href="{{ route('homepage') }}" class="flex items-center space-x-2 z-50 relative group">
-                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="plyform" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105">
+                <img src="{{ asset('assets/images/logo-yellow.png') }}" alt="plyform" class="h-10 w-auto transition-transform duration-300 group-hover:scale-105">
             </a>
             
             <!-- Desktop Navigation -->
