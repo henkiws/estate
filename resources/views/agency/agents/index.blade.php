@@ -7,11 +7,11 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">My Agents</h1>
+            <h1 class="text-3xl font-bold text-plyform-dark">My Agents</h1>
             <p class="mt-1 text-gray-600">Manage your team of {{ $stats['total'] }} {{ Str::plural('agent', $stats['total']) }}</p>
         </div>
         <a href="{{ route('agency.agents.create') }}" 
-           class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+           class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint hover:from-plyform-yellow/90 hover:to-plyform-mint/90 text-plyform-dark font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -21,35 +21,35 @@
 
     {{-- Stats Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 hover:shadow-lg transition-shadow">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div class="flex-1">
                     <p class="text-xs lg:text-sm font-medium text-gray-600">Total Agents</p>
-                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-plyform-dark">{{ $stats['total'] }}</p>
                 </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-plyform-purple/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-plyform-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 hover:shadow-lg transition-shadow">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div class="flex-1">
                     <p class="text-xs lg:text-sm font-medium text-gray-600">Active</p>
-                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-green-600">{{ $stats['active'] }}</p>
+                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-plyform-dark">{{ $stats['active'] }}</p>
                 </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-plyform-mint/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 hover:shadow-lg transition-shadow">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div class="flex-1">
                     <p class="text-xs lg:text-sm font-medium text-gray-600">Inactive</p>
@@ -63,14 +63,14 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+        <div class="bg-white rounded-2xl p-4 lg:p-6 border border-gray-100 hover:shadow-lg transition-shadow">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div class="flex-1">
                     <p class="text-xs lg:text-sm font-medium text-gray-600">On Leave</p>
-                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-yellow-600">{{ $stats['on_leave'] }}</p>
+                    <p class="mt-1 lg:mt-2 text-2xl lg:text-3xl font-bold text-plyform-dark">{{ $stats['on_leave'] }}</p>
                 </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-plyform-yellow/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
@@ -79,7 +79,7 @@
     </div>
 
     {{-- Search & Filters --}}
-    <div class="bg-white rounded-2xl border border-gray-200 p-4 lg:p-6">
+    <div class="bg-white rounded-2xl border border-gray-100 p-4 lg:p-6">
         <form method="GET" action="{{ route('agency.agents.index') }}" class="space-y-4" id="filter-form">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {{-- Search --}}
@@ -90,7 +90,7 @@
                                name="search" 
                                value="{{ request('search') }}"
                                placeholder="Search by name, email, or code..."
-                               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none">
                         <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -100,7 +100,7 @@
                 {{-- Status Filter --}}
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white">
+                    <select name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none appearance-none bg-white">
                         <option value="">All Statuses</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
@@ -112,7 +112,7 @@
                 {{-- Employment Type Filter --}}
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Employment</label>
-                    <select name="employment_type" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white">
+                    <select name="employment_type" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none appearance-none bg-white">
                         <option value="">All Types</option>
                         <option value="full_time" {{ request('employment_type') === 'full_time' ? 'selected' : '' }}>Full Time</option>
                         <option value="part_time" {{ request('employment_type') === 'part_time' ? 'selected' : '' }}>Part Time</option>
@@ -123,7 +123,7 @@
             </div>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-plyform-purple to-plyform-dark hover:from-plyform-purple/90 hover:to-plyform-dark/90 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
@@ -159,7 +159,7 @@
     {{-- Results Count --}}
     @if($agents->count() > 0)
         <div class="flex items-center justify-between text-sm text-gray-600">
-            <p>Showing <span class="font-semibold text-gray-900">{{ $agents->firstItem() }}</span> to <span class="font-semibold text-gray-900">{{ $agents->lastItem() }}</span> of <span class="font-semibold text-gray-900">{{ $agents->total() }}</span> results</p>
+            <p>Showing <span class="font-semibold text-plyform-dark">{{ $agents->firstItem() }}</span> to <span class="font-semibold text-plyform-dark">{{ $agents->lastItem() }}</span> of <span class="font-semibold text-plyform-dark">{{ $agents->total() }}</span> results</p>
         </div>
     @endif
 
@@ -168,12 +168,12 @@
         @if($agents->count() > 0)
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 @foreach($agents as $agent)
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden hover:shadow-xl hover:border-plyform-yellow transition-all duration-300 hover:-translate-y-1">
                         {{-- Card Header with Photo --}}
-                        <div class="relative h-24 sm:h-32 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600">
+                        <div class="relative h-24 sm:h-32 bg-gradient-to-br from-plyform-purple via-plyform-purple to-plyform-dark">
                             @if($agent->is_featured)
                                 <div class="absolute top-2 sm:top-3 right-2 sm:right-3">
-                                    <span class="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full shadow-lg">
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-plyform-yellow text-plyform-dark text-xs font-bold rounded-full shadow-lg">
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                         </svg>
@@ -193,8 +193,8 @@
                         <div class="pt-12 sm:pt-16 px-4 sm:px-6 pb-4 sm:pb-6">
                             <div class="flex items-start justify-between mb-3">
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-base sm:text-lg font-bold text-gray-900 truncate">
-                                        <a href="{{ route('agency.agents.show', $agent->id) }}" class="hover:text-blue-600 transition-colors">
+                                    <h3 class="text-base sm:text-lg font-bold text-plyform-dark truncate">
+                                        <a href="{{ route('agency.agents.show', $agent->id) }}" class="hover:text-plyform-purple transition-colors">
                                             {{ $agent->full_name }}
                                         </a>
                                     </h3>
@@ -205,10 +205,10 @@
                                 {{-- Status Badge --}}
                                 @php
                                     $statusColors = [
-                                        'active' => 'bg-green-100 text-green-800',
+                                        'active' => 'bg-plyform-mint text-plyform-dark',
                                         'inactive' => 'bg-gray-100 text-gray-800',
-                                        'on_leave' => 'bg-yellow-100 text-yellow-800',
-                                        'terminated' => 'bg-red-100 text-red-800',
+                                        'on_leave' => 'bg-plyform-yellow/30 text-plyform-dark',
+                                        'terminated' => 'bg-plyform-orange/20 text-plyform-orange',
                                     ];
                                 @endphp
                                 <span class="ml-2 px-2 sm:px-3 py-1 text-xs font-semibold rounded-full flex-shrink-0 {{ $statusColors[$agent->status] ?? 'bg-gray-100 text-gray-800' }}">
@@ -242,22 +242,22 @@
                             <div class="grid grid-cols-2 gap-4 py-4 border-t border-gray-200">
                                 <div>
                                     <p class="text-xs text-gray-600">Listings</p>
-                                    <p class="text-base sm:text-lg font-bold text-gray-900">{{ $agentStats['active_listings'] }}</p>
+                                    <p class="text-base sm:text-lg font-bold text-plyform-dark">{{ $agentStats['active_listings'] }}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-600">Total Sales</p>
-                                    <p class="text-base sm:text-lg font-bold text-gray-900">{{ $agentStats['sold_properties'] }}</p>
+                                    <p class="text-base sm:text-lg font-bold text-plyform-dark">{{ $agentStats['sold_properties'] }}</p>
                                 </div>
                             </div>
 
                             {{-- Actions --}}
                             <div class="flex items-center gap-2 mt-4">
                                 <a href="{{ route('agency.agents.show', $agent->id) }}" 
-                                   class="flex-1 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-xl text-center transition-all shadow-md hover:shadow-lg">
+                                   class="flex-1 px-3 sm:px-4 py-2 bg-gradient-to-r from-plyform-yellow to-plyform-mint hover:from-plyform-yellow/90 hover:to-plyform-mint/90 text-plyform-dark text-xs sm:text-sm font-semibold rounded-xl text-center transition-all shadow-md hover:shadow-lg">
                                     View Profile
                                 </a>
                                 <a href="{{ route('agency.agents.edit', $agent->id) }}" 
-                                   class="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs sm:text-sm font-medium rounded-xl transition-colors">
+                                   class="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-plyform-purple/10 text-gray-700 hover:text-plyform-purple text-xs sm:text-sm font-medium rounded-xl transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
@@ -273,35 +273,35 @@
     {{-- Agents List View --}}
     <div id="list-view" class="hidden">
         @if($agents->count() > 0)
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-gray-50 border-b border-gray-200">
+                        <thead class="bg-plyform-mint/20 border-b border-gray-200">
                             <tr>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Agent</th>
-                                <th class="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contact</th>
-                                <th class="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employment</th>
-                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                                <th class="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stats</th>
-                                <th class="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-plyform-dark uppercase tracking-wider">Agent</th>
+                                <th class="hidden md:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-plyform-dark uppercase tracking-wider">Contact</th>
+                                <th class="hidden lg:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-plyform-dark uppercase tracking-wider">Employment</th>
+                                <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-plyform-dark uppercase tracking-wider">Status</th>
+                                <th class="hidden sm:table-cell px-4 lg:px-6 py-3 text-left text-xs font-semibold text-plyform-dark uppercase tracking-wider">Stats</th>
+                                <th class="px-4 lg:px-6 py-3 text-right text-xs font-semibold text-plyform-dark uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             @foreach($agents as $agent)
-                                <tr class="hover:bg-gray-50 transition-colors">
+                                <tr class="hover:bg-plyform-mint/5 transition-colors">
                                     {{-- Agent Info --}}
                                     <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center gap-3">
                                             <img src="{{ $agent->photo_url }}" 
                                                  alt="{{ $agent->full_name }}"
-                                                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover flex-shrink-0">
+                                                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover flex-shrink-0 border-2 border-plyform-yellow/30">
                                             <div class="min-w-0">
                                                 <div class="flex items-center gap-2">
-                                                    <a href="{{ route('agency.agents.show', $agent->id) }}" class="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors truncate">
+                                                    <a href="{{ route('agency.agents.show', $agent->id) }}" class="text-sm font-semibold text-plyform-dark hover:text-plyform-purple transition-colors truncate">
                                                         {{ $agent->full_name }}
                                                     </a>
                                                     @if($agent->is_featured)
-                                                        <svg class="w-4 h-4 text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                        <svg class="w-4 h-4 text-plyform-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                                         </svg>
                                                     @endif
@@ -314,7 +314,7 @@
 
                                     {{-- Contact --}}
                                     <td class="hidden md:table-cell px-4 lg:px-6 py-4">
-                                        <div class="text-sm text-gray-900 truncate max-w-xs">{{ $agent->email }}</div>
+                                        <div class="text-sm text-plyform-dark truncate max-w-xs">{{ $agent->email }}</div>
                                         @if($agent->mobile)
                                             <div class="text-xs text-gray-600">{{ $agent->mobile }}</div>
                                         @endif
@@ -322,17 +322,17 @@
 
                                     {{-- Employment --}}
                                     <td class="hidden lg:table-cell px-4 lg:px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm text-gray-900">{{ ucwords(str_replace('_', ' ', $agent->employment_type ?? 'N/A')) }}</span>
+                                        <span class="text-sm text-plyform-dark">{{ ucwords(str_replace('_', ' ', $agent->employment_type ?? 'N/A')) }}</span>
                                     </td>
 
                                     {{-- Status --}}
                                     <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                                         @php
                                             $statusColors = [
-                                                'active' => 'bg-green-100 text-green-800',
+                                                'active' => 'bg-plyform-mint text-plyform-dark',
                                                 'inactive' => 'bg-gray-100 text-gray-800',
-                                                'on_leave' => 'bg-yellow-100 text-yellow-800',
-                                                'terminated' => 'bg-red-100 text-red-800',
+                                                'on_leave' => 'bg-plyform-yellow/30 text-plyform-dark',
+                                                'terminated' => 'bg-plyform-orange/20 text-plyform-orange',
                                             ];
                                         @endphp
                                         <span class="px-2 sm:px-3 py-1 text-xs font-semibold rounded-full {{ $statusColors[$agent->status] ?? 'bg-gray-100 text-gray-800' }}">
@@ -348,11 +348,11 @@
                                         <div class="flex items-center gap-4">
                                             <div>
                                                 <p class="text-xs text-gray-600">Listings</p>
-                                                <p class="text-sm font-semibold text-gray-900">{{ $agentStats['active_listings'] }}</p>
+                                                <p class="text-sm font-semibold text-plyform-dark">{{ $agentStats['active_listings'] }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-gray-600">Sales</p>
-                                                <p class="text-sm font-semibold text-gray-900">{{ $agentStats['sold_properties'] }}</p>
+                                                <p class="text-sm font-semibold text-plyform-dark">{{ $agentStats['sold_properties'] }}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -361,7 +361,7 @@
                                     <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-2">
                                             <a href="{{ route('agency.agents.show', $agent->id) }}" 
-                                               class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                               class="p-2 text-plyform-purple hover:bg-plyform-purple/10 rounded-lg transition-colors"
                                                title="View Profile">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -388,13 +388,13 @@
 
     {{-- Empty State --}}
     @if($agents->count() === 0)
-        <div class="bg-white rounded-2xl border border-gray-200 p-8 sm:p-12 text-center">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-2xl border-2 border-gray-200 p-8 sm:p-12 text-center">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-plyform-mint/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
             </div>
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">No agents found</h3>
+            <h3 class="text-lg sm:text-xl font-bold text-plyform-dark mb-2">No agents found</h3>
             <p class="text-sm sm:text-base text-gray-600 mb-6">
                 @if(request()->hasAny(['search', 'status', 'employment_type']))
                     No agents match your search criteria. Try adjusting your filters.
@@ -404,7 +404,7 @@
             </p>
             @if(!request()->hasAny(['search', 'status', 'employment_type']))
                 <a href="{{ route('agency.agents.create') }}" 
-                   class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl">
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint hover:from-plyform-yellow/90 hover:to-plyform-mint/90 text-plyform-dark font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -417,7 +417,7 @@
     {{-- Pagination --}}
     @if($agents->hasPages())
         <div class="mt-6">
-            <div class="bg-white rounded-2xl border border-gray-200 px-4 py-3 sm:px-6">
+            <div class="bg-white rounded-2xl border border-gray-100 px-4 py-3 sm:px-6">
                 {{ $agents->appends(request()->query())->links() }}
             </div>
         </div>
@@ -435,17 +435,17 @@ function setView(view) {
     if (view === 'grid') {
         gridView.classList.remove('hidden');
         listView.classList.add('hidden');
-        gridBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+        gridBtn.classList.add('bg-white', 'text-plyform-dark', 'shadow-sm');
         gridBtn.classList.remove('text-gray-600');
-        listBtn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        listBtn.classList.remove('bg-white', 'text-plyform-dark', 'shadow-sm');
         listBtn.classList.add('text-gray-600');
         localStorage.setItem('agentsView', 'grid');
     } else {
         listView.classList.remove('hidden');
         gridView.classList.add('hidden');
-        listBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+        listBtn.classList.add('bg-white', 'text-plyform-dark', 'shadow-sm');
         listBtn.classList.remove('text-gray-600');
-        gridBtn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        gridBtn.classList.remove('bg-white', 'text-plyform-dark', 'shadow-sm');
         gridBtn.classList.add('text-gray-600');
         localStorage.setItem('agentsView', 'list');
     }
@@ -480,12 +480,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
+    background: #E6FF4B;
     border-radius: 10px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0;
+    background: #d4ed39;
 }
 </style>
 @endsection

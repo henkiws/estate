@@ -6,14 +6,14 @@
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Agency Profile</h1>
+        <h1 class="text-3xl font-bold text-plyform-dark">Agency Profile</h1>
         <p class="text-gray-600 mt-1">Manage your agency information and settings</p>
     </div>
 
     <!-- Success Message -->
     @if(session('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <div class="mb-6 bg-plyform-mint/20 border-2 border-plyform-mint text-plyform-dark px-4 py-3 rounded-xl flex items-center gap-2">
+            <svg class="w-5 h-5 text-plyform-mint" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
             </svg>
             {{ session('success') }}
@@ -21,28 +21,28 @@
     @endif
 
     <!-- Tabs Navigation -->
-    <div class="bg-white rounded-t-xl shadow-sm border border-gray-200 border-b-0">
+    <div class="bg-white rounded-t-xl shadow-sm border border-gray-100 border-b-0">
         <div class="flex overflow-x-auto">
-            <button onclick="showTab('company')" id="tab-company" class="tab-button active px-6 py-4 font-medium text-sm border-b-2 border-blue-600 text-blue-600 whitespace-nowrap">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="showTab('company')" id="tab-company" class="tab-button active px-6 py-4 font-medium text-sm border-b-2 border-plyform-purple text-plyform-purple whitespace-nowrap">
+                <svg class="w-5 h-5 inline mr-2 text-plyform-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
                 Company Info
             </button>
-            <button onclick="showTab('contact')" id="tab-contact" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 whitespace-nowrap">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="showTab('contact')" id="tab-contact" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-plyform-dark hover:border-plyform-mint/50 whitespace-nowrap">
+                <svg class="w-5 h-5 inline mr-2 text-plyform-mint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
                 Contact Details
             </button>
-            <button onclick="showTab('branding')" id="tab-branding" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 whitespace-nowrap">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="showTab('branding')" id="tab-branding" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-plyform-dark hover:border-plyform-mint/50 whitespace-nowrap">
+                <svg class="w-5 h-5 inline mr-2 text-plyform-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                 </svg>
                 Branding
             </button>
-            <button onclick="showTab('social')" id="tab-social" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 whitespace-nowrap">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="showTab('social')" id="tab-social" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-plyform-dark hover:border-plyform-mint/50 whitespace-nowrap">
+                <svg class="w-5 h-5 inline mr-2 text-plyform-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                 </svg>
                 Social Media
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Form -->
-    <form action="{{ route('agency.profile.update') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-b-xl shadow-sm border border-gray-200">
+    <form action="{{ route('agency.profile.update') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-b-xl shadow-sm border border-gray-100">
         @csrf
         @method('PATCH')
 
@@ -60,14 +60,14 @@
             
             <!-- Company Info Tab -->
             <div id="content-company" class="tab-content">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Company Information</h2>
+                <h2 class="text-xl font-bold text-plyform-dark mb-6">Company Information</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Agency Name -->
                     <div class="md:col-span-2">
                         <label for="agency_name" class="block text-sm font-medium text-gray-700 mb-2">Agency Name *</label>
                         <input type="text" name="agency_name" id="agency_name" value="{{ old('agency_name', $agency->agency_name) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('agency_name') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('agency_name') border-red-500 @enderror">
                         @error('agency_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -77,7 +77,7 @@
                     <div class="md:col-span-2">
                         <label for="trading_name" class="block text-sm font-medium text-gray-700 mb-2">Trading Name (if different)</label>
                         <input type="text" name="trading_name" id="trading_name" value="{{ old('trading_name', $agency->trading_name) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('trading_name') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('trading_name') border-red-500 @enderror">
                         @error('trading_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -87,7 +87,7 @@
                     <div>
                         <label for="abn" class="block text-sm font-medium text-gray-700 mb-2">ABN *</label>
                         <input type="text" name="abn" id="abn" value="{{ old('abn', $agency->abn) }}" required maxlength="11" pattern="[0-9]{11}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('abn') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('abn') border-red-500 @enderror"
                                placeholder="12345678901">
                         @error('abn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -99,7 +99,7 @@
                     <div>
                         <label for="acn" class="block text-sm font-medium text-gray-700 mb-2">ACN (if applicable)</label>
                         <input type="text" name="acn" id="acn" value="{{ old('acn', $agency->acn) }}" maxlength="9" pattern="[0-9]{9}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('acn') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('acn') border-red-500 @enderror"
                                placeholder="123456789">
                         @error('acn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -111,7 +111,7 @@
                     <div>
                         <label for="business_type" class="block text-sm font-medium text-gray-700 mb-2">Business Type *</label>
                         <select name="business_type" id="business_type" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('business_type') border-red-500 @enderror">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('business_type') border-red-500 @enderror">
                             <option value="">Select type...</option>
                             <option value="sole_trader" {{ old('business_type', $agency->business_type) == 'sole_trader' ? 'selected' : '' }}>Sole Trader</option>
                             <option value="partnership" {{ old('business_type', $agency->business_type) == 'partnership' ? 'selected' : '' }}>Partnership</option>
@@ -127,7 +127,7 @@
                     <div>
                         <label for="license_number" class="block text-sm font-medium text-gray-700 mb-2">License Number *</label>
                         <input type="text" name="license_number" id="license_number" value="{{ old('license_number', $agency->license_number) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('license_number') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('license_number') border-red-500 @enderror">
                         @error('license_number')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -137,7 +137,7 @@
                     <div class="md:col-span-2">
                         <label for="license_holder_name" class="block text-sm font-medium text-gray-700 mb-2">License Holder Name *</label>
                         <input type="text" name="license_holder_name" id="license_holder_name" value="{{ old('license_holder_name', $agency->license_holder_name) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('license_holder_name') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('license_holder_name') border-red-500 @enderror">
                         @error('license_holder_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -147,7 +147,7 @@
                     <div>
                         <label for="license_expiry_date" class="block text-sm font-medium text-gray-700 mb-2">License Expiry Date *</label>
                         <input type="date" name="license_expiry_date" id="license_expiry_date" value="{{ old('license_expiry_date', $agency->license_expiry_date?->format('Y-m-d')) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('license_expiry_date') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('license_expiry_date') border-red-500 @enderror">
                         @error('license_expiry_date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -158,26 +158,26 @@
                     <div class="md:col-span-2">
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Company Description</label>
                         <textarea name="description" id="description" rows="4" maxlength="1000"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('description') border-red-500 @enderror"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('description') border-red-500 @enderror"
                                   placeholder="Tell us about your agency, your mission, and what makes you unique...">{{ old('description', $agency->description) }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-500"><span id="charCount">{{ strlen(old('description', $agency->description ?? '')) }}</span>/1000 characters</p>
+                        <p class="mt-1 text-xs text-gray-500"><span id="charCount" class="text-plyform-purple font-medium">{{ strlen(old('description', $agency->description ?? '')) }}</span>/1000 characters</p>
                     </div>
                 </div>
             </div>
 
             <!-- Contact Details Tab -->
             <div id="content-contact" class="tab-content hidden">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Contact Details</h2>
+                <h2 class="text-xl font-bold text-plyform-dark mb-6">Contact Details</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Business Address -->
                     <div class="md:col-span-2">
                         <label for="business_address" class="block text-sm font-medium text-gray-700 mb-2">Business Address *</label>
                         <textarea name="business_address" id="business_address" rows="3" required
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('business_address') border-red-500 @enderror"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('business_address') border-red-500 @enderror"
                                   placeholder="Street address, suburb, city...">{{ old('business_address', $agency->business_address) }}</textarea>
                         @error('business_address')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -188,7 +188,7 @@
                     <div>
                         <label for="state" class="block text-sm font-medium text-gray-700 mb-2">State *</label>
                         <select name="state" id="state" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('state') border-red-500 @enderror">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('state') border-red-500 @enderror">
                             <option value="">Select state...</option>
                             <option value="NSW" {{ old('state', $agency->state) == 'NSW' ? 'selected' : '' }}>New South Wales</option>
                             <option value="VIC" {{ old('state', $agency->state) == 'VIC' ? 'selected' : '' }}>Victoria</option>
@@ -208,7 +208,7 @@
                     <div>
                         <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
                         <input type="text" name="postcode" id="postcode" value="{{ old('postcode', $agency->postcode) }}" required maxlength="4"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('postcode') border-red-500 @enderror">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('postcode') border-red-500 @enderror">
                         @error('postcode')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -218,7 +218,7 @@
                     <div>
                         <label for="business_phone" class="block text-sm font-medium text-gray-700 mb-2">Business Phone *</label>
                         <input type="tel" name="business_phone" id="business_phone" value="{{ old('business_phone', $agency->business_phone) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('business_phone') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('business_phone') border-red-500 @enderror"
                                placeholder="(02) 1234 5678">
                         @error('business_phone')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -229,7 +229,7 @@
                     <div>
                         <label for="business_email" class="block text-sm font-medium text-gray-700 mb-2">Business Email *</label>
                         <input type="email" name="business_email" id="business_email" value="{{ old('business_email', $agency->business_email) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('business_email') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('business_email') border-red-500 @enderror"
                                placeholder="contact@agency.com">
                         @error('business_email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -240,7 +240,7 @@
                     <div class="md:col-span-2">
                         <label for="website_url" class="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
                         <input type="url" name="website_url" id="website_url" value="{{ old('website_url', $agency->website_url) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('website_url') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('website_url') border-red-500 @enderror"
                                placeholder="https://www.yourwebsite.com">
                         @error('website_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -251,7 +251,7 @@
 
             <!-- Branding Tab -->
             <div id="content-branding" class="tab-content hidden">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Branding & Logo</h2>
+                <h2 class="text-xl font-bold text-plyform-dark mb-6">Branding & Logo</h2>
                 
                 <!-- Current Logo Display -->
                 <div class="mb-6">
@@ -259,14 +259,14 @@
                     <div class="flex items-center gap-6">
                         <div class="relative">
                             @if($agency->hasLogo())
-                                <img id="logoPreview" src="{{ $agency->logo_url }}" alt="Agency Logo" class="w-32 h-32 object-contain border-2 border-gray-200 rounded-lg p-2">
-                                <button type="button" onclick="deleteLogo()" class="absolute -top-2 -right-2 w-8 h-8 bg-red-600 text-white rounded-full hover:bg-red-700 transition flex items-center justify-center">
+                                <img id="logoPreview" src="{{ $agency->logo_url }}" alt="Agency Logo" class="w-32 h-32 object-contain border-2 border-plyform-purple/30 rounded-xl p-2">
+                                <button type="button" onclick="deleteLogo()" class="absolute -top-2 -right-2 w-8 h-8 bg-plyform-orange text-white rounded-full hover:bg-plyform-orange/90 transition flex items-center justify-center">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </button>
                             @else
-                                <div id="logoPreview" class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-3xl">
+                                <div id="logoPreview" class="w-32 h-32 bg-gradient-to-br from-plyform-purple to-plyform-dark rounded-xl flex items-center justify-center text-white font-bold text-3xl">
                                     {{ $agency->initials }}
                                 </div>
                             @endif
@@ -281,7 +281,7 @@
                 <!-- Logo Upload -->
                 <div>
                     <label for="logo" class="block text-sm font-medium text-gray-700 mb-2">Upload New Logo</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-plyform-purple transition">
                         <input type="file" name="logo" id="logo" accept=".jpg,.jpeg,.png" class="hidden" onchange="previewLogo(this)">
                         <label for="logo" class="cursor-pointer">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,7 +300,7 @@
 
             <!-- Social Media Tab -->
             <div id="content-social" class="tab-content hidden">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Social Media Links</h2>
+                <h2 class="text-xl font-bold text-plyform-dark mb-6">Social Media Links</h2>
                 <p class="text-gray-600 mb-6">Add your social media profiles (all optional)</p>
                 
                 <div class="space-y-4">
@@ -313,7 +313,7 @@
                             Facebook
                         </label>
                         <input type="url" name="facebook_url" id="facebook_url" value="{{ old('facebook_url', $agency->facebook_url) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('facebook_url') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('facebook_url') border-red-500 @enderror"
                                placeholder="https://facebook.com/yourpage">
                         @error('facebook_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -329,7 +329,7 @@
                             LinkedIn
                         </label>
                         <input type="url" name="linkedin_url" id="linkedin_url" value="{{ old('linkedin_url', $agency->linkedin_url) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('linkedin_url') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('linkedin_url') border-red-500 @enderror"
                                placeholder="https://linkedin.com/company/yourcompany">
                         @error('linkedin_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -345,7 +345,7 @@
                             Instagram
                         </label>
                         <input type="url" name="instagram_url" id="instagram_url" value="{{ old('instagram_url', $agency->instagram_url) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('instagram_url') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('instagram_url') border-red-500 @enderror"
                                placeholder="https://instagram.com/yourprofile">
                         @error('instagram_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -361,7 +361,7 @@
                             Twitter / X
                         </label>
                         <input type="url" name="twitter_url" id="twitter_url" value="{{ old('twitter_url', $agency->twitter_url) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('twitter_url') border-red-500 @enderror"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('twitter_url') border-red-500 @enderror"
                                placeholder="https://twitter.com/yourprofile">
                         @error('twitter_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -373,11 +373,11 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-xl flex items-center justify-between">
-            <a href="{{ route('agency.dashboard') }}" class="text-gray-600 hover:text-gray-900 font-medium">
+        <div class="border-t border-gray-200 px-6 py-4 bg-plyform-mint/10 rounded-b-xl flex items-center justify-between">
+            <a href="{{ route('agency.dashboard') }}" class="text-gray-600 hover:text-plyform-dark font-medium transition-colors">
                 ← Back to Dashboard
             </a>
-            <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2">
+            <button type="submit" class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint hover:from-plyform-yellow/90 hover:to-plyform-mint/90 text-plyform-dark rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -397,7 +397,7 @@ function showTab(tabName) {
     
     // Remove active class from all tab buttons
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active', 'border-blue-600', 'text-blue-600');
+        button.classList.remove('active', 'border-plyform-purple', 'text-plyform-purple');
         button.classList.add('border-transparent', 'text-gray-600');
     });
     
@@ -406,7 +406,7 @@ function showTab(tabName) {
     
     // Add active class to selected tab button
     const activeButton = document.getElementById('tab-' + tabName);
-    activeButton.classList.add('active', 'border-blue-600', 'text-blue-600');
+    activeButton.classList.add('active', 'border-plyform-purple', 'text-plyform-purple');
     activeButton.classList.remove('border-transparent', 'text-gray-600');
 }
 
@@ -424,10 +424,10 @@ function previewLogo(input) {
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = `
-                <div class="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center gap-3 p-3 bg-plyform-mint/10 border-2 border-plyform-mint rounded-xl">
                     <img src="${e.target.result}" class="w-24 h-24 object-contain rounded">
                     <div>
-                        <p class="text-sm font-medium text-gray-900">New logo selected</p>
+                        <p class="text-sm font-medium text-plyform-dark">New logo selected</p>
                         <p class="text-xs text-gray-600">${input.files[0].name}</p>
                         <p class="text-xs text-gray-500">${(input.files[0].size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
@@ -462,7 +462,7 @@ async function deleteLogo() {
         if (data.success) {
             // Replace logo with initials
             document.getElementById('logoPreview').outerHTML = `
-                <div id="logoPreview" class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-3xl">
+                <div id="logoPreview" class="w-32 h-32 bg-gradient-to-br from-plyform-purple to-plyform-dark rounded-xl flex items-center justify-center text-white font-bold text-3xl">
                     {{ $agency->initials }}
                 </div>
             `;
