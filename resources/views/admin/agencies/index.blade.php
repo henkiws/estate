@@ -108,6 +108,7 @@
         <table class="w-full">
             <thead class="bg-[#DDEECD]/30 border-b border-gray-200">
                 <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider text-center">Agency ID</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Agency</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contact</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Location</th>
@@ -119,6 +120,9 @@
             <tbody class="divide-y divide-gray-200">
                 @forelse($agencies as $agency)
                 <tr class="hover:bg-[#DDEECD]/20 transition">
+                    <td class="px-6 py-4 text-sm text-gray-500 text-center">
+                        {{ $agency->id }}
+                    </td>
                     <td class="px-6 py-4">
                         <div>
                             <div class="font-semibold text-gray-800">{{ $agency->agency_name }}</div>
