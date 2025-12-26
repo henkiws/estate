@@ -7,11 +7,11 @@
 <div class="mb-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Agencies Management</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Agencies Management</h1>
             <p class="text-gray-600">Manage and review all registered agencies</p>
         </div>
         <div class="flex gap-3">
-            <button class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition flex items-center gap-2">
+            <button class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-[#DDEECD]/30 transition flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -23,25 +23,25 @@
 
 {{-- Statistics Cards --}}
 <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
+    <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
         <div class="text-sm text-gray-600 mb-1">Total</div>
-        <div class="text-2xl font-bold text-gray-900">{{ $agencies->total() }}</div>
+        <div class="text-2xl font-bold text-gray-800">{{ $agencies->total() }}</div>
     </div>
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
+    <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
         <div class="text-sm text-gray-600 mb-1">Active</div>
-        <div class="text-2xl font-bold text-green-600">{{ \App\Models\Agency::where('status', 'active')->count() }}</div>
+        <div class="text-2xl font-bold text-gray-700">{{ \App\Models\Agency::where('status', 'active')->count() }}</div>
     </div>
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
+    <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
         <div class="text-sm text-gray-600 mb-1">Pending</div>
-        <div class="text-2xl font-bold text-yellow-600">{{ \App\Models\Agency::where('status', 'pending')->count() }}</div>
+        <div class="text-2xl font-bold text-gray-700">{{ \App\Models\Agency::where('status', 'pending')->count() }}</div>
     </div>
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
+    <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
         <div class="text-sm text-gray-600 mb-1">Suspended</div>
-        <div class="text-2xl font-bold text-red-600">{{ \App\Models\Agency::where('status', 'suspended')->count() }}</div>
+        <div class="text-2xl font-bold text-gray-600">{{ \App\Models\Agency::where('status', 'suspended')->count() }}</div>
     </div>
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
+    <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
         <div class="text-sm text-gray-600 mb-1">This Month</div>
-        <div class="text-2xl font-bold text-primary">{{ \App\Models\Agency::whereMonth('created_at', now()->month)->count() }}</div>
+        <div class="text-2xl font-bold text-gray-700">{{ \App\Models\Agency::whereMonth('created_at', now()->month)->count() }}</div>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
                        name="search" 
                        value="{{ request('search') }}"
                        placeholder="Search by agency name, ABN, email..." 
-                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DDEECD] focus:border-[#DDEECD] hover:border-[#DDEECD]/50 transition-colors">
                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -65,7 +65,7 @@
         {{-- Status Filter --}}
         <div class="w-full sm:w-48">
             <select name="status" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DDEECD] focus:border-[#DDEECD] hover:border-[#DDEECD]/50 bg-white transition-colors">
                 <option value="">All Status</option>
                 <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
@@ -77,7 +77,7 @@
         {{-- State Filter --}}
         <div class="w-full sm:w-40">
             <select name="state" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DDEECD] focus:border-[#DDEECD] hover:border-[#DDEECD]/50 bg-white transition-colors">
                 <option value="">All States</option>
                 <option value="NSW" {{ request('state') === 'NSW' ? 'selected' : '' }}>NSW</option>
                 <option value="VIC" {{ request('state') === 'VIC' ? 'selected' : '' }}>VIC</option>
@@ -92,7 +92,7 @@
 
         {{-- Buttons --}}
         <div class="flex gap-2">
-            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition">
+            <button type="submit" class="px-6 py-3 bg-[#DDEECD] text-gray-800 rounded-xl font-semibold hover:bg-[#DDEECD]/80 transition">
                 Filter
             </button>
             <a href="{{ route('admin.agencies.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
@@ -106,43 +106,43 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
     <div class="overflow-x-auto">
         <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
+            <thead class="bg-[#DDEECD]/30 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Agency</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Registered</th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Agency</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Location</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Registered</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @forelse($agencies as $agency)
-                <tr class="hover:bg-gray-50 transition">
+                <tr class="hover:bg-[#DDEECD]/20 transition">
                     <td class="px-6 py-4">
                         <div>
-                            <div class="font-semibold text-gray-900">{{ $agency->agency_name }}</div>
+                            <div class="font-semibold text-gray-800">{{ $agency->agency_name }}</div>
                             <div class="text-sm text-gray-500">ABN: {{ $agency->abn }}</div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm">
-                            <div class="text-gray-900">{{ $agency->license_holder_name }}</div>
+                            <div class="text-gray-800">{{ $agency->license_holder_name }}</div>
                             <div class="text-gray-500">{{ $agency->business_email }}</div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm">
-                            <div class="text-gray-900">{{ $agency->state }}</div>
+                            <div class="text-gray-800">{{ $agency->state }}</div>
                             <div class="text-gray-500">{{ $agency->postcode }}</div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
                         <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full
-                            {{ $agency->status === 'active' ? 'bg-green-100 text-green-800' : '' }}
-                            {{ $agency->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $agency->status === 'suspended' ? 'bg-red-100 text-red-800' : '' }}
-                            {{ $agency->status === 'inactive' ? 'bg-gray-100 text-gray-800' : '' }}">
+                            {{ $agency->status === 'active' ? 'bg-[#DDEECD] text-gray-800' : '' }}
+                            {{ $agency->status === 'pending' ? 'bg-[#E6FF4B] text-gray-800' : '' }}
+                            {{ $agency->status === 'suspended' ? 'bg-gray-200 text-gray-600' : '' }}
+                            {{ $agency->status === 'inactive' ? 'bg-gray-100 text-gray-500' : '' }}">
                             {{ ucfirst($agency->status) }}
                         </span>
                     </td>
@@ -153,7 +153,7 @@
                         <div class="flex items-center justify-end gap-2">
                             {{-- View Details --}}
                             <a href="{{ route('admin.agencies.show', $agency->id) }}" 
-                               class="p-2 text-primary hover:bg-primary-light rounded-lg transition" 
+                               class="p-2 text-gray-700 hover:bg-[#DDEECD] rounded-lg transition" 
                                title="View Details">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -185,7 +185,7 @@
                                     @if($agency->status === 'pending')
                                     <form action="{{ route('admin.agencies.approve', $agency->id) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#DDEECD] flex items-center gap-2 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
@@ -197,7 +197,7 @@
                                     @if($agency->status === 'active')
                                     <form action="{{ route('admin.agencies.suspend', $agency->id) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2">
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 flex items-center gap-2 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
@@ -209,7 +209,7 @@
                                     @if($agency->status === 'suspended')
                                     <form action="{{ route('admin.agencies.reactivate', $agency->id) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#DDEECD] flex items-center gap-2 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -222,7 +222,7 @@
                                     <form action="{{ route('admin.agencies.destroy', $agency->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this agency? This action cannot be undone.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 flex items-center gap-2 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>
@@ -238,10 +238,12 @@
                 <tr>
                     <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center justify-center">
-                            <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                            <p class="text-gray-600 font-medium mb-2">No agencies found</p>
+                            <div class="w-16 h-16 bg-[#DDEECD]/30 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-700 font-medium mb-2">No agencies found</p>
                             <p class="text-gray-500 text-sm">Try adjusting your search or filter criteria</p>
                         </div>
                     </td>
