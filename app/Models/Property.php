@@ -17,6 +17,8 @@ class Property extends Model
         'property_type',
         'listing_type',
         'status',
+        'storage',
+        'condition',
         
         // Address
         'street_number',
@@ -125,7 +127,8 @@ class Property extends Model
         'short_address',
         'display_price',
         'is_active',
-        'public_url',  // ← ADD THIS LINE
+        'public_url',
+        'edit_url',
     ];
 
     /**
@@ -274,6 +277,14 @@ class Property extends Model
     public function getPublicUrlAttribute()
     {
         return route('properties.show', $this->public_url_code);
+    }
+
+    /**
+     * Get the edit URL for the property
+     */
+    public function getEditUrlAttribute()
+    {
+        return route('agency.properties.edit', $this->id);
     }
 
     /**

@@ -29,24 +29,24 @@ class AgencyProfileController extends Controller
 
         $validated = $request->validate([
             // Company Information
-            'agency_name' => 'required|string|max:255',
+            // 'agency_name' => 'required|string|max:255',
             'trading_name' => 'nullable|string|max:255',
-            'abn' => [
-                'required',
-                'string',
-                'size:11',
-                'regex:/^[0-9]{11}$/',
-                Rule::unique('agencies')->ignore($agency->id)
-            ],
-            'acn' => [
-                'nullable',
-                'string',
-                'size:9',
-                'regex:/^[0-9]{9}$/',
-                Rule::unique('agencies')->ignore($agency->id)
-            ],
+            // 'abn' => [
+            //     'required',
+            //     'string',
+            //     'size:11',
+            //     'regex:/^[0-9]{11}$/',
+            //     Rule::unique('agencies')->ignore($agency->id)
+            // ],
+            // 'acn' => [
+            //     'nullable',
+            //     'string',
+            //     'size:9',
+            //     'regex:/^[0-9]{9}$/',
+            //     Rule::unique('agencies')->ignore($agency->id)
+            // ],
             'business_type' => 'required|in:sole_trader,partnership,company,trust',
-            'description' => 'nullable|string|max:1000',
+            // 'description' => 'nullable|string|max:1000',
             
             // License Information
             'license_number' => 'required|string|max:50',
@@ -62,10 +62,10 @@ class AgencyProfileController extends Controller
             'website_url' => 'nullable|url|max:255',
             
             // Social Media (all optional)
-            'facebook_url' => 'nullable|url|max:255',
-            'linkedin_url' => 'nullable|url|max:255',
-            'instagram_url' => 'nullable|url|max:255',
-            'twitter_url' => 'nullable|url|max:255',
+            // 'facebook_url' => 'nullable|url|max:255',
+            // 'linkedin_url' => 'nullable|url|max:255',
+            // 'instagram_url' => 'nullable|url|max:255',
+            // 'twitter_url' => 'nullable|url|max:255',
             
             // Logo Upload
             'logo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048', // 2MB max

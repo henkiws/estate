@@ -94,6 +94,12 @@
                 </div>
 
                 <div>
+                    <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
+                    <input type="text" name="postcode" id="postcode" required placeholder="e.g., 2000" maxlength="4"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                </div>
+
+                <div>
                     <label for="state" class="block text-sm font-medium text-gray-700 mb-2">State *</label>
                     <select name="state" id="state" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
@@ -109,11 +115,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
-                    <input type="text" name="postcode" id="postcode" required placeholder="e.g., 2000" maxlength="4"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
-                </div>
             </div>
         </div>
 
@@ -154,6 +155,25 @@
                     <input type="number" name="unit_size" id="unit_size" min="0" step="0.01" placeholder="0"
                            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
                 </div>
+
+                <div>
+                    <label for="storage" class="block text-sm font-medium text-gray-700 mb-2">Storage *</label>
+                    <select name="storage" id="storage" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                        <option value="">Select storage...</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="condition" class="block text-sm font-medium text-gray-700 mb-2">Condition *</label>
+                    <select name="condition" id="condition" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                        <option value="">Select condition...</option>
+                        <option value="Furnished">Furnished</option>
+                        <option value="Unfurnished">Unfurnished</option>
+                    </select>
+                </div>
+
             </div>
         </div>
 

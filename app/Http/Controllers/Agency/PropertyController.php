@@ -108,6 +108,9 @@ class PropertyController extends Controller
             // Availability
             'available_from' => 'nullable|date',
             'status' => 'required|in:draft,active',
+
+            'condition' => 'required|string',
+            'storage' => 'required|string',
             
             // Files
             'floorplan' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120',
@@ -166,6 +169,7 @@ class PropertyController extends Controller
             'message' => 'Property added successfully!',
             'property_id' => $property->id,
             'public_url' => route('properties.show', $property->public_url_code),
+            'edit_url' => route('agency.properties.edit', $property->id),
             'public_url_code' => $property->public_url_code,
         ]);
     }
@@ -235,6 +239,9 @@ class PropertyController extends Controller
             // Availability
             'available_from' => 'nullable|date',
             'status' => 'required|in:draft,active',
+
+            'condition' => 'required|string',
+            'storage' => 'required|string',
             
             // Files
             'floorplan' => 'nullable|file|mimes:jpeg,jpg,png,pdf|max:5120',
@@ -312,6 +319,7 @@ class PropertyController extends Controller
             'message' => 'Property updated successfully!',
             'property_id' => $property->id,
             'public_url' => route('properties.show', $property->public_url_code),
+            'edit_url' => route('agency.properties.edit', $property->id),
             'public_url_code' => $property->public_url_code,
         ]);
     }

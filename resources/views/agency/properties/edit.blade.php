@@ -95,6 +95,12 @@
                 </div>
 
                 <div>
+                    <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
+                    <input type="text" name="postcode" id="postcode" value="{{ old('postcode', $property->postcode) }}" required placeholder="e.g., 2000" maxlength="4"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                </div>
+
+                <div>
                     <label for="state" class="block text-sm font-medium text-gray-700 mb-2">State *</label>
                     <select name="state" id="state" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
@@ -110,11 +116,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
-                    <input type="text" name="postcode" id="postcode" value="{{ old('postcode', $property->postcode) }}" required placeholder="e.g., 2000" maxlength="4"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
-                </div>
             </div>
         </div>
 
@@ -154,6 +155,24 @@
                     <label for="unit_size" class="block text-sm font-medium text-gray-700 mb-2">Unit Size (sqm)</label>
                     <input type="number" name="unit_size" id="unit_size" value="{{ old('unit_size', $property->building_size) }}" min="0" step="0.01" placeholder="0"
                            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                </div>
+
+                <div>
+                    <label for="storage" class="block text-sm font-medium text-gray-700 mb-2">Storage *</label>
+                    <select name="storage" id="storage" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                        <option value="">Select storage...</option>
+                        <option value="Yes" {{ $property->storage == 'Yes' ? 'selected' : '' }}>Yes</option>
+                        <option value="No" {{ $property->storage == 'No' ? 'selected' : '' }}>No</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="condition" class="block text-sm font-medium text-gray-700 mb-2">Condition *</label>
+                    <select name="condition" id="condition" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
+                        <option value="">Select condition...</option>
+                        <option value="Furnished" {{ $property->condition == 'Furnished' ? 'selected' : '' }}>Furnished</option>
+                        <option value="Unfurnished" {{ $property->condition == 'Unfurnished' ? 'selected' : '' }}>Unfurnished</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -224,7 +243,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-xl font-bold text-plyform-dark mb-6 flex items-center">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-plyform-purple/10 text-plyform-purple text-sm font-bold mr-3">5</span>
-                Manage Images & Floorplan
+                Upload Image / Floorplan
             </h2>
             
             <!-- Existing Floorplan -->
@@ -258,7 +277,7 @@
                 </div>
                 <div id="floorplanPreview" class="mt-2 hidden"></div>
             </div>
-
+{{-- 
             <!-- Existing Property Images -->
             @if($property->images->count() > 0)
                 <div class="mb-6">
@@ -295,7 +314,7 @@
                     </label>
                 </div>
                 <div id="imagesPreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-            </div>
+            </div> --}}
         </div>
 
         <!-- 6. Availability & Agent Assignment -->
@@ -380,6 +399,10 @@
         <!-- Copy Link Section -->
         <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-6">
             <div class="flex items-center gap-3">
+                <input type="text" id="propertyUrl" readonly
+                       class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-mono text-gray-700 focus:outline-none focus:ring-2 focus:ring-plyform-purple/20 cursor-pointer"
+                       onclick="this.select(); copyUrl();">
+
                 <button onclick="copyUrl()" id="copyBtn"
                         class="px-5 py-2.5 bg-gradient-to-r from-plyform-purple to-plyform-dark text-white rounded-xl hover:from-plyform-purple/90 hover:to-plyform-dark/90 transition flex items-center gap-2 font-medium shadow-sm flex-shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,18 +410,6 @@
                     </svg>
                     <span id="copyText">Copy link</span>
                 </button>
-
-                <input type="text" id="propertyUrl" readonly
-                       class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-mono text-gray-700 focus:outline-none focus:ring-2 focus:ring-plyform-purple/20 cursor-pointer"
-                       onclick="this.select(); copyUrl();">
-
-                <a href="#" id="viewPropertyBtn" target="_blank"
-                   class="px-4 py-2.5 text-gray-600 hover:text-plyform-dark transition flex items-center gap-2 flex-shrink-0">
-                    <span class="text-sm font-medium">Edit</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                </a>
             </div>
         </div>
 
@@ -418,14 +429,13 @@
                     <p class="text-xs text-gray-500 truncate" id="previewUrl">Loading...</p>
                 </div>
 
-                <!-- Preview Button -->
-                <a href="#" id="viewPropertyBtn2" target="_blank"
+                <!-- Edit Button -->
+                <a href="#" id="editBtn" target="_blank"
                    class="px-3 py-1.5 text-xs font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-mint/10 rounded transition flex items-center gap-1 flex-shrink-0">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
-                    Preview
+                    Edit
                 </a>
             </div>
         </div>
@@ -620,8 +630,7 @@ document.getElementById('propertyForm').addEventListener('submit', async functio
             // Populate all URL fields in the modal
             document.getElementById('propertyUrl').value = data.public_url;
             document.getElementById('previewUrl').textContent = data.public_url;
-            document.getElementById('viewPropertyBtn').href = data.public_url;
-            document.getElementById('viewPropertyBtn2').href = data.public_url;
+            document.getElementById('editBtn').href = data.edit_url;
             document.getElementById('viewPropertyBtnMain').href = data.public_url;
             
             // Show success modal

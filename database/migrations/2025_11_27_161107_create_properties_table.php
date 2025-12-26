@@ -48,6 +48,15 @@ return new class extends Migration
                 'off_market',
                 'expired'
             ])->default('draft');
+
+            $table->enum('storage', [
+                'Yes',
+                'No'
+            ])->default('No');
+            $table->enum('condition', [
+                'Furnished',
+                'Unfurnished'
+            ])->default('Unfurnished');
             
             // Address
             $table->string('street_number', 20)->nullable();

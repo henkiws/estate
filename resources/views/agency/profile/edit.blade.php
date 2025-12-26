@@ -66,8 +66,8 @@
                     <!-- Agency Name -->
                     <div class="md:col-span-2">
                         <label for="agency_name" class="block text-sm font-medium text-gray-700 mb-2">Agency Name *</label>
-                        <input type="text" name="agency_name" id="agency_name" value="{{ old('agency_name', $agency->agency_name) }}" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('agency_name') border-red-500 @enderror">
+                        <input type="text" name="agency_name" id="agency_name" value="{{ old('agency_name', $agency->agency_name) }}" required disabled
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('agency_name') border-red-500 @enderror">
                         @error('agency_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -86,8 +86,8 @@
                     <!-- ABN -->
                     <div>
                         <label for="abn" class="block text-sm font-medium text-gray-700 mb-2">ABN *</label>
-                        <input type="text" name="abn" id="abn" value="{{ old('abn', $agency->abn) }}" required maxlength="11" pattern="[0-9]{11}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('abn') border-red-500 @enderror"
+                        <input type="text" name="abn" id="abn" value="{{ old('abn', $agency->abn) }}" required disabled maxlength="11" pattern="[0-9]{11}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('abn') border-red-500 @enderror"
                                placeholder="12345678901">
                         @error('abn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -98,8 +98,8 @@
                     <!-- ACN -->
                     <div>
                         <label for="acn" class="block text-sm font-medium text-gray-700 mb-2">ACN (if applicable)</label>
-                        <input type="text" name="acn" id="acn" value="{{ old('acn', $agency->acn) }}" maxlength="9" pattern="[0-9]{9}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none @error('acn') border-red-500 @enderror"
+                        <input type="text" name="acn" id="acn" value="{{ old('acn', $agency->acn) }}" disabled maxlength="9" pattern="[0-9]{9}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('acn') border-red-500 @enderror"
                                placeholder="123456789">
                         @error('acn')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

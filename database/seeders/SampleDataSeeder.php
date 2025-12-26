@@ -426,8 +426,8 @@ class SampleDataSeeder extends Seeder
         ]);
         $user2->assignRole('user');
         
-        $this->createCompleteProfile($user2, 'pending');
-        $this->command->info("⏳ Public User (Pending): {$user2->name} ({$user2->email} / password)");
+        $this->createCompleteProfile($user2, 'approved');
+        $this->command->info("✅ Public User (Approved): {$user2->name} ({$user2->email} / password)");
         
         // USER 3: Complete Profile - Rejected (Needs update)
         $user3 = User::create([
@@ -440,8 +440,8 @@ class SampleDataSeeder extends Seeder
         ]);
         $user3->assignRole('user');
         
-        $this->createCompleteProfile($user3, 'rejected');
-        $this->command->info("❌ Public User (Rejected): {$user3->name} ({$user3->email} / password)");
+        $this->createCompleteProfile($user3, 'approved');
+        $this->command->info("✅ Public User (Approved): {$user3->name} ({$user3->email} / password)");
         
         // USER 4: Incomplete Profile - Step 5 (Stopped at pets)
         $user4 = User::create([
@@ -456,7 +456,7 @@ class SampleDataSeeder extends Seeder
         $user4->assignRole('user');
         
         $this->createPartialProfile($user4, 4); // Completed up to step 4
-        $this->command->info("📝 Public User (Incomplete - Step 5): {$user4->name} ({$user4->email} / password)");
+        $this->command->info("✅ Public User (Approved): {$user4->name} ({$user4->email} / password)");
         
         // USER 5: No Profile (Just registered)
         $user5 = User::create([
@@ -478,7 +478,7 @@ class SampleDataSeeder extends Seeder
     /**
      * Create complete user profile with all 10 steps
      */
-    private function createCompleteProfile($user, $status = 'pending')
+    private function createCompleteProfile($user, $status = 'approved')
     {
         // STEP 1: Personal Details + Introduction
         $profile = UserProfile::create([
