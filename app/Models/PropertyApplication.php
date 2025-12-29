@@ -22,6 +22,9 @@ class PropertyApplication extends Model
         'date_of_birth',
         'current_address',
         'move_in_date',
+        'lease_duration', // NEW FIELD
+        'inspection_confirmed', // NEW FIELD
+        'inspection_date', // NEW FIELD
         'number_of_occupants',
         'has_pets',
         'pet_details',
@@ -48,6 +51,9 @@ class PropertyApplication extends Model
         'reviewed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'inspection_date' => 'date', // NEW FIELD
+        'inspection_confirmed' => 'boolean', // NEW FIELD
+        'lease_duration' => 'integer', // NEW FIELD
     ];
 
     /**

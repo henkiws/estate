@@ -1,117 +1,253 @@
 @extends('layouts.app')
 
+@section('title', $property->title . ' - plyform')
+
 @section('content')
-<div class="py-8">
-    <div class="max-w-6xl mx-auto px-4">
-        <!-- Gallery -->
+<div class="min-h-screen bg-[#DDEECD]">
+    
+    <!-- Property Gallery Hero -->
+    <div class="relative">
         <x-property-gallery :images="$property->images" />
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
         
-        <!-- Property Info -->
-        <div class="mt-8 grid md:grid-cols-3 gap-8">
-            <!-- Main Content -->
-            <div class="md:col-span-2">
-                <div class="flex items-start justify-between mb-4">
-                    <div>
-                        <h1 class="text-3xl font-bold mb-2">{{ $property->address }}</h1>
-                        <p class="text-gray-600">{{ $property->suburb }}, {{ $property->state }} {{ $property->postcode }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-3xl font-bold text-teal-600">${{ number_format($property->price_per_week) }}</p>
-                        <p class="text-gray-500">/week</p>
-                    </div>
-                </div>
-                
-                <!-- Features -->
-                <div class="flex gap-6 mb-6 pb-6 border-b">
-                    <span class="flex items-center gap-2 text-gray-700">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">...</svg>
-                        {{ $property->bedrooms }} Bedrooms
-                    </span>
-                    <span class="flex items-center gap-2 text-gray-700">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">...</svg>
-                        {{ $property->bathrooms }} Bathrooms
-                    </span>
-                    <span class="flex items-center gap-2 text-gray-700">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">...</svg>
-                        {{ $property->parking_spaces }} Parking
-                    </span>
-                </div>
-                
-                <!-- Description -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold mb-3">About This Property</h2>
-                    <p class="text-gray-700 leading-relaxed">{{ $property->description }}</p>
-                </div>
-                
-                <!-- Features List -->
-                @if($property->features)
-                    <div class="mb-8">
-                        <h2 class="text-xl font-bold mb-3">Features & Amenities</h2>
-                        <div class="grid grid-cols-2 gap-3">
-                            @foreach($property->features as $feature)
-                                <span class="flex items-center gap-2 text-gray-700">
-                                    <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+        <!-- Property Card -->
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            
+            <!-- Header Section -->
+            <div class="p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-white to-gray-50">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    
+                    <!-- Property Info -->
+                    <div class="flex-1">
+                        <div class="flex items-start gap-4 mb-6">
+                            <div class="flex-1">
+                                <h1 class="text-4xl lg:text-5xl font-bold text-[#1E1C1C] mb-3 leading-tight">
+                                    {{ $property->title ?? $property->street_address }}
+                                </h1>
+                                <p class="text-xl text-gray-600 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-[#5E17EB]" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                                     </svg>
-                                    {{ $feature }}
-                                </span>
-                            @endforeach
+                                    {{ $property->suburb }}, {{ $property->state }} {{ $property->postcode }}
+                                </p>
+                            </div>
+                            
+                            <!-- Price Badge - Mobile -->
+                            <div class="lg:hidden bg-gradient-to-br from-[#5E17EB] to-[#7c3aed] text-white px-6 py-4 rounded-2xl shadow-xl text-right">
+                                @if($property->listing_type === 'sale')
+                                    <p class="text-3xl font-bold">${{ number_format($property->sale_price) }}</p>
+                                    <p class="text-sm opacity-90">For Sale</p>
+                                @else
+                                    <p class="text-3xl font-bold">${{ number_format($property->rent_amount) }}</p>
+                                    <p class="text-sm opacity-90">/{{ $property->rent_period }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <!-- Property Type Badge -->
+                        <div class="mb-4">
+                            <span class="inline-flex items-center px-4 py-2 bg-[#E6FF4B] text-[#1E1C1C] rounded-full text-sm font-bold">
+                                {{ ucfirst($property->property_type) }} • {{ ucfirst($property->listing_type) }}
+                            </span>
+                        </div>
+                        
+                        <!-- Property Features Pills -->
+                        <div class="flex flex-wrap gap-3">
+                            @if($property->bedrooms)
+                            <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-md border-2 border-[#E6FF4B]">
+                                <svg class="w-6 h-6 text-[#1E1C1C]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                </svg>
+                                <span class="font-bold text-lg">{{ $property->bedrooms }}</span>
+                                <span class="text-gray-600">Bedrooms</span>
+                            </div>
+                            @endif
+                            
+                            @if($property->bathrooms)
+                            <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-md border-2 border-[#E6FF4B]">
+                                <svg class="w-6 h-6 text-[#1E1C1C]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l.01.01h7.99V6z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="font-bold text-lg">{{ $property->bathrooms }}</span>
+                                <span class="text-gray-600">Bathrooms</span>
+                            </div>
+                            @endif
+                            
+                            @if($property->car_spaces)
+                            <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-md border-2 border-[#E6FF4B]">
+                                <svg class="w-6 h-6 text-[#1E1C1C]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                </svg>
+                                <span class="font-bold text-lg">{{ $property->car_spaces }}</span>
+                                <span class="text-gray-600">Parking</span>
+                            </div>
+                            @endif
+                            
+                            @if($property->land_size)
+                            <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-full shadow-md border-2 border-[#E6FF4B]">
+                                <svg class="w-6 h-6 text-[#1E1C1C]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="font-bold text-lg">{{ $property->land_size }}</span>
+                                <span class="text-gray-600">m²</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
-                @endif
+                    
+                    <!-- Action Card - Desktop -->
+                    <div class="hidden lg:block flex-shrink-0 w-80">
+                        <div class="bg-gradient-to-br from-[#5E17EB] to-[#7c3aed] text-white p-8 rounded-2xl shadow-2xl">
+                            <p class="text-sm opacity-90 mb-2">
+                                @if($property->listing_type === 'sale')
+                                    Sale Price
+                                @else
+                                    {{ ucfirst($property->rent_period) }}ly Rent
+                                @endif
+                            </p>
+                            <p class="text-6xl font-bold mb-6">
+                                @if($property->listing_type === 'sale')
+                                    ${{ number_format($property->sale_price) }}
+                                @else
+                                    ${{ number_format($property->rent_amount) }}
+                                @endif
+                            </p>
+                            
+                            @auth
+                                <a href="{{ route('user.applications.create', ['property_id' => $property->id]) }}" 
+                                    class="block w-full py-4 bg-[#E6FF4B] text-[#1E1C1C] text-center font-bold rounded-xl hover:bg-[#d4f039] transition-all shadow-lg text-lg mb-3">
+                                    Apply Now
+                                </a>
+                                
+                                <button onclick="toggleFavorite({{ $property->id }}, this)"
+                                    class="w-full py-4 bg-white/10 backdrop-blur text-white border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all font-semibold {{ $isFavorited ? 'bg-white/20' : '' }}">
+                                    {{ $isFavorited ? '♥ Saved' : '♡ Save Property' }}
+                                </button>
+                            @else
+                                <a href="{{ route('login') }}" 
+                                    class="block w-full py-4 bg-[#E6FF4B] text-[#1E1C1C] text-center font-bold rounded-xl hover:bg-[#d4f039] transition-all shadow-lg text-lg">
+                                    Login to Apply
+                                </a>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile CTA Buttons -->
+                <div class="lg:hidden mt-8 space-y-3">
+                    @auth
+                        <a href="{{ route('user.applications.create', ['property_id' => $property->id]) }}" 
+                            class="block w-full py-4 btn-primary text-center font-bold rounded-xl text-lg shadow-lg">
+                            Apply Now
+                        </a>
+                        
+                        <button onclick="toggleFavorite({{ $property->id }}, this)"
+                            class="w-full py-4 border-2 rounded-xl font-bold transition-all {{ $isFavorited ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500' }}">
+                            {{ $isFavorited ? '♥ Saved' : '♡ Save Property' }}
+                        </button>
+                    @else
+                        <a href="{{ route('login') }}" 
+                            class="block w-full py-4 btn-primary text-center font-bold rounded-xl text-lg shadow-lg">
+                            Login to Apply
+                        </a>
+                    @endauth
+                </div>
             </div>
             
-            <!-- Sidebar -->
-            <div>
-                <div class="bg-white rounded-xl shadow-lg border p-6 sticky top-4">
-                    <h3 class="font-bold mb-4">Interested?</h3>
-                    
-                    <div class="space-y-3">
-                        @auth
-                            <a href="{{ route('user.applications.create', ['property_id' => $property->id]) }}" 
-                                class="block w-full py-3 bg-teal-600 text-white text-center font-semibold rounded-lg hover:bg-teal-700">
-                                Apply Now
-                            </a>
-                            
-                            <button onclick="toggleFavorite({{ $property->id }}, this)"
-                                class="w-full py-3 border-2 {{ $isFavorited ? 'border-red-500 text-red-500' : 'border-gray-300' }} rounded-lg hover:border-red-500">
-                                {{ $isFavorited ? '♥ Saved' : '♡ Save Property' }}
-                            </button>
-                        @else
-                            <a href="{{ route('login') }}" 
-                                class="block w-full py-3 bg-teal-600 text-white text-center font-semibold rounded-lg">
-                                Login to Apply
-                            </a>
-                        @endauth
-                        
-                        <button class="w-full py-3 bg-gray-100 rounded-lg hover:bg-gray-200">
-                            Schedule Inspection
-                        </button>
+            <!-- Agency Info Section -->
+            <div class="border-t border-gray-200"></div>
+            @if($property->agency)
+            <div class="p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-gray-50 to-white border-t-2 border-gray-200">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 uppercase tracking-wider mb-3 font-semibold">Property Managed By</p>
+                        <div class="flex items-center gap-4 mb-3">
+                            @if($property->agency->logo_url)
+                            <img src="{{ $property->agency->logo_path }}" 
+                                 alt="{{ $property->agency->agency_name }}"
+                                 class="h-14 object-contain">
+                            @else
+                            <p class="text-2xl font-bold text-[#1E1C1C]">{{ $property->agency->agency_name }}</p>
+                            @endif
+                        </div>
                     </div>
                     
-                    <!-- Agency Info -->
-                    @if($property->agency)
-                        <div class="mt-6 pt-6 border-t">
-                            <p class="text-sm text-gray-600 mb-1">Managed by</p>
-                            <p class="font-semibold">{{ $property->agency->name }}</p>
-                            <p class="text-sm text-gray-600">{{ $property->agency->phone }}</p>
-                        </div>
-                    @endif
+                    <div class="flex flex-col sm:items-end gap-3">
+                        @if($property->agency->business_phone)
+                        <a href="tel:{{ $property->agency->business_phone }}" 
+                           class="inline-flex items-center gap-3 px-6 py-3 bg-[#E6FF4B] text-[#1E1C1C] rounded-xl font-bold hover:bg-[#d4f039] transition-all shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            {{ $property->agency->business_phone }}
+                        </a>
+                        @endif
+                        @if($property->agency->business_email)
+                        <a href="mailto:{{ $property->agency->business_email }}" 
+                           class="text-gray-600 hover:text-[#5E17EB] transition-colors font-medium">
+                            {{ $property->agency->business_email }}
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </div>
+            @endif
         </div>
         
         <!-- Similar Properties -->
-        @if($similarProperties->count() > 0)
-            <div class="mt-12">
-                <h2 class="text-2xl font-bold mb-6">Similar Properties</h2>
-                <div class="grid grid-cols-3 gap-6">
-                    @foreach($similarProperties as $similar)
-                        <x-property-card :property="$similar" viewMode="grid" />
-                    @endforeach
-                </div>
+        @if($similarProperties && $similarProperties->count() > 0)
+        <div class="mt-16">
+            <h2 class="text-3xl font-bold text-[#1E1C1C] mb-8 flex items-center gap-3">
+                <span class="w-3 h-10 bg-gradient-to-b from-[#E6FF4B] to-[#5E17EB] rounded-full"></span>
+                Similar Properties
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach($similarProperties as $similar)
+                    <x-property-card :property="$similar" viewMode="grid" />
+                @endforeach
             </div>
+        </div>
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+function toggleFavorite(propertyId, button) {
+    fetch(`/api/favorites/${propertyId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.favorited) {
+            button.classList.add('border-red-500', 'text-red-500', 'bg-red-50');
+            button.classList.remove('border-gray-300', 'text-gray-700');
+            button.innerHTML = '♥ Saved';
+        } else {
+            button.classList.remove('border-red-500', 'text-red-500', 'bg-red-50');
+            button.classList.add('border-gray-300', 'text-gray-700');
+            button.innerHTML = '♡ Save Property';
+        }
+        
+        if (window.showToast) {
+            window.showToast(data.message, 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (window.showToast) {
+            window.showToast('Failed to update favorite', 'error');
+        }
+    });
+}
+</script>
+@endpush
 @endsection

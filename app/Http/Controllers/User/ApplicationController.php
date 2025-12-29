@@ -3,63 +3,25 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Application;
-use App\Models\Property;
+use App\Models\PropertyApplication;
+use App\Models\CoApplicant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ApplicationController extends Controller
 {
     /**
-     * Display a listing of applications
+     * Display a listing of user's applications
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user = Auth::user();
+        $applications = PropertyApplication::with(['property.images', 'agency'])
+            ->forUser(Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
         
-        $query = Application::with(['property', 'property.agency'])
-            ->forUser($user->id)
-            ->recent();
-        
-        // Filter by status
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->byStatus($request->status);
-        }
-        
-        // Search by property
-        if ($request->filled('search')) {
-            $query->search($request->search);
-        }
-        
-        // Sort
-        $sortBy = $request->get('sort', 'recent');
-        switch ($sortBy) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'status':
-                $query->orderBy('status', 'asc')->orderBy('created_at', 'desc');
-                break;
-            default:
-                $query->recent();
-        }
-        
-        $applications = $query->paginate(12);
-        
-        // Get counts for filters
-        $counts = [
-            'all' => Application::forUser($user->id)->count(),
-            'draft' => Application::forUser($user->id)->byStatus('draft')->count(),
-            'submitted' => Application::forUser($user->id)->byStatus('submitted')->count(),
-            'under_review' => Application::forUser($user->id)->byStatus('under_review')->count(),
-            'approved' => Application::forUser($user->id)->byStatus('approved')->count(),
-            'rejected' => Application::forUser($user->id)->byStatus('rejected')->count(),
-            'withdrawn' => Application::forUser($user->id)->byStatus('withdrawn')->count(),
-        ];
-        
-        $viewMode = $request->get('view', 'grid'); // grid or list
-        
-        return view('user.applications.index', compact('applications', 'counts', 'viewMode'));
+        return view('user.applications.index', compact('applications'));
     }
 
     /**
@@ -67,29 +29,20 @@ class ApplicationController extends Controller
      */
     public function create(Request $request)
     {
-        $user = Auth::user();
+        $propertyId = $request->get('property_id');
         
-        // Check if user profile is approved
-        if (!$user->profile || !$user->profile->isComplete()) {
-            return redirect()->route('user.profile.complete')
-                ->with('error', 'Please complete your profile before applying for properties.');
-        }
+        // Check if property exists and is available
+        $property = \App\Models\Property::findOrFail($propertyId);
         
-        // Get property if specified
-        $property = null;
-        if ($request->filled('property_id')) {
-            $property = Property::with('agency')->findOrFail($request->property_id);
-            
-            // Check if user already has an active application for this property
-            $existingApplication = Application::forUser($user->id)
-                ->where('property_id', $property->id)
-                ->active()
-                ->first();
-            
-            if ($existingApplication) {
-                return redirect()->route('user.applications.show', $existingApplication)
-                    ->with('info', 'You already have an active application for this property.');
-            }
+        // Check if user already has a pending application for this property
+        $existingApplication = PropertyApplication::where('user_id', Auth::id())
+            ->where('property_id', $propertyId)
+            ->whereIn('status', ['pending', 'approved'])
+            ->first();
+        
+        if ($existingApplication) {
+            return redirect()->route('user.applications.show', $existingApplication->id)
+                ->with('info', 'You already have an application for this property.');
         }
         
         return view('user.applications.create', compact('property'));
@@ -100,166 +53,191 @@ class ApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        
         $validated = $request->validate([
             'property_id' => 'required|exists:properties,id',
-            'move_in_date' => 'required|date|after:today',
-            'lease_term' => 'required|integer|min:1|max:24',
-            'number_of_occupants' => 'required|integer|min:1|max:10',
-            'occupants_details' => 'nullable|array',
-            'occupants_details.*.name' => 'required|string|max:255',
-            'occupants_details.*.relationship' => 'required|string|max:255',
-            'occupants_details.*.age' => 'nullable|integer|min:0|max:120',
-            'special_requests' => 'nullable|string|max:1000',
-            'notes' => 'nullable|string|max:1000',
-            'submit_type' => 'required|in:draft,submit',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'date_of_birth' => 'required|date',
+            'current_address' => 'required|string',
+            'move_in_date' => 'required|date',
+            'lease_duration' => 'nullable|integer|min:1|max:60',
+            'inspection_confirmed' => 'required|boolean',
+            'inspection_date' => 'nullable|date|required_if:inspection_confirmed,true',
+            'number_of_occupants' => 'required|integer|min:1',
+            'has_pets' => 'required|boolean',
+            'pet_details' => 'nullable|string|required_if:has_pets,true',
+            'employment_status' => 'required|string',
+            'employer_name' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'annual_income' => 'required|numeric|min:0',
+            'references' => 'nullable|array',
+            'additional_information' => 'nullable|string',
+            'documents' => 'nullable|array',
+            // Co-applicants
+            'co_applicants' => 'nullable|array',
+            'co_applicants.*.first_name' => 'required|string|max:255',
+            'co_applicants.*.last_name' => 'required|string|max:255',
+            'co_applicants.*.email' => 'required|email|max:255',
+            'co_applicants.*.phone' => 'required|string|max:20',
+            'co_applicants.*.date_of_birth' => 'required|date',
+            'co_applicants.*.relationship_to_applicant' => 'nullable|string|max:255',
+            'co_applicants.*.employment_status' => 'nullable|string|max:255',
+            'co_applicants.*.employer_name' => 'nullable|string|max:255',
+            'co_applicants.*.annual_income' => 'nullable|numeric|min:0',
         ]);
         
-        // Check if user already has an active application
-        $existingApplication = Application::forUser($user->id)
-            ->where('property_id', $validated['property_id'])
-            ->active()
-            ->first();
+        DB::beginTransaction();
         
-        if ($existingApplication) {
-            return redirect()->route('user.applications.show', $existingApplication)
-                ->with('error', 'You already have an active application for this property.');
-        }
-        
-        // Create application
-        $application = Application::create([
-            'user_id' => $user->id,
-            'property_id' => $validated['property_id'],
-            'move_in_date' => $validated['move_in_date'],
-            'lease_term' => $validated['lease_term'],
-            'number_of_occupants' => $validated['number_of_occupants'],
-            'occupants_details' => $validated['occupants_details'] ?? null,
-            'special_requests' => $validated['special_requests'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-            'status' => 'draft',
-        ]);
-        
-        // Submit if requested
-        if ($validated['submit_type'] === 'submit') {
-            $application->submit();
+        try {
+            // Get property to find agency_id
+            $property = \App\Models\Property::findOrFail($validated['property_id']);
             
-            return redirect()->route('user.applications.show', $application)
-                ->with('success', 'Application submitted successfully! You will be notified when it is reviewed.');
+            // Create main application
+            $application = PropertyApplication::create([
+                'user_id' => Auth::id(),
+                'property_id' => $validated['property_id'],
+                'agency_id' => $property->agency_id,
+                'status' => 'pending',
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'date_of_birth' => $validated['date_of_birth'],
+                'current_address' => $validated['current_address'],
+                'move_in_date' => $validated['move_in_date'],
+                'lease_duration' => $validated['lease_duration'] ?? null,
+                'inspection_confirmed' => $validated['inspection_confirmed'],
+                'inspection_date' => $validated['inspection_date'] ?? null,
+                'number_of_occupants' => $validated['number_of_occupants'],
+                'has_pets' => $validated['has_pets'],
+                'pet_details' => $validated['pet_details'] ?? null,
+                'employment_status' => $validated['employment_status'],
+                'employer_name' => $validated['employer_name'] ?? null,
+                'job_title' => $validated['job_title'] ?? null,
+                'annual_income' => $validated['annual_income'],
+                'references' => $validated['references'] ?? null,
+                'additional_information' => $validated['additional_information'] ?? null,
+                'documents' => $validated['documents'] ?? null,
+                'submitted_at' => now(),
+            ]);
+            
+            // Create co-applicants if provided
+            if (!empty($validated['co_applicants'])) {
+                foreach ($validated['co_applicants'] as $coApplicantData) {
+                    CoApplicant::create([
+                        'property_application_id' => $application->id,
+                        'first_name' => $coApplicantData['first_name'],
+                        'last_name' => $coApplicantData['last_name'],
+                        'email' => $coApplicantData['email'],
+                        'phone' => $coApplicantData['phone'],
+                        'date_of_birth' => $coApplicantData['date_of_birth'],
+                        'relationship_to_applicant' => $coApplicantData['relationship_to_applicant'] ?? null,
+                        'employment_status' => $coApplicantData['employment_status'] ?? null,
+                        'employer_name' => $coApplicantData['employer_name'] ?? null,
+                        'annual_income' => $coApplicantData['annual_income'] ?? null,
+                    ]);
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('user.applications.show', $application->id)
+                ->with('success', 'Application submitted successfully!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()->withInput()
+                ->with('error', 'Failed to submit application. Please try again.');
         }
-        
-        return redirect()->route('user.applications.show', $application)
-            ->with('success', 'Application draft saved successfully.');
     }
 
     /**
      * Display the specified application
      */
-    public function show(Application $application)
+    public function show($id)
     {
-        $user = Auth::user();
+        $application = PropertyApplication::with([
+                'property.images',
+                'property.agency',
+                'agency',
+                'user',
+                'coApplicants' // Load co-applicants
+            ])
+            ->where('id', $id)
+            ->forUser(Auth::id()) // Ensure user can only view their own applications
+            ->firstOrFail();
         
-        // Ensure user owns this application
-        if ($application->user_id !== $user->id) {
-            abort(403);
-        }
+        // Get group members (co-applicants)
+        $groupMembers = $application->coApplicants;
         
-        $application->load(['property', 'property.agency', 'property.images']);
-        
-        return view('user.applications.show', compact('application'));
+        return view('user.applications.show', compact('application', 'groupMembers'));
     }
 
     /**
      * Show the form for editing the specified application
      */
-    public function edit(Application $application)
+    public function edit($id)
     {
-        $user = Auth::user();
+        $application = PropertyApplication::with(['property', 'coApplicants'])
+            ->where('id', $id)
+            ->forUser(Auth::id())
+            ->where('status', 'pending') // Only allow editing pending applications
+            ->firstOrFail();
         
-        // Ensure user owns this application
-        if ($application->user_id !== $user->id) {
-            abort(403);
-        }
-        
-        // Can only edit drafts
-        if (!$application->canEdit()) {
-            return redirect()->route('user.applications.show', $application)
-                ->with('error', 'You can only edit draft applications.');
-        }
-        
-        $property = $application->property;
-        
-        return view('user.applications.edit', compact('application', 'property'));
+        return view('user.applications.edit', compact('application'));
     }
 
     /**
      * Update the specified application
      */
-    public function update(Request $request, Application $application)
+    public function update(Request $request, $id)
     {
-        $user = Auth::user();
-        
-        // Ensure user owns this application
-        if ($application->user_id !== $user->id) {
-            abort(403);
-        }
-        
-        // Can only edit drafts
-        if (!$application->canEdit()) {
-            return redirect()->route('user.applications.show', $application)
-                ->with('error', 'You can only edit draft applications.');
-        }
+        $application = PropertyApplication::where('id', $id)
+            ->forUser(Auth::id())
+            ->where('status', 'pending')
+            ->firstOrFail();
         
         $validated = $request->validate([
-            'move_in_date' => 'required|date|after:today',
-            'lease_term' => 'required|integer|min:1|max:24',
-            'number_of_occupants' => 'required|integer|min:1|max:10',
-            'occupants_details' => 'nullable|array',
-            'occupants_details.*.name' => 'required|string|max:255',
-            'occupants_details.*.relationship' => 'required|string|max:255',
-            'occupants_details.*.age' => 'nullable|integer|min:0|max:120',
-            'special_requests' => 'nullable|string|max:1000',
-            'notes' => 'nullable|string|max:1000',
-            'submit_type' => 'required|in:draft,submit',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'date_of_birth' => 'required|date',
+            'current_address' => 'required|string',
+            'move_in_date' => 'required|date',
+            'lease_duration' => 'nullable|integer|min:1|max:60',
+            'inspection_confirmed' => 'required|boolean',
+            'inspection_date' => 'nullable|date|required_if:inspection_confirmed,true',
+            'number_of_occupants' => 'required|integer|min:1',
+            'has_pets' => 'required|boolean',
+            'pet_details' => 'nullable|string',
+            'employment_status' => 'required|string',
+            'employer_name' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'annual_income' => 'required|numeric|min:0',
+            'references' => 'nullable|array',
+            'additional_information' => 'nullable|string',
+            'documents' => 'nullable|array',
         ]);
         
-        $application->update([
-            'move_in_date' => $validated['move_in_date'],
-            'lease_term' => $validated['lease_term'],
-            'number_of_occupants' => $validated['number_of_occupants'],
-            'occupants_details' => $validated['occupants_details'] ?? null,
-            'special_requests' => $validated['special_requests'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $application->update($validated);
         
-        // Submit if requested
-        if ($validated['submit_type'] === 'submit') {
-            $application->submit();
-            
-            return redirect()->route('user.applications.show', $application)
-                ->with('success', 'Application submitted successfully!');
-        }
-        
-        return redirect()->route('user.applications.show', $application)
-            ->with('success', 'Application updated successfully.');
+        return redirect()->route('user.applications.show', $application->id)
+            ->with('success', 'Application updated successfully!');
     }
 
     /**
-     * Withdraw the application
+     * Withdraw the specified application
      */
-    public function withdraw(Application $application)
+    public function withdraw($id)
     {
-        $user = Auth::user();
-        
-        // Ensure user owns this application
-        if ($application->user_id !== $user->id) {
-            abort(403);
-        }
-        
-        if (!$application->canWithdraw()) {
-            return redirect()->route('user.applications.show', $application)
-                ->with('error', 'This application cannot be withdrawn.');
-        }
+        $application = PropertyApplication::where('id', $id)
+            ->forUser(Auth::id())
+            ->where('status', 'pending')
+            ->firstOrFail();
         
         $application->withdraw();
         
@@ -268,25 +246,17 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Submit a draft application
+     * Remove the specified application (soft delete)
      */
-    public function submit(Application $application)
+    public function destroy($id)
     {
-        $user = Auth::user();
+        $application = PropertyApplication::where('id', $id)
+            ->forUser(Auth::id())
+            ->firstOrFail();
         
-        // Ensure user owns this application
-        if ($application->user_id !== $user->id) {
-            abort(403);
-        }
+        $application->delete();
         
-        if (!$application->isDraft()) {
-            return redirect()->route('user.applications.show', $application)
-                ->with('error', 'Only draft applications can be submitted.');
-        }
-        
-        $application->submit();
-        
-        return redirect()->route('user.applications.show', $application)
-            ->with('success', 'Application submitted successfully!');
+        return redirect()->route('user.applications.index')
+            ->with('success', 'Application deleted successfully.');
     }
 }

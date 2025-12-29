@@ -411,6 +411,18 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::delete('/{draft}', [ApplicationDraftController::class, 'destroy'])->name('destroy');
         Route::get('/{draft}/continue', [ApplicationDraftController::class, 'continue'])->name('continue');
     });
+
+    // Application Management
+    Route::controller(App\Http\Controllers\User\ApplicationController::class)->prefix('applications')->name('applications.')->group(function () {
+        Route::get('/', 'index')->name('index');                    // List all applications
+        Route::get('/create', 'create')->name('create');            // Show application form
+        Route::post('/', 'store')->name('store');                   // Submit application
+        Route::get('/{id}', 'show')->name('show');                  // View single application
+        Route::get('/{id}/edit', 'edit')->name('edit');             // Edit application form
+        Route::put('/{id}', 'update')->name('update');              // Update application
+        Route::patch('/{id}/withdraw', 'withdraw')->name('withdraw'); // Withdraw application
+        Route::delete('/{id}', 'destroy')->name('destroy');         // Delete application
+    });
 });
 // ============================================
 // Stripe Webhook (No CSRF protection)
