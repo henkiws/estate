@@ -143,8 +143,9 @@
                     </td>
                     <td class="px-6 py-4">
                         <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full
-                            {{ $agency->status === 'active' ? 'bg-[#DDEECD] text-gray-800' : '' }}
-                            {{ $agency->status === 'pending' ? 'bg-[#E6FF4B] text-gray-800' : '' }}
+                            {{ $agency->status === 'approved' ? 'bg-[#DDEECD] text-gray-800' : '' }}
+                            {{ $agency->status === 'active' ? 'bg-[#8cfd21] text-gray-800' : '' }}
+                            {{ $agency->status === 'pending' ? 'bg-[#f86b6b] text-white' : '' }}
                             {{ $agency->status === 'suspended' ? 'bg-gray-200 text-gray-600' : '' }}
                             {{ $agency->status === 'inactive' ? 'bg-gray-100 text-gray-500' : '' }}">
                             {{ ucfirst($agency->status) }}

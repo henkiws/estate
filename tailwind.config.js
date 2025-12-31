@@ -27,6 +27,7 @@ export default {
         'plyform-yellow': '#E6FF4B',
         'plyform-orange': '#FF3600',
         'plyform-purple': '#5E17EB',
+        'plyform-red': '#f86b6b',
         
         // Plyform semantic aliases for consistency
         'plyform': {
@@ -36,6 +37,7 @@ export default {
           'yellow-dark': '#d4f039', // Darker yellow for hover states
           orange: '#FF3600',
           purple: '#5E17EB',
+          red: '#f86b6b',
         },
 
         // ============================================
@@ -73,6 +75,7 @@ export default {
         'sorted-lightblue': '#dbeafe',
         'sorted-amber': '#fef3c7',
         'sorted-orange': '#fed7aa',
+        'sorted-red': '#f86b6b',
       },
 
       fontFamily: {

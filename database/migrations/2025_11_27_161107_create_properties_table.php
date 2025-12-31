@@ -55,8 +55,8 @@ return new class extends Migration
             ])->default('No');
             $table->enum('condition', [
                 'Furnished',
-                'Unfurnished'
-            ])->default('Unfurnished');
+                'Unfurnish'
+            ])->default('Unfurnish');
             
             // Address
             $table->string('street_number', 20)->nullable();

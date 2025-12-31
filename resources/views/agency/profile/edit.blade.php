@@ -41,6 +41,12 @@
                 </svg>
                 Branding
             </button>
+            <button onclick="showTab('documents')" id="tab-documents" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-plyform-dark hover:border-plyform-mint/50 whitespace-nowrap">
+                <svg class="w-5 h-5 inline mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Documents
+            </button>
             <button onclick="showTab('social')" id="tab-social" class="tab-button px-6 py-4 font-medium text-sm border-b-2 border-transparent text-gray-600 hover:text-plyform-dark hover:border-plyform-mint/50 whitespace-nowrap">
                 <svg class="w-5 h-5 inline mr-2 text-plyform-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
@@ -298,6 +304,80 @@
                 </div>
             </div>
 
+            <!-- Documents Tab -->
+            <div id="content-documents" class="tab-content hidden">
+                <h2 class="text-xl font-bold text-plyform-dark mb-6">Agency Documents</h2>
+                <p class="text-gray-600 mb-6">View all uploaded documents for your agency</p>
+                
+                @if($agency->documentRequirements->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($agency->documentRequirements as $document)
+                            <div class="border border-gray-200 rounded-xl p-4 hover:border-plyform-purple/50 transition">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start gap-4 flex-1">
+                                        <!-- Document Icon -->
+                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        
+                                        <!-- Document Info -->
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-plyform-dark">{{ $document->document_type }}</h3>
+                                            
+                                            @if($document->document_path)
+                                                <p class="text-sm text-gray-600 mt-1">
+                                                    Uploaded: {{ $document->updated_at->format('M d, Y') }}
+                                                </p>
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        Uploaded
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <p class="text-sm text-gray-500 mt-1">No document uploaded</p>
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        Not Uploaded
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- View/Download Button -->
+                                    @if($document->document_path)
+                                        <a href="{{ Storage::url($document->document_path) }}" target="_blank" 
+                                           class="ml-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            View
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12 bg-gray-50 rounded-xl">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-gray-500 text-lg">No documents found</p>
+                        <p class="text-gray-400 text-sm mt-1">Your agency documents will appear here</p>
+                    </div>
+                @endif
+            </div>
+
             <!-- Social Media Tab -->
             <div id="content-social" class="tab-content hidden">
                 <h2 class="text-xl font-bold text-plyform-dark mb-6">Social Media Links</h2>
@@ -373,10 +453,7 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="border-t border-gray-200 px-6 py-4 bg-plyform-mint/10 rounded-b-xl flex items-center justify-between">
-            <a href="{{ route('agency.dashboard') }}" class="text-gray-600 hover:text-plyform-dark font-medium transition-colors">
-                ← Back to Dashboard
-            </a>
+        <div class="border-t border-gray-200 px-6 py-4 bg-plyform-mint/10 rounded-b-xl flex items-center justify-end">
             <button type="submit" class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint hover:from-plyform-yellow/90 hover:to-plyform-mint/90 text-plyform-dark rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -390,21 +467,17 @@
 <script>
 // Tab switching
 function showTab(tabName) {
-    // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.add('hidden');
     });
     
-    // Remove active class from all tab buttons
     document.querySelectorAll('.tab-button').forEach(button => {
         button.classList.remove('active', 'border-plyform-purple', 'text-plyform-purple');
         button.classList.add('border-transparent', 'text-gray-600');
     });
     
-    // Show selected tab content
     document.getElementById('content-' + tabName).classList.remove('hidden');
     
-    // Add active class to selected tab button
     const activeButton = document.getElementById('tab-' + tabName);
     activeButton.classList.add('active', 'border-plyform-purple', 'text-plyform-purple');
     activeButton.classList.remove('border-transparent', 'text-gray-600');
@@ -434,8 +507,6 @@ function previewLogo(input) {
                 </div>
             `;
             preview.classList.remove('hidden');
-            
-            // Also update main preview
             document.getElementById('logoPreview').src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
@@ -460,7 +531,6 @@ async function deleteLogo() {
         const data = await response.json();
         
         if (data.success) {
-            // Replace logo with initials
             document.getElementById('logoPreview').outerHTML = `
                 <div id="logoPreview" class="w-32 h-32 bg-gradient-to-br from-plyform-purple to-plyform-dark rounded-xl flex items-center justify-center text-white font-bold text-3xl">
                     {{ $agency->initials }}

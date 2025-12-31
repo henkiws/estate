@@ -185,7 +185,7 @@
                                     @foreach($user->roles as $role)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                             @if($role->name === 'admin') bg-gray-700 text-white
-                                            @elseif($role->name === 'agency') bg-[#DDEECD] text-gray-800
+                                            @elseif($role->name === 'agency') bg-[#00ccff] text-white
                                             @elseif($role->name === 'agent') bg-[#E6FF4B] text-gray-800
                                             @else bg-gray-100 text-gray-700
                                             @endif">
@@ -212,7 +212,7 @@
                                             ✓ Active
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-600">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f86b6b] text-white">
                                             ✗ Inactive
                                         </span>
                                     @endif

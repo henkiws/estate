@@ -207,7 +207,7 @@
                     <h2 class="text-xl font-bold text-gray-800">Agencies Needing Review</h2>
                     <p class="text-sm text-gray-600 mt-1">Review and approve new agency registrations</p>
                 </div>
-                <span class="bg-[#E6FF4B] text-gray-800 text-sm font-medium px-3 py-1 rounded-full">
+                <span class="bg-[#f86b6b] text-white text-sm font-medium px-3 py-1 rounded-full">
                     {{ $pendingAgencies->count() }} Pending
                 </span>
             </div>
@@ -295,7 +295,9 @@
                                 @csrf
                                 <button type="submit" 
                                         class="w-full px-4 py-2 bg-[#E6FF4B] text-gray-800 text-sm font-medium rounded-xl hover:bg-[#E6FF4B]/80 transition"
-                                        onclick="return confirm('Approve {{ $agency->agency_name }}?')">
+                                        {{-- onclick="return confirm('Approve {{ $agency->agency_name }}?')" --}}
+                                        onclick="confirmApproval(event, '{{ $agency->agency_name }}')"
+                                        >
                                     ✓ Quick Approve
                                 </button>
                             </form>
@@ -347,12 +349,12 @@
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-800 mb-1">{{ $agency->agency_name }}</h3>
-                            <p class="text-sm text-gray-600 mb-2">{{ $agency->state }} • ABN: {{ $agency->abn }}</p>
+                            <p class="text-sm text-gray-600 mb-2">{{ $agency->state }} • ABN: {{ $agency->abn }} • ID: {{ $agency->id }}</p>
                             <div class="flex items-center gap-4 text-xs text-gray-500">
                                 <span>{{ $agency->created_at->format('M d, Y') }}</span>
                                 <span class="px-2 py-1 rounded-full font-semibold
-                                    {{ $agency->status === 'active' ? 'bg-[#DDEECD] text-gray-700' : '' }}
-                                    {{ $agency->status === 'pending' ? 'bg-[#E6FF4B] text-gray-800' : '' }}
+                                    {{ $agency->status === 'approved' ? 'bg-[#DDEECD] text-gray-700' : '' }}
+                                    {{ $agency->status === 'pending' ? 'bg-[#f86b6b] text-white' : '' }}
                                     {{ $agency->status === 'suspended' ? 'bg-gray-200 text-gray-600' : '' }}">
                                     {{ ucfirst($agency->status) }}
                                 </span>
@@ -446,3 +448,26 @@
 </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        function confirmApproval(event, name) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Approve ' + name + '?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, approve it!',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.form.submit();
+                }
+            });
+
+        }
+    </script>
+@endpush

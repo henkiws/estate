@@ -7,7 +7,15 @@
     
     <!-- Property Gallery Hero -->
     <div class="relative">
-        <x-property-gallery :images="$property->images" />
+        {{-- <x-property-gallery :images="$property->floorplan_path" /> --}}
+        <div class="relative bg-white rounded-xl overflow-hidden" style="height: 500px;">
+            <img 
+                id="main-gallery-image"
+                src="{{ Storage::url($property->floorplan_path) }}" 
+                alt="Property Image"
+                class="w-full h-full object-contain"
+            >
+        </div>
     </div>
 
     <!-- Main Content Container -->

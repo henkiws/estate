@@ -170,7 +170,7 @@
                     <select name="condition" id="condition" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-plyform-purple/20 focus:border-plyform-purple outline-none">
                         <option value="">Select condition...</option>
                         <option value="Furnished">Furnished</option>
-                        <option value="Unfurnished">Unfurnished</option>
+                        <option value="Unfurnish">Unfurnish</option>
                     </select>
                 </div>
 
