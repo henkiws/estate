@@ -349,14 +349,25 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         // ------------------------------------------
         // Property Applications
         // ------------------------------------------
-        Route::get('/applications', [App\Http\Controllers\User\ApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/create', [App\Http\Controllers\User\ApplicationController::class, 'create'])->name('applications.create');
-        Route::post('/applications', [App\Http\Controllers\User\ApplicationController::class, 'store'])->name('applications.store');
-        Route::get('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'show'])->name('applications.show');
-        Route::get('/applications/{application}/edit', [App\Http\Controllers\User\ApplicationController::class, 'edit'])->name('applications.edit');
-        Route::put('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'update'])->name('applications.update');
-        Route::post('/applications/{application}/withdraw', [App\Http\Controllers\User\ApplicationController::class, 'withdraw'])->name('applications.withdraw');
-        Route::post('/applications/{application}/submit', [App\Http\Controllers\User\ApplicationController::class, 'submit'])->name('applications.submit');
+        // Route::get('/applications', [App\Http\Controllers\User\ApplicationController::class, 'index'])->name('applications.index');
+        // Route::get('/applications/create', [App\Http\Controllers\User\ApplicationController::class, 'create'])->name('applications.create');
+        // Route::post('/applications', [App\Http\Controllers\User\ApplicationController::class, 'store'])->name('applications.store');
+        // Route::get('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'show'])->name('applications.show');
+        // Route::get('/applications/{application}/edit', [App\Http\Controllers\User\ApplicationController::class, 'edit'])->name('applications.edit');
+        // Route::put('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'update'])->name('applications.update');
+        // Route::post('/applications/{application}/withdraw', [App\Http\Controllers\User\ApplicationController::class, 'withdraw'])->name('applications.withdraw');
+        // Route::post('/applications/{application}/submit', [App\Http\Controllers\User\ApplicationController::class, 'submit'])->name('applications.submit');
+        // Application Management
+        Route::controller(App\Http\Controllers\User\ApplicationController::class)->prefix('applications')->name('applications.')->group(function () {
+            Route::get('/', 'index')->name('index');                    // List all applications
+            Route::get('/create', 'create')->name('create');            // Show application form
+            Route::post('/', 'store')->name('store');                   // Submit application
+            Route::get('/{id}', 'show')->name('show');                  // View single application
+            Route::get('/{id}/edit', 'edit')->name('edit');             // Edit application form
+            Route::put('/{id}', 'update')->name('update');              // Update application
+            Route::patch('/{id}/withdraw', 'withdraw')->name('withdraw'); // Withdraw application
+            Route::delete('/{id}', 'destroy')->name('destroy');         // Delete application
+        });
         // Apply for property (create application)
         Route::get('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'create'])->name('apply');
         Route::post('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'store'])->name('apply.store');
@@ -412,17 +423,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::get('/{draft}/continue', [ApplicationDraftController::class, 'continue'])->name('continue');
     });
 
-    // Application Management
-    Route::controller(App\Http\Controllers\User\ApplicationController::class)->prefix('applications')->name('applications.')->group(function () {
-        Route::get('/', 'index')->name('index');                    // List all applications
-        Route::get('/create', 'create')->name('create');            // Show application form
-        Route::post('/', 'store')->name('store');                   // Submit application
-        Route::get('/{id}', 'show')->name('show');                  // View single application
-        Route::get('/{id}/edit', 'edit')->name('edit');             // Edit application form
-        Route::put('/{id}', 'update')->name('update');              // Update application
-        Route::patch('/{id}/withdraw', 'withdraw')->name('withdraw'); // Withdraw application
-        Route::delete('/{id}', 'destroy')->name('destroy');         // Delete application
-    });
+   
 });
 // ============================================
 // Stripe Webhook (No CSRF protection)
