@@ -14,8 +14,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Store intended URL if redirect parameter exists
+        if ($request->has('redirect')) {
+            session(['url.intended' => $request->get('redirect')]);
+        }
+        
         return view('auth.login');
     }
 
@@ -28,7 +33,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect based on user role
+        // Check if there's an intended URL in session (from redirect parameter)
+        if (session()->has('url.intended')) {
+            $intended = session()->pull('url.intended');
+            return redirect($intended)->with('success', 'Welcome back!');
+        }
+
+        // Otherwise, redirect based on user role
         return $this->redirectBasedOnRole();
     }
 

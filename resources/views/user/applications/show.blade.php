@@ -1,412 +1,300 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
-@section('title', 'Application Details - plyform')
+@section('title', 'Application Details')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-[#DDEECD] to-white py-8">
-    <div class="max-w-7xl mx-auto px-4">
+<div class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Success/Error Messages -->
+        <x-alert-messages />
         
         <!-- Back Button -->
         <a href="{{ route('user.applications.index') }}" 
-           class="inline-flex items-center gap-2 text-[#1E1C1C] hover:text-[#5E17EB] mb-6 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 text-gray-600 hover:text-teal-600 mb-6 transition-colors group">
+            <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Back to Applications
+            <span class="font-medium">Back to My Applications</span>
         </a>
 
-        <!-- Application Card - Compact Design -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            
-            <!-- Header Section - Horizontal Layout -->
-            <div class="p-6 lg:p-8 border-b border-gray-200">
-                
-                <!-- Top Row: Status, Date, and Group Members -->
+        <!-- Application Header Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="p-6">
+                <!-- Status and Date Row -->
                 <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <!-- Status Badge -->
-                        <span class="px-5 py-1.5 rounded-full text-sm font-semibold {{ 
-                            $application->status === 'approved' ? 'bg-[#DDEECD] text-[#1E1C1C]' : 
-                            ($application->status === 'pending' ? 'bg-[#E6FF4B] text-[#1E1C1C]' : 
-                            'bg-gray-200 text-gray-700')
+                        <span class="px-4 py-2 rounded-full text-sm font-semibold {{ 
+                            $application->status === 'approved' ? 'bg-green-100 text-green-700' : 
+                            ($application->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                            ($application->status === 'under_review' ? 'bg-blue-100 text-blue-700' :
+                            ($application->status === 'rejected' ? 'bg-red-100 text-red-700' :
+                            ($application->status === 'draft' ? 'bg-gray-100 text-gray-700' : 'bg-gray-100 text-gray-700'))))
                         }}">
-                            {{ ucfirst($application->status) }}
+                            {{ $application->status_label }}
                         </span>
                         
                         <!-- Submission Date -->
                         <span class="text-gray-500 text-sm">
-                            Submitted: {{ $application->submitted_at ? $application->submitted_at->format('D, d/m/Y') : 'N/A' }}
+                            Applied {{ $application->getDaysAgo() }}
                         </span>
                     </div>
 
-                    <!-- Group Members -->
-                    @if(isset($groupMembers) && $groupMembers->count() > 0)
-                    <div class="flex items-center gap-3">
-                        <span class="text-sm font-semibold text-gray-700">My Group</span>
-                        <div class="flex -space-x-2">
-                            @foreach($groupMembers as $member)
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#5E17EB] to-[#E6FF4B] flex items-center justify-center text-white font-bold text-xs border-2 border-white shadow"
-                                 title="{{ $member->first_name }} {{ $member->last_name }}">
-                                {{ strtoupper(substr($member->first_name, 0, 1) . substr($member->last_name, 0, 1)) }}
-                            </div>
-                            @endforeach
-                        </div>
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2">
+                        @if($application->canEdit())
+                            <a href="{{ route('user.applications.edit', $application) }}" 
+                               class="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                                Edit
+                            </a>
+                        @endif
+                        
+                        {{-- @if($application->canWithdraw())
+                            <button 
+                                onclick="confirmWithdraw()"
+                                class="px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition">
+                                Withdraw
+                            </button>
+                        @endif --}}
                     </div>
-                    @endif
                 </div>
 
-                <!-- Property Info Row - Horizontal Layout -->
-                <div class="flex items-center gap-6">
-                    
-                    <!-- Floor Plan Thumbnail -->
-                    <div class="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                        @if($application->property->images->first())
-                        <img src="{{ $application->property->images->first()->url }}" 
-                             alt="Property thumbnail"
-                             class="w-full h-full object-cover">
+                <!-- Property Info -->
+                <div class="flex gap-6">
+                    <!-- Property Image -->
+                    <div class="w-40 h-40 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+                        @if($application->property->floorplan_path && Storage::disk('public')->exists($application->property->floorplan_path))
+                            <img src="{{ Storage::url($application->property->floorplan_path) }}" 
+                                 alt="Property"
+                                 class="w-full h-full object-cover">
                         @else
-                        <div class="w-full h-full flex items-center justify-center">
-                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                            </svg>
-                        </div>
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
                         @endif
                     </div>
 
-                    <!-- Property Details - Takes remaining space -->
-                    <div class="flex-1 min-w-0">
-                        <h1 class="text-2xl lg:text-3xl font-bold text-[#1E1C1C] mb-1 truncate">
-                            {{ $application->property->address }}
+                    <!-- Property Details -->
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                            {{ $application->property->title ?? $application->property->street_address }}
                         </h1>
-                        <p class="text-gray-600 mb-3">
+                        <p class="text-gray-600 mb-4">
                             {{ $application->property->suburb }}, {{ $application->property->state }} {{ $application->property->postcode }}
                         </p>
 
-                        <!-- Property Features - Horizontal -->
-                        <div class="flex items-center gap-6 text-gray-700">
+                        <!-- Property Features -->
+                        <div class="flex flex-wrap items-center gap-4 text-gray-700 mb-4">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                                 </svg>
-                                <span class="text-sm">{{ $application->property->bedrooms }} bedroom{{ $application->property->bedrooms != 1 ? 's' : '' }}</span>
+                                <span class="text-sm font-medium">{{ $application->property->bedrooms }} bed</span>
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l.01.01h7.99V6z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-sm">{{ $application->property->bathrooms }} bathroom{{ $application->property->bathrooms != 1 ? 's' : '' }}</span>
+                                <span class="text-sm font-medium">{{ $application->property->bathrooms }} bath</span>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Price and Agency - Right Side -->
-                    <div class="text-right flex-shrink-0 border-l border-gray-200 pl-6">
-                        <!-- Agency Logo/Name -->
-                        @if($application->agency)
-                        <div class="flex justify-end mb-3">
-                            @if($application->agency->logo)
-                            <img src="{{ $application->agency->logo }}" 
-                                 alt="{{ $application->agency->name }}"
-                                 class="h-10 object-contain">
-                            @else
-                            <div class="px-3 py-1.5 bg-gray-100 rounded">
-                                <span class="font-bold text-gray-700 text-xs uppercase tracking-wide">
-                                    {{ $application->agency->name }}
-                                </span>
-                            </div>
+                            @if($application->property->parking)
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium">{{ $application->property->parking }} car</span>
+                                </div>
                             @endif
                         </div>
-                        @endif
-                        
+
                         <!-- Price -->
-                        <p class="text-3xl lg:text-4xl font-bold text-[#00BCD4]">
-                            ${{ number_format($application->property->rent_per_week ?? $application->property->price_per_week) }}
-                        </p>
-                        <p class="text-gray-500 text-sm">Rent pw</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Application Details Section - Clean Grid -->
-            <div class="p-6 lg:p-8">
-                
-                <!-- First Row: Inspection Info -->
-                <div class="grid md:grid-cols-2 gap-x-12 gap-y-6 mb-6 pb-6 border-b border-gray-200">
-                    <div>
-                        <h3 class="font-semibold text-[#1E1C1C] mb-1.5 text-base">
-                            Have you inspected this property?
-                        </h3>
-                        <p class="text-gray-600 text-sm">
-                            {{ $application->inspection_confirmed ?? false ? 'I have inspected this property in person and accept it in its current state' : 'Not inspected yet' }}
-                        </p>
+                        @if($application->property->listing_type === 'rent')
+                            <p class="text-3xl font-bold text-teal-600">
+                                ${{ number_format($application->property->rent_amount) }}<span class="text-lg text-gray-600">/{{ $application->property->rent_period }}</span>
+                            </p>
+                        @else
+                            <p class="text-3xl font-bold text-teal-600">
+                                ${{ number_format($application->property->sale_price) }}
+                            </p>
+                        @endif
                     </div>
 
-                    <div>
-                        <h3 class="font-semibold text-[#1E1C1C] mb-1.5 text-base">
-                            When did you inspect this property?
-                        </h3>
-                        <p class="text-gray-600 text-sm">
-                            {{ $application->inspection_date ? $application->inspection_date->format('d/m/Y') : 'N/A' }}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Second Row: Move In and Lease Duration -->
-                <div class="grid md:grid-cols-2 gap-x-12 gap-y-6">
-                    <div>
-                        <h3 class="font-semibold text-[#1E1C1C] mb-1.5 text-base">
-                            Preferred move in date
-                        </h3>
-                        <p class="text-gray-600 text-sm">
-                            {{ $application->move_in_date ? $application->move_in_date->format('d/m/Y') : 'Not specified' }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <h3 class="font-semibold text-[#1E1C1C] mb-1.5 text-base">
-                            Preferred lease duration
-                        </h3>
-                        <p class="text-gray-600 text-sm">
-                            {{ $application->lease_duration ?? 'Not specified' }} month(s)
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contact Info Collapsible Section -->
-            <div class="border-t border-gray-200">
-                <button onclick="toggleContactInfo()" 
-                        class="w-full px-6 lg:px-8 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
-                    <span class="text-base font-semibold text-[#00BCD4] group-hover:text-[#0097A7]">Contact info</span>
-                    <svg id="contactInfoIcon" class="w-5 h-5 text-[#00BCD4] transform transition-transform group-hover:text-[#0097A7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                
-                <div id="contactInfoContent" class="hidden px-6 lg:px-8 pb-6">
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <div class="grid md:grid-cols-2 gap-8">
-                            @if($application->agency)
-                            <div>
-                                <h4 class="font-semibold text-[#1E1C1C] mb-3">Agency Contact</h4>
-                                <div class="space-y-2">
-                                    <p class="text-gray-700 font-medium">{{ $application->agency->name }}</p>
-                                    @if($application->agency->phone)
-                                    <p class="text-gray-600 flex items-center gap-2 text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                        </svg>
-                                        {{ $application->agency->phone }}
-                                    </p>
-                                    @endif
-                                    @if($application->agency->email)
-                                    <p class="text-gray-600 flex items-center gap-2 text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                        </svg>
-                                        {{ $application->agency->email }}
-                                    </p>
-                                    @endif
+                    <!-- Agency Info -->
+                    @if($application->agency)
+                        <div class="text-right border-l border-gray-200 pl-6 flex-shrink-0">
+                            @if($application->agency->branding && $application->agency->branding->logo_path)
+                                <img src="{{ Storage::url($application->agency->branding->logo_path) }}" 
+                                     alt="{{ $application->agency->trading_name }}"
+                                     class="h-12 object-contain mb-3 ml-auto">
+                            @else
+                                <div class="px-3 py-2 bg-gray-100 rounded-lg mb-3">
+                                    <span class="font-bold text-gray-700 text-xs uppercase tracking-wide">
+                                        {{ $application->agency->trading_name }}
+                                    </span>
                                 </div>
-                            </div>
                             @endif
-
-                            <div>
-                                <h4 class="font-semibold text-[#1E1C1C] mb-3">Your Contact</h4>
-                                <div class="space-y-2">
-                                    <p class="text-gray-700 font-medium">{{ $application->full_name }}</p>
-                                    <p class="text-gray-600 flex items-center gap-2 text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                        </svg>
-                                        {{ $application->phone }}
-                                    </p>
-                                    <p class="text-gray-600 flex items-center gap-2 text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                        </svg>
-                                        {{ $application->email }}
-                                    </p>
-                                </div>
-                            </div>
+                            <p class="text-sm text-gray-600">Managing Agency</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
-
         </div>
 
-        <!-- Expandable Additional Details Section -->
-        <div class="mt-6 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <button onclick="toggleAdditionalDetails()" 
-                    class="w-full px-6 lg:px-8 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
-                <span class="text-base font-semibold text-[#1E1C1C]">View Full Application Details</span>
-                <svg id="additionalDetailsIcon" class="w-5 h-5 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            
-            <div id="additionalDetailsContent" class="hidden">
-                <div class="px-6 lg:px-8 py-6 space-y-6 border-t border-gray-200">
-                    
-                    <!-- Personal Information -->
-                    <div>
-                        <h3 class="text-lg font-bold text-[#1E1C1C] mb-4">Personal Information</h3>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Full Name</p>
-                                <p class="text-gray-800 font-medium">{{ $application->full_name }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Email</p>
-                                <p class="text-gray-800 font-medium">{{ $application->email }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Phone</p>
-                                <p class="text-gray-800 font-medium">{{ $application->phone }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Date of Birth</p>
-                                <p class="text-gray-800 font-medium">{{ $application->date_of_birth ? $application->date_of_birth->format('d/m/Y') : 'N/A' }}</p>
-                            </div>
-                            <div class="md:col-span-2">
-                                <p class="text-xs text-gray-500 mb-1">Current Address</p>
-                                <p class="text-gray-800 font-medium">{{ $application->current_address }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Number of Occupants</p>
-                                <p class="text-gray-800 font-medium">{{ $application->number_of_occupants }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Pets</p>
-                                <p class="text-gray-800 font-medium">{{ $application->has_pets ? 'Yes' : 'No' }}</p>
-                                @if($application->has_pets && $application->pet_details)
-                                <p class="text-sm text-gray-600 mt-1">{{ $application->pet_details }}</p>
+        <!-- Application Details Grid -->
+        <div class="grid lg:grid-cols-3 gap-6 mb-6">
+            <!-- Move-in Date Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">Move-in Date</h3>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">
+                    {{ $application->move_in_date->format('M j, Y') }}
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                    {{ $application->move_in_date->diffForHumans() }}
+                </p>
+            </div>
+
+            <!-- Lease Term Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">Lease Term</h3>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">
+                    {{ $application->lease_term ?? 'N/A' }} months
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                    Requested duration
+                </p>
+            </div>
+
+            <!-- Occupants Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">Occupants</h3>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">
+                    {{ $application->number_of_occupants }}
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                    Total people
+                </p>
+            </div>
+        </div>
+
+        <!-- Occupants Details -->
+        @if($application->occupants_details && count($application->occupants_details) > 0)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Occupant Details</h2>
+                <div class="space-y-4">
+                    @foreach($application->occupants_details as $index => $occupant)
+                        <div class="p-4 {{ $index === 0 ? 'bg-teal-50 border-2 border-teal-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 {{ $index === 0 ? 'bg-teal-600' : 'bg-gray-400' }} rounded-full flex items-center justify-center text-white font-bold">
+                                    {{ strtoupper(substr($occupant['first_name'] ?? 'O', 0, 1)) }}{{ strtoupper(substr($occupant['last_name'] ?? 'O', 0, 1)) }}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-semibold text-gray-900">
+                                            {{ $occupant['first_name'] ?? 'N/A' }} {{ $occupant['last_name'] ?? '' }}
+                                        </h4>
+                                        @if($index === 0)
+                                            <span class="text-xs bg-teal-600 text-white px-2 py-1 rounded-full font-medium">Primary</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm text-gray-600">{{ $occupant['relationship'] ?? 'N/A' }}</p>
+                                </div>
+                                @if(isset($occupant['age']))
+                                    <div class="text-right">
+                                        <p class="text-sm text-gray-500">Age</p>
+                                        <p class="font-semibold text-gray-900">{{ $occupant['age'] }}</p>
+                                    </div>
                                 @endif
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Employment Information -->
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="text-lg font-bold text-[#1E1C1C] mb-4">Employment Information</h3>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Employment Status</p>
-                                <p class="text-gray-800 font-medium">{{ ucfirst($application->employment_status ?? 'N/A') }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Annual Income</p>
-                                <p class="text-gray-800 font-medium">${{ number_format($application->annual_income ?? 0) }}</p>
-                            </div>
-                            @if($application->employer_name)
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Employer</p>
-                                <p class="text-gray-800 font-medium">{{ $application->employer_name }}</p>
-                            </div>
-                            @endif
-                            @if($application->job_title)
-                            <div>
-                                <p class="text-xs text-gray-500 mb-1">Job Title</p>
-                                <p class="text-gray-800 font-medium">{{ $application->job_title }}</p>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Additional Information -->
-                    @if($application->additional_information)
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="text-lg font-bold text-[#1E1C1C] mb-4">Additional Information</h3>
-                        <p class="text-gray-700 leading-relaxed">{{ $application->additional_information }}</p>
-                    </div>
-                    @endif
-
-                    <!-- Documents -->
-                    @if($application->documents && count($application->documents) > 0)
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="text-lg font-bold text-[#1E1C1C] mb-4">Uploaded Documents</h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            @foreach($application->documents as $document)
-                            <a href="{{ $document['url'] ?? '#' }}" 
-                               target="_blank"
-                               class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                <svg class="w-8 h-8 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ $document['name'] ?? 'Document' }}</p>
-                                    <p class="text-sm text-gray-500">{{ $document['type'] ?? 'PDF' }}</p>
+                            @if(isset($occupant['email']) && $index === 0)
+                                <div class="mt-3 pt-3 border-t border-teal-200">
+                                    <p class="text-sm text-gray-600">
+                                        <span class="font-medium">Email:</span> {{ $occupant['email'] }}
+                                    </p>
                                 </div>
-                            </a>
-                            @endforeach
+                            @endif
                         </div>
-                    </div>
-                    @endif
-
-                    <!-- Agency Notes -->
-                    @if($application->agency_notes && $application->reviewed_at)
-                    <div class="pt-6 border-t border-gray-200">
-                        <h3 class="text-lg font-bold text-[#1E1C1C] mb-4">Agency Notes</h3>
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
-                            <p class="text-gray-700">{{ $application->agency_notes }}</p>
-                            <p class="text-sm text-gray-500 mt-2">
-                                Reviewed on {{ $application->reviewed_at->format('d/m/Y \a\t H:i') }}
-                            </p>
-                        </div>
-                    </div>
-                    @endif
+                    @endforeach
                 </div>
             </div>
-        </div>
+        @endif
 
-        <!-- Action Buttons -->
-        @if($application->status === 'pending')
-        <div class="mt-6 flex justify-end gap-4">
-            <button onclick="confirmWithdraw()" 
-                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
-                Withdraw Application
-            </button>
-        </div>
+        <!-- Additional Information -->
+        @if($application->special_requests || $application->notes)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Additional Information</h2>
+                
+                @if($application->special_requests)
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-gray-700 mb-2">Special Requests</h3>
+                        <p class="text-gray-600 leading-relaxed">{{ $application->special_requests }}</p>
+                    </div>
+                @endif
+                
+                @if($application->notes)
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Additional Notes</h3>
+                        <p class="text-gray-600 leading-relaxed">{{ $application->notes }}</p>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        <!-- Agency Review Notes -->
+        @if($application->agency_notes)
+            <div class="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-blue-900 mb-2">Agency Response</h3>
+                        <p class="text-blue-800 leading-relaxed">{{ $application->agency_notes }}</p>
+                        @if($application->reviewed_at)
+                            <p class="text-sm text-blue-600 mt-2">
+                                Reviewed {{ $application->reviewed_at->diffForHumans() }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
         @endif
 
     </div>
 </div>
 
-@push('scripts')
 <script>
-function toggleContactInfo() {
-    const content = document.getElementById('contactInfoContent');
-    const icon = document.getElementById('contactInfoIcon');
-    
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        content.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
-
-function toggleAdditionalDetails() {
-    const content = document.getElementById('additionalDetailsContent');
-    const icon = document.getElementById('additionalDetailsIcon');
-    
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        content.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
-
 function confirmWithdraw() {
     if (confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("user.applications.withdraw", $application->id) }}';
+        form.action = '{{ route("user.applications.withdraw", $application) }}';
         
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
@@ -417,7 +305,7 @@ function confirmWithdraw() {
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
-        methodInput.value = 'PATCH';
+        methodInput.value = 'DELETE';
         form.appendChild(methodInput);
         
         document.body.appendChild(form);
@@ -425,5 +313,4 @@ function confirmWithdraw() {
     }
 }
 </script>
-@endpush
 @endsection

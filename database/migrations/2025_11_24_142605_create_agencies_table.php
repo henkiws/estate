@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('abn', 14)->unique();
             $table->string('acn', 11)->nullable();
             $table->enum('business_type', ['sole_trader', 'partnership', 'company'])->default('company');
+            $table->text('description')->nullable();
             
             // License Information
             $table->string('license_number')->unique();

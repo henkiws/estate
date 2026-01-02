@@ -15,17 +15,14 @@ class PropertyApplication extends Model
         'property_id',
         'agency_id',
         'status',
+        
+        // Old comprehensive fields (keep for backward compatibility)
         'first_name',
         'last_name',
         'email',
         'phone',
         'date_of_birth',
         'current_address',
-        'move_in_date',
-        'lease_duration', // NEW FIELD
-        'inspection_confirmed', // NEW FIELD
-        'inspection_date', // NEW FIELD
-        'number_of_occupants',
         'has_pets',
         'pet_details',
         'employment_status',
@@ -33,27 +30,46 @@ class PropertyApplication extends Model
         'job_title',
         'annual_income',
         'references',
-        'additional_information',
         'documents',
+        'inspection_confirmed',
+        'inspection_date',
+        
+        // New simplified fields (from your blade form)
+        'move_in_date',
+        'lease_term', // Renamed from lease_duration
+        'lease_duration', // Keep old name for BC
+        'number_of_occupants',
+        'occupants_details', // NEW: JSON array for additional occupants
+        'special_requests', // NEW: Special requests field
+        'notes', // NEW: Additional notes (renamed from additional_information)
+        'additional_information', // Keep old name for BC
+        
+        // Admin/Agency fields
         'agency_notes',
+        'reviewed_by',
         'submitted_at',
         'reviewed_at',
+        'withdrawn_at',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         'move_in_date' => 'date',
+        'inspection_date' => 'date',
         'has_pets' => 'boolean',
+        'inspection_confirmed' => 'boolean',
         'annual_income' => 'decimal:2',
+        'lease_duration' => 'integer',
+        'lease_term' => 'integer',
+        'number_of_occupants' => 'integer',
         'references' => 'array',
         'documents' => 'array',
+        'occupants_details' => 'array', // NEW
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'withdrawn_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'inspection_date' => 'date', // NEW FIELD
-        'inspection_confirmed' => 'boolean', // NEW FIELD
-        'lease_duration' => 'integer', // NEW FIELD
     ];
 
     /**
@@ -81,11 +97,49 @@ class PropertyApplication extends Model
     }
 
     /**
+     * Get the reviewer (admin/agency user)
+     */
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Get co-applicants (if using separate table)
+     */
+    public function coApplicants()
+    {
+        return $this->hasMany(CoApplicant::class);
+    }
+
+    /**
      * Get full name of applicant
      */
     public function getFullNameAttribute()
     {
-        return "{$this->first_name} {$this->last_name}";
+        // Try to get from application fields first
+        if ($this->first_name && $this->last_name) {
+            return "{$this->first_name} {$this->last_name}";
+        }
+        
+        // Fallback to user's name
+        return $this->user ? $this->user->name : 'N/A';
+    }
+
+    /**
+     * Get applicant email
+     */
+    public function getApplicantEmailAttribute()
+    {
+        return $this->email ?? $this->user?->email;
+    }
+
+    /**
+     * Get applicant phone
+     */
+    public function getApplicantPhoneAttribute()
+    {
+        return $this->phone ?? $this->user?->phone;
     }
 
     /**
@@ -94,7 +148,9 @@ class PropertyApplication extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
+            'draft' => 'gray',
             'pending' => 'yellow',
+            'under_review' => 'blue',
             'approved' => 'green',
             'rejected' => 'red',
             'withdrawn' => 'gray',
@@ -108,12 +164,91 @@ class PropertyApplication extends Model
     public function getStatusLabelAttribute()
     {
         return match($this->status) {
+            'draft' => 'Draft',
             'pending' => 'Pending Review',
+            'under_review' => 'Under Review',
             'approved' => 'Approved',
             'rejected' => 'Rejected',
             'withdrawn' => 'Withdrawn',
-            default => 'Unknown',
+            default => ucfirst($this->status),
         };
+    }
+
+    /**
+     * Check if application is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Check if application is a draft
+     */
+    public function isDraft(): bool
+    {
+        return $this->status === 'draft';
+    }
+
+    /**
+     * Check if application is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Check if application is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Check if application is withdrawn
+     */
+    public function isWithdrawn(): bool
+    {
+        return $this->status === 'withdrawn';
+    }
+    
+    /**
+     * Check if user can withdraw this application
+     */
+    public function canWithdraw(): bool
+    {
+        return in_array($this->status, ['pending', 'under_review', 'draft']);
+    }
+
+    /**
+     * Check if user can edit this application
+     */
+    public function canEdit(): bool
+    {
+        return in_array($this->status, ['draft', 'pending']);
+    }
+
+    /**
+     * Get how many days ago the application was created
+     */
+    public function getDaysAgo(): string
+    {
+        $days = $this->created_at->diffInDays(now());
+        
+        if ($days === 0) {
+            return 'Today';
+        } elseif ($days === 1) {
+            return 'Yesterday';
+        } elseif ($days < 7) {
+            return $days . ' days ago';
+        } elseif ($days < 30) {
+            $weeks = floor($days / 7);
+            return $weeks . ($weeks === 1 ? ' week ago' : ' weeks ago');
+        } else {
+            return $this->created_at->format('M j, Y');
+        }
     }
 
     /**
@@ -122,6 +257,14 @@ class PropertyApplication extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope to get draft applications
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
     }
 
     /**
@@ -148,6 +291,7 @@ class PropertyApplication extends Model
         $this->update([
             'status' => 'approved',
             'reviewed_at' => now(),
+            'reviewed_by' => auth()->id(),
             'agency_notes' => $notes,
         ]);
     }
@@ -160,6 +304,7 @@ class PropertyApplication extends Model
         $this->update([
             'status' => 'rejected',
             'reviewed_at' => now(),
+            'reviewed_by' => auth()->id(),
             'agency_notes' => $notes,
         ]);
     }
@@ -171,6 +316,7 @@ class PropertyApplication extends Model
     {
         $this->update([
             'status' => 'withdrawn',
+            'withdrawn_at' => now(),
         ]);
     }
 }

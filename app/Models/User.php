@@ -159,6 +159,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the properties that this user has saved (direct relationship)
+     */
+    public function favoriteProperties()
+    {
+        return $this->belongsToMany(Property::class, 'saved_properties')
+            ->withTimestamps();
+    }
+
+    /**
      * Check if user has saved a property
      */
     public function hasSavedProperty($propertyId)

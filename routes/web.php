@@ -119,7 +119,9 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/edit', [App\Http\Controllers\Agency\AgencyProfileController::class, 'edit'])->name('edit');
             Route::patch('/update', [App\Http\Controllers\Agency\AgencyProfileController::class, 'update'])->name('update');
-            Route::delete('/delete-logo', [App\Http\Controllers\Agency\AgencyProfileController::class, 'deleteLogo'])->name('delete-logo');
+            Route::delete('/logo', [App\Http\Controllers\Agency\AgencyProfileController::class, 'deleteLogo'])->name('delete-logo');
+            Route::delete('/license-attachment', [App\Http\Controllers\Agency\AgencyProfileController::class, 'deleteLicenseAttachment'])->name('delete-license-attachment');
+            Route::delete('/insurance-attachment', [App\Http\Controllers\Agency\AgencyProfileController::class, 'deleteInsuranceAttachment'])->name('delete-insurance-attachment');
         });
         // Billing & Subscription History
         Route::prefix('billing')->name('billing.')->group(function () {
@@ -451,5 +453,7 @@ Route::post('/webhook/stripe', [App\Http\Controllers\Agency\SubscriptionControll
 // Property browse and detail pages
 Route::get('/properties', [App\Http\Controllers\PropertyBrowseController::class, 'index'])->name('properties.index');
 Route::get('/properties/{publicUrlCode}', [App\Http\Controllers\PropertyBrowseController::class, 'show'])->name('properties.show');
+
+Route::post('/api/favorites/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'toggle'])->name('api.favorites.toggle')->middleware('auth');
 
 require __DIR__.'/auth.php';

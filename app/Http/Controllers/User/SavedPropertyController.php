@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\SavedProperty;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,69 +11,66 @@ use Illuminate\Support\Facades\Auth;
 class SavedPropertyController extends Controller
 {
     /**
-     * Display user's saved properties
-     */
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        
-        $query = $user->savedProperties()
-            ->with(['agency', 'listingAgent', 'featuredImage'])
-            ->where('is_published', true);
-        
-        // Filter by listing type
-        if ($request->filled('listing_type')) {
-            $query->where('listing_type', $request->listing_type);
-        }
-        
-        // Filter by property type
-        if ($request->filled('property_type')) {
-            $query->where('property_type', $request->property_type);
-        }
-        
-        // Sort
-        $sortField = $request->get('sort', 'saved_properties.created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $query->orderBy($sortField, $sortDirection);
-        
-        $savedProperties = $query->paginate(12);
-        
-        return view('user.saved-properties', compact('savedProperties'));
-    }
-    
-    /**
      * Toggle save/unsave property
      */
-    public function toggle($code)
+    public function toggle(Property $property)
     {
         $user = Auth::user();
-        
-        // Find property by code
-        $property = Property::where('property_code', $code)
-            ->where('is_published', true)
-            ->firstOrFail();
-        
-        // Toggle save
-        $saved = $user->toggleSaveProperty($property->id);
-        
-        if (request()->wantsJson()) {
+
+        // Check if property is already saved
+        $saved = SavedProperty::where('user_id', $user->id)
+            ->where('property_id', $property->id)
+            ->first();
+
+        if ($saved) {
+            // Unsave the property
+            $saved->delete();
+            
             return response()->json([
-                'saved' => $saved,
-                'message' => $saved ? 'Property saved!' : 'Property removed from saved.',
+                'success' => true,
+                'favorited' => false,
+                'message' => 'Property removed from saved list'
+            ]);
+        } else {
+            // Save the property
+            SavedProperty::create([
+                'user_id' => $user->id,
+                'property_id' => $property->id,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'favorited' => true,
+                'message' => 'Property saved successfully'
             ]);
         }
-        
-        return back()->with('success', $saved ? 'Property saved!' : 'Property removed from saved.');
     }
-    
+
     /**
-     * Remove property from saved (alternative route)
+     * Get all saved properties for the authenticated user
      */
-    public function destroy($id)
+    public function index()
     {
-        $user = Auth::user();
-        $user->savedProperties()->detach($id);
-        
-        return back()->with('success', 'Property removed from saved.');
+        $savedProperties = Auth::user()->savedProperties()
+            ->with('property.agency')
+            ->latest()
+            ->paginate(12);
+
+        return view('user.saved-properties.index', compact('savedProperties'));
+    }
+
+    /**
+     * Remove a saved property
+     */
+    public function destroy(SavedProperty $savedProperty)
+    {
+        // Make sure the saved property belongs to the authenticated user
+        if ($savedProperty->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $savedProperty->delete();
+
+        return redirect()->back()->with('success', 'Property removed from saved list');
     }
 }

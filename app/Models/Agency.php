@@ -26,6 +26,7 @@ class Agency extends Model
         'license_holder_name',
         'license_expiry_date',
         'business_address',
+        'description',
         'state',
         'postcode',
         'business_phone',

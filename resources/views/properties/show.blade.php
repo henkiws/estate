@@ -9,12 +9,26 @@
     <div class="relative">
         {{-- <x-property-gallery :images="$property->floorplan_path" /> --}}
         <div class="relative bg-white rounded-xl overflow-hidden" style="height: 500px;">
-            <img 
-                id="main-gallery-image"
-                src="{{ Storage::url($property->floorplan_path) }}" 
-                alt="Property Image"
-                class="w-full h-full object-contain"
-            >
+            @if($property->floorplan_path && Storage::disk('public')->exists($property->floorplan_path))
+                <img 
+                    id="main-gallery-image"
+                    src="{{ Storage::url($property->floorplan_path) }}" 
+                    alt="{{ $property->title ?? 'Property Image' }}"
+                    class="w-full h-full object-contain"
+                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200\'><div class=\'text-center\'><svg class=\'w-32 h-32 mx-auto text-gray-400 mb-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-xl font-semibold text-gray-500\'>Image Not Found</p></div></div>';"
+                >
+            @else
+                <!-- Default Placeholder -->
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div class="text-center">
+                        <svg class="w-32 h-32 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <p class="text-xl font-semibold text-gray-500">No Image Available</p>
+                        <p class="text-sm text-gray-400 mt-2">Property floorplan coming soon</p>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -136,7 +150,7 @@
                                     {{ $isFavorited ? '♥ Saved' : '♡ Save Property' }}
                                 </button>
                             @else
-                                <a href="{{ route('login') }}" 
+                                <a href="{{ route('login', ['redirect' => url()->current()]) }}" 
                                     class="block w-full py-4 bg-[#E6FF4B] text-[#1E1C1C] text-center font-bold rounded-xl hover:bg-[#d4f039] transition-all shadow-lg text-lg">
                                     Login to Apply
                                 </a>
@@ -158,7 +172,7 @@
                             {{ $isFavorited ? '♥ Saved' : '♡ Save Property' }}
                         </button>
                     @else
-                        <a href="{{ route('login') }}" 
+                        <a href="{{ route('login', ['redirect' => url()->current()]) }}" 
                             class="block w-full py-4 btn-primary text-center font-bold rounded-xl text-lg shadow-lg">
                             Login to Apply
                         </a>
@@ -174,12 +188,14 @@
                     <div>
                         <p class="text-sm text-gray-500 uppercase tracking-wider mb-3 font-semibold">Property Managed By</p>
                         <div class="flex items-center gap-4 mb-3">
-                            @if($property->agency->logo_url)
-                            <img src="{{ $property->agency->logo_path }}" 
-                                 alt="{{ $property->agency->agency_name }}"
-                                 class="h-14 object-contain">
+                            @if($property->agency->branding && $property->agency->branding->logo_path && Storage::disk('public')->exists($property->agency->branding->logo_path))
+                                <img src="{{ Storage::url($property->agency->branding->logo_path) }}" 
+                                     alt="{{ $property->agency->agency_name }}"
+                                     class="h-14 object-contain"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <p class="text-2xl font-bold text-[#1E1C1C]" style="display: none;">{{ $property->agency->agency_name }}</p>
                             @else
-                            <p class="text-2xl font-bold text-[#1E1C1C]">{{ $property->agency->agency_name }}</p>
+                                <p class="text-2xl font-bold text-[#1E1C1C]">{{ $property->agency->agency_name }}</p>
                             @endif
                         </div>
                     </div>
@@ -230,29 +246,48 @@ function toggleFavorite(propertyId, button) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
         }
     })
     .then(response => response.json())
     .then(data => {
-        if (data.favorited) {
-            button.classList.add('border-red-500', 'text-red-500', 'bg-red-50');
-            button.classList.remove('border-gray-300', 'text-gray-700');
-            button.innerHTML = '♥ Saved';
-        } else {
-            button.classList.remove('border-red-500', 'text-red-500', 'bg-red-50');
-            button.classList.add('border-gray-300', 'text-gray-700');
-            button.innerHTML = '♡ Save Property';
-        }
-        
-        if (window.showToast) {
-            window.showToast(data.message, 'success');
+        if (data.success) {
+            if (data.favorited) {
+                // Property was saved
+                button.classList.add('border-red-500', 'text-red-500', 'bg-red-50');
+                button.classList.remove('border-gray-300', 'text-gray-700', 'border-white/30', 'bg-white/10');
+                button.innerHTML = '♥ Saved';
+            } else {
+                // Property was unsaved
+                button.classList.remove('border-red-500', 'text-red-500', 'bg-red-50', 'bg-white/20');
+                
+                // Check if it's the desktop purple button or mobile button
+                if (button.classList.contains('backdrop-blur')) {
+                    // Desktop button - restore purple styling
+                    button.classList.add('border-white/30', 'bg-white/10');
+                } else {
+                    // Mobile button - restore gray styling
+                    button.classList.add('border-gray-300', 'text-gray-700');
+                }
+                button.innerHTML = '♡ Save Property';
+            }
+            
+            // Show toast message if available
+            if (window.showToast) {
+                window.showToast(data.message, 'success');
+            } else {
+                // Fallback alert
+                alert(data.message);
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
         if (window.showToast) {
             window.showToast('Failed to update favorite', 'error');
+        } else {
+            alert('Failed to update favorite. Please try again.');
         }
     });
 }

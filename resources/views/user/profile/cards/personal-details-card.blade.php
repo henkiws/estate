@@ -39,8 +39,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->first_name ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $profile && $profile->first_name ? 'text-plyform-yellow' : 'text-gray-400' }}" id="personal-details-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->first_name ? 'border-teal-500' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $profile && $profile->first_name ? 'text-teal-500' : 'text-gray-400' }}" id="personal-details-percentage">
                         @if($profile && $profile->first_name)
                             100%
                         @else

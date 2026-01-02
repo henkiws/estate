@@ -25,6 +25,7 @@ class AgencyDocument extends Model
         'verified_at',
         'verified_by',
         'expiry_date',
+        'expiry_date',
     ];
 
     protected $casts = [

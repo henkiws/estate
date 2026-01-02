@@ -60,7 +60,7 @@
                     View Details
                 </a>
                 
-                @if($application->canWithdraw())
+                {{-- @if($application->canWithdraw())
                     <button 
                         onclick="confirmWithdraw({{ $application->id }})"
                         class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition"
@@ -70,7 +70,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
-                @endif
+                @endif --}}
             </div>
         </div>
     </div>
@@ -135,7 +135,7 @@
                         View Details
                     </a>
                     
-                    @if($application->canWithdraw())
+                    {{-- @if($application->canWithdraw())
                         <button 
                             onclick="confirmWithdraw({{ $application->id }})"
                             class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition"
@@ -145,7 +145,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
         </div>

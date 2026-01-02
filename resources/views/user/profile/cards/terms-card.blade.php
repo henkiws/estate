@@ -41,8 +41,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->terms_accepted ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $profile && $profile->terms_accepted ? 'text-plyform-yellow' : 'text-gray-400' }}" id="terms-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->terms_accepted ? 'border-teal-500' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $profile && $profile->terms_accepted ? 'text-teal-500' : 'text-gray-400' }}" id="terms-percentage">
                         @if($profile && $profile->terms_accepted)
                             100%
                         @else

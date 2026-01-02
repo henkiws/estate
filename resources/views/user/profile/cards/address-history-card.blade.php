@@ -41,8 +41,8 @@
             <!-- Right: Completion % + Edit Button -->
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->addresses && $user->addresses->count() > 0 ? 'border-plyform-yellow' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $user->addresses && $user->addresses->count() > 0 ? 'text-plyform-yellow' : 'text-gray-400' }}" id="address-history-percentage">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->addresses && $user->addresses->count() > 0 ? 'border-teal-500' : 'border-gray-300' }} bg-white">
+                    <span class="text-sm font-bold {{ $user->addresses && $user->addresses->count() > 0 ? 'text-teal-500' : 'text-gray-400' }}" id="address-history-percentage">
                         @if($user->addresses && $user->addresses->count() > 0)
                             100%
                         @else
