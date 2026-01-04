@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'My Applications')
+@section('title', 'Saved Properties')
 
 @section('content')
 <div class="py-8">
@@ -9,14 +9,14 @@
         <!-- Page Header -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">My Applications</h1>
-                <p class="mt-2 text-gray-600">Track and manage your rental applications</p>
+                <h1 class="text-3xl font-bold text-gray-900">Saved Properties</h1>
+                <p class="mt-2 text-gray-600">You have {{ number_format($totalCount) }} saved {{ Str::plural('property', $totalCount) }}</p>
             </div>
             
             <!-- View Toggle -->
             <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                 <a 
-                    href="{{ route('user.applications.index', array_merge(request()->except('view'), ['view' => 'grid'])) }}"
+                    href="{{ route('user.saved-properties.index', array_merge(request()->except('view'), ['view' => 'grid'])) }}"
                     class="px-4 py-2 rounded-md text-sm font-medium transition {{ $viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}"
                 >
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -24,7 +24,7 @@
                     </svg>
                 </a>
                 <a 
-                    href="{{ route('user.applications.index', array_merge(request()->except('view'), ['view' => 'list'])) }}"
+                    href="{{ route('user.saved-properties.index', array_merge(request()->except('view'), ['view' => 'list'])) }}"
                     class="px-4 py-2 rounded-md text-sm font-medium transition {{ $viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}"
                 >
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -36,7 +36,7 @@
         
         <!-- Filters & Search -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-            <form method="GET" action="{{ route('user.applications.index') }}" class="flex flex-wrap gap-4">
+            <form method="GET" action="{{ route('user.saved-properties.index') }}" class="flex flex-wrap gap-4">
                 <input type="hidden" name="view" value="{{ $viewMode }}">
                 
                 <!-- Search -->
@@ -45,39 +45,23 @@
                         type="text" 
                         name="search" 
                         value="{{ request('search') }}"
-                        placeholder="Search by property address..."
+                        placeholder="Search by address, suburb..."
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     >
                 </div>
                 
-                <!-- Status Filter -->
+                <!-- Property Type Filter -->
                 <div class="min-w-[180px]">
                     <select 
-                        name="status" 
-                        onchange="this.form.submit()"
+                        name="property_type" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     >
-                        <option value="all" {{ request('status') === 'all' || !request('status') ? 'selected' : '' }}>
-                            All Status ({{ $counts['all'] }})
-                        </option>
-                        <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>
-                            Draft ({{ $counts['draft'] }})
-                        </option>
-                        <option value="submitted" {{ request('status') === 'submitted' ? 'selected' : '' }}>
-                            Submitted ({{ $counts['submitted'] }})
-                        </option>
-                        <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>
-                            Under Review ({{ $counts['under_review'] }})
-                        </option>
-                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>
-                            Approved ({{ $counts['approved'] }})
-                        </option>
-                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>
-                            Rejected ({{ $counts['rejected'] }})
-                        </option>
-                        <option value="withdrawn" {{ request('status') === 'withdrawn' ? 'selected' : '' }}>
-                            Withdrawn ({{ $counts['withdrawn'] }})
-                        </option>
+                        <option value="">All Types</option>
+                        <option value="house" {{ request('property_type') === 'house' ? 'selected' : '' }}>House</option>
+                        <option value="apartment" {{ request('property_type') === 'apartment' ? 'selected' : '' }}>Apartment</option>
+                        <option value="unit" {{ request('property_type') === 'unit' ? 'selected' : '' }}>Unit</option>
+                        <option value="townhouse" {{ request('property_type') === 'townhouse' ? 'selected' : '' }}>Townhouse</option>
+                        <option value="studio" {{ request('property_type') === 'studio' ? 'selected' : '' }}>Studio</option>
                     </select>
                 </div>
                 
@@ -85,12 +69,12 @@
                 <div class="min-w-[150px]">
                     <select 
                         name="sort" 
-                        onchange="this.form.submit()"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     >
-                        <option value="recent" {{ request('sort') === 'recent' || !request('sort') ? 'selected' : '' }}>Newest First</option>
+                        <option value="recent" {{ request('sort') === 'recent' || !request('sort') ? 'selected' : '' }}>Recently Saved</option>
                         <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                        <option value="status" {{ request('sort') === 'status' ? 'selected' : '' }}>By Status</option>
+                        <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
                     </select>
                 </div>
                 
@@ -99,13 +83,13 @@
                     type="submit" 
                     class="px-6 py-2 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition"
                 >
-                    Search
+                    Apply
                 </button>
                 
                 <!-- Clear Filters -->
-                @if(request()->hasAny(['search', 'status', 'sort']))
+                @if(request()->hasAny(['search', 'property_type', 'sort']))
                     <a 
-                        href="{{ route('user.applications.index', ['view' => $viewMode]) }}" 
+                        href="{{ route('user.saved-properties.index', ['view' => $viewMode]) }}" 
                         class="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
                     >
                         Clear
@@ -114,35 +98,51 @@
             </form>
         </div>
         
-        <!-- Applications Grid/List -->
-        @if($applications->count() > 0)
+        <!-- Saved Properties Grid/List -->
+        @if($savedProperties->count() > 0)
             @if($viewMode === 'grid')
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    @foreach($applications as $application)
-                        <x-application-card :application="$application" view-mode="grid" />
+                    @foreach($savedProperties as $saved)
+                        <x-saved-property-card 
+                            :property="$saved->property" 
+                            :savedAt="$saved->created_at"
+                            :hasApplied="in_array($saved->property->id, $appliedPropertyIds)"
+                            view-mode="grid" 
+                        />
                     @endforeach
                 </div>
             @else
                 <div class="space-y-4 mb-8">
-                    @foreach($applications as $application)
-                        <x-application-card :application="$application" view-mode="list" />
+                    @foreach($savedProperties as $saved)
+                        <x-saved-property-card 
+                            :property="$saved->property" 
+                            :savedAt="$saved->created_at"
+                            :hasApplied="in_array($saved->property->id, $appliedPropertyIds)"
+                            view-mode="list" 
+                        />
                     @endforeach
                 </div>
             @endif
             
             <!-- Pagination -->
             <div class="mt-6">
-                {{ $applications->appends(request()->except('page'))->links() }}
+                {{ $savedProperties->appends(request()->except('page'))->links() }}
             </div>
         @else
             <!-- Empty State -->
-            <x-empty-state 
-                icon="clipboard"
-                title="No Applications Yet"
-                message="You haven't submitted any rental applications. Start browsing properties to find your next home!"
-                actionText="Browse Properties"
-                actionUrl="{{ route('user.applications.browse') }}"
-            />
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Saved Properties</h3>
+                <p class="text-gray-600 mb-6">You haven't saved any properties yet. Start browsing to find your dream home!</p>
+                <a 
+                    href="{{ route('user.applications.browse') }}" 
+                    class="inline-flex items-center px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition"
+                >
+                    Browse Properties
+                </a>
+            </div>
         @endif
         
     </div>

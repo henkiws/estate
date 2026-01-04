@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'position',
         'agency_id',
         'is_admin',
+        'preferred_state',
         'profile_completed',
         'profile_current_step',
     ];
@@ -242,5 +243,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Assuming you're using Spatie Laravel Permission
         return $this->hasRole('user');
+    }
+
+    /**
+     * Get tickets assigned to this user (for staff/admin)
+     */
+    public function assignedTickets()
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to');
     }
 }

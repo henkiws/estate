@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupportTicketReply extends Model
 {
@@ -22,29 +20,23 @@ class SupportTicketReply extends Model
     protected $casts = [
         'is_staff_reply' => 'boolean',
         'attachments' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
      * Get the ticket this reply belongs to
      */
-    public function ticket(): BelongsTo
+    public function ticket()
     {
         return $this->belongsTo(SupportTicket::class, 'ticket_id');
     }
 
     /**
-     * Get the user who wrote the reply
+     * Get the user who wrote this reply
      */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get attachments for this reply
-     */
-    public function replyAttachments(): HasMany
-    {
-        return $this->hasMany(SupportTicketAttachment::class, 'reply_id');
     }
 }

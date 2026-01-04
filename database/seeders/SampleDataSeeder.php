@@ -77,6 +77,7 @@ class SampleDataSeeder extends Seeder
             'password' => Hash::make('password'),
             'phone' => '0412345678',
             'position' => 'System Administrator',
+            'is_admin' => true,
             'email_verified_at' => now(),
         ]);
         $admin->assignRole('admin');

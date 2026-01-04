@@ -56,24 +56,12 @@
         </div>
 
         <!-- Saved Properties -->
-        <a href="#" 
-           class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-xl transition-all group hover:bg-plyform-mint/20 hover:text-plyform-dark">
-            <svg class="w-5 h-5 text-gray-400 group-hover:text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{{ route('user.saved-properties.index') }}" 
+        class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-xl transition-all group hover:bg-plyform-mint/20 hover:text-plyform-dark {{ request()->routeIs('user.saved-properties.*') ? 'bg-gradient-to-r from-plyform-yellow to-plyform-yellow/80 text-plyform-dark font-semibold shadow-md' : 'text-gray-700 hover:bg-plyform-mint/20 hover:text-plyform-dark' }}">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-plyform-dark {{ request()->routeIs('user.saved-properties.*') ? 'text-plyform-dark' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
             </svg>
-            <span>Saved properties</span>
-        </a>
-
-        <!-- Messages -->
-        <a href="#" 
-           class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-xl transition-all group hover:bg-plyform-mint/20 hover:text-plyform-dark">
-            <svg class="w-5 h-5 text-gray-400 group-hover:text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-            </svg>
-            <span>Messages</span>
-            <span class="ml-auto flex items-center justify-center w-6 h-6 bg-plyform-yellow text-plyform-dark text-xs font-bold rounded-full">
-                3
-            </span>
+            <span>Saved Properties</span>
         </a>
         
     </nav>
@@ -103,7 +91,7 @@
     
     <!-- Bottom Help Section -->
     <div class="p-4 border-t border-gray-200">
-        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-plyform-mint/20 hover:text-plyform-dark transition-all group">
+        <a href="{{ route('user.support.index') }}" class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-plyform-mint/20 hover:text-plyform-dark transition-all group">
             <svg class="w-5 h-5 text-gray-400 group-hover:text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>

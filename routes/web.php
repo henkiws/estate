@@ -175,6 +175,17 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             Route::delete('/{application}', [ApplicationController::class, 'destroy'])->name('destroy');
         });
     });
+
+    // Support & Help
+    Route::controller(App\Http\Controllers\Agency\SupportController::class)
+        ->prefix('support')->name('support.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{ticket}', 'show')->name('show');
+            Route::post('/{ticket}/reply', 'reply')->name('reply');
+            Route::patch('/{ticket}/close', 'close')->name('close');
+        });
 });
 
 // ============================================
@@ -279,6 +290,17 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         // Activity
         Route::get('/activity', [App\Http\Controllers\Admin\ProfileController::class, 'activity'])->name('activity');
     });
+    // Support Management
+    Route::controller(App\Http\Controllers\Admin\SupportController::class)
+        ->prefix('support')->name('support.')->group(function () {
+            Route::get('/tickets', 'index')->name('tickets.index');
+            Route::get('/analytics', 'analytics')->name('analytics');
+            Route::get('/tickets/{ticket}', 'show')->name('tickets.show');
+            Route::post('/tickets/{ticket}/reply', 'reply')->name('tickets.reply');
+            Route::patch('/tickets/{ticket}/status', 'updateStatus')->name('tickets.update-status');
+            Route::patch('/tickets/{ticket}/priority', 'updatePriority')->name('tickets.update-priority');
+            Route::patch('/tickets/{ticket}/assign', 'assign')->name('tickets.assign');
+        });
     Route::get('/profiles/{profile}/history', [App\Http\Controllers\Admin\ProfileApprovalController::class, 'history'])->name('profiles.history');
     // Profile approval
     Route::get('/profiles', [App\Http\Controllers\Admin\ProfileApprovalController::class, 'index'])->name('profiles.index');
@@ -347,21 +369,12 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         // ------------------------------------------
         // User Profile (View after completion)
         // ------------------------------------------
-        Route::get('/profile', [App\Http\Controllers\User\UserProfileController::class, 'show'])->name('profile.show');
+        Route::put('/profile/update-state', [App\Http\Controllers\User\ProfileController::class, 'updateState'])->name('profile.update-state');
         // ------------------------------------------
-        // Property Applications
-        // ------------------------------------------
-        // Route::get('/applications', [App\Http\Controllers\User\ApplicationController::class, 'index'])->name('applications.index');
-        // Route::get('/applications/create', [App\Http\Controllers\User\ApplicationController::class, 'create'])->name('applications.create');
-        // Route::post('/applications', [App\Http\Controllers\User\ApplicationController::class, 'store'])->name('applications.store');
-        // Route::get('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'show'])->name('applications.show');
-        // Route::get('/applications/{application}/edit', [App\Http\Controllers\User\ApplicationController::class, 'edit'])->name('applications.edit');
-        // Route::put('/applications/{application}', [App\Http\Controllers\User\ApplicationController::class, 'update'])->name('applications.update');
-        // Route::post('/applications/{application}/withdraw', [App\Http\Controllers\User\ApplicationController::class, 'withdraw'])->name('applications.withdraw');
-        // Route::post('/applications/{application}/submit', [App\Http\Controllers\User\ApplicationController::class, 'submit'])->name('applications.submit');
         // Application Management
         Route::controller(App\Http\Controllers\User\ApplicationController::class)->prefix('applications')->name('applications.')->group(function () {
             Route::get('/', 'index')->name('index');                    // List all applications
+            Route::get('/browse-properties', 'browse')->name('browse'); // Browse properties to apply
             Route::get('/create', 'create')->name('create');            // Show application form
             Route::post('/', 'store')->name('store');                   // Submit application
             Route::get('/{id}', 'show')->name('show');                  // View single application
@@ -370,6 +383,11 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
             Route::patch('/{id}/withdraw', 'withdraw')->name('withdraw'); // Withdraw application
             Route::delete('/{id}', 'destroy')->name('destroy');         // Delete application
         });
+
+        // Saved Properties
+        Route::get('/saved-properties', [App\Http\Controllers\User\SavedPropertyController::class, 'index'])->name('saved-properties.index');
+        Route::delete('/saved-properties/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'destroy'])->name('saved-properties.destroy');
+
         // Apply for property (create application)
         Route::get('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'create'])->name('apply');
         Route::post('/properties/{code}/apply', [App\Http\Controllers\User\ApplicationController::class, 'store'])->name('apply.store');
@@ -414,6 +432,16 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::delete('/favorites/{favorite}', [App\Http\Controllers\User\FavoriteController::class, 'destroy'])->name('favorites.destroy');
     });
 
+    // Support & Help
+    Route::controller(App\Http\Controllers\User\SupportController::class)->prefix('support')->name('support.')->group(function () {
+        Route::get('/', 'index')->name('index');                    // List all tickets
+        Route::get('/create', 'create')->name('create');            // Show create ticket form
+        Route::post('/', 'store')->name('store');                   // Submit new ticket
+        Route::get('/{ticket}', 'show')->name('show');              // View single ticket
+        Route::post('/{ticket}/reply', 'reply')->name('reply');     // Reply to ticket
+        Route::patch('/{ticket}/close', 'close')->name('close');    // Close ticket
+    });
+
     // Application Drafts
     Route::prefix('drafts')->name('drafts.')->group(function () {
         Route::get('/', [ApplicationDraftController::class, 'index'])->name('index');
@@ -431,24 +459,6 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
 // Stripe Webhook (No CSRF protection)
 // ============================================
 Route::post('/webhook/stripe', [App\Http\Controllers\Agency\SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
-
-// // Public Property Listing & Details
-// Route::prefix('properties')->name('properties.')->group(function () {
-//     // Property listing page
-//     Route::get('/', [App\Http\Controllers\PublicPropertyController::class, 'index'])->name('index');
-    
-//     // Single property page (using property_code or slug)
-//     Route::get('/{code}', [App\Http\Controllers\PublicPropertyController::class, 'show'])->name('show');
-    
-//     // Submit rental application
-//     Route::post('/{code}/apply', [App\Http\Controllers\PublicPropertyController::class, 'submitApplication'])->name('apply');
-    
-//     // Submit enquiry
-//     Route::post('/{code}/enquiry', [App\Http\Controllers\PublicPropertyController::class, 'submitEnquiry'])->name('enquiry');
-    
-//     // Book inspection
-//     Route::post('/{code}/inspection', [App\Http\Controllers\PublicPropertyController::class, 'bookInspection'])->name('inspection');
-// });
 
 // Property browse and detail pages
 Route::get('/properties', [App\Http\Controllers\PropertyBrowseController::class, 'index'])->name('properties.index');

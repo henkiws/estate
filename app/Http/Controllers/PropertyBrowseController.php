@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
-use App\Models\Favorite;
+use App\Models\SavedProperty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +15,7 @@ class PropertyBrowseController extends Controller
     public function index(Request $request)
     {
         $query = Property::with(['images', 'agency'])
-            ->where('status', 'available');
+            ->where('status', 'active');
         
         // Search by address/suburb
         if ($request->filled('search')) {
@@ -102,16 +102,16 @@ class PropertyBrowseController extends Controller
         $viewMode = $request->get('view', 'grid'); // grid, list, or map
         $properties = $query->paginate(12)->appends($request->except('page'));
         
-        // Get user's favorites if logged in
+        // Get user's saved properties if logged in
         $favoriteIds = [];
         if (Auth::check()) {
-            $favoriteIds = Favorite::forUser(Auth::id())
-                                  ->pluck('property_id')
-                                  ->toArray();
+            $favoriteIds = SavedProperty::where('user_id', Auth::id())
+                                       ->pluck('property_id')
+                                       ->toArray();
         }
         
         // Get filter counts for display
-        $totalCount = Property::where('status', 'available')->count();
+        $totalCount = Property::where('status', 'active')->count();
         
         return view('properties.index', compact(
             'properties',
@@ -135,10 +135,10 @@ class PropertyBrowseController extends Controller
         // Increment view count
         $property->increment('view_count');
         
-        // Check if favorited (if logged in)
+        // Check if saved (if logged in)
         $isFavorited = false;
         if (Auth::check()) {
-            $isFavorited = Favorite::where('user_id', Auth::id())
+            $isFavorited = SavedProperty::where('user_id', Auth::id())
                 ->where('property_id', $property->id)
                 ->exists();
         }

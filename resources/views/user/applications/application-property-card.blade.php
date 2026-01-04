@@ -1,0 +1,268 @@
+@props(['property', 'isFavorited' => false, 'applicationStatuses' => [], 'viewMode' => 'grid'])
+
+@php
+    $hasApplications = count($applicationStatuses) > 0;
+    $latestStatus = $hasApplications ? end($applicationStatuses) : null;
+    
+    // Determine status badge
+    $statusConfig = [
+        'submitted' => ['text' => 'Applied', 'class' => 'bg-blue-100 text-blue-800'],
+        'under_review' => ['text' => 'Under Review', 'class' => 'bg-yellow-100 text-yellow-800'],
+        'approved' => ['text' => 'Approved', 'class' => 'bg-green-100 text-green-800'],
+        'rejected' => ['text' => 'Rejected', 'class' => 'bg-red-100 text-red-800'],
+        'withdrawn' => ['text' => 'Withdrawn', 'class' => 'bg-gray-100 text-gray-800'],
+    ];
+    
+    $primaryImage = $property->images->first();
+    $imageUrl = $primaryImage 
+        ? asset('storage/' . $primaryImage->file_path)
+        : asset('images/placeholder-property.jpg');
+@endphp
+
+@if($viewMode === 'grid')
+    <!-- Grid View Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
+        <!-- Image -->
+        <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
+            <img 
+                src="{{ $imageUrl }}" 
+                alt="{{ $property->address }}"
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            >
+            
+            <!-- Favorite Toggle -->
+            <button 
+                onclick="toggleFavorite({{ $property->id }})"
+                class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition {{ $isFavorited ? 'text-red-500' : 'text-gray-400' }}"
+            >
+                <svg class="w-5 h-5 {{ $isFavorited ? 'fill-current' : '' }}" fill="{{ $isFavorited ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </button>
+            
+            <!-- Application Status Badge -->
+            @if($hasApplications)
+                <div class="absolute top-3 left-3">
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $statusConfig[$latestStatus]['class'] ?? 'bg-gray-100 text-gray-800' }}">
+                        {{ $statusConfig[$latestStatus]['text'] ?? ucfirst($latestStatus) }}
+                        @if(count($applicationStatuses) > 1)
+                            <span class="ml-1">({{ count($applicationStatuses) }})</span>
+                        @endif
+                    </span>
+                </div>
+            @endif
+            
+            <!-- Price Badge -->
+            <div class="absolute bottom-3 left-3">
+                <span class="px-3 py-1 bg-teal-600 text-white text-sm font-bold rounded-lg">
+                    ${{ number_format($property->price_per_week) }}/week
+                </span>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-4">
+            <!-- Property Code -->
+            <p class="text-xs text-gray-500 font-medium mb-1">{{ $property->property_code }}</p>
+            
+            <!-- Address -->
+            <h3 class="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
+                {{ $property->address }}
+            </h3>
+            <p class="text-sm text-gray-600 mb-3">{{ $property->suburb }}, {{ $property->state }} {{ $property->postcode }}</p>
+            
+            <!-- Features -->
+            <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    <span>{{ $property->bedrooms }} bed</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ $property->bathrooms }} bath</span>
+                </div>
+                @if($property->parking_spaces > 0)
+                    <div class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                        </svg>
+                        <span>{{ $property->parking_spaces }} car</span>
+                    </div>
+                @endif
+            </div>
+            
+            <!-- Property Type & Features -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
+                    {{ ucfirst($property->property_type) }}
+                </span>
+                @if($property->pet_friendly)
+                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Pet Friendly</span>
+                @endif
+                @if($property->furnished)
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">Furnished</span>
+                @endif
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex gap-2">
+                <a 
+                    href="{{ route('user.applications.create', ['property_id' => $property->id]) }}"
+                    class="flex-1 px-4 py-2 bg-teal-600 text-white text-center font-semibold rounded-lg hover:bg-teal-700 transition"
+                >
+                    Apply Now
+                </a>
+                <a 
+                    href="{{ route('properties.show', $property->public_url_code) }}"
+                    target="_blank"
+                    class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
+                >
+                    View
+                </a>
+            </div>
+        </div>
+    </div>
+
+@else
+    <!-- List View Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+        <div class="flex flex-col md:flex-row">
+            <!-- Image -->
+            <div class="relative md:w-80 aspect-[4/3] md:aspect-auto overflow-hidden bg-gray-100 flex-shrink-0">
+                <img 
+                    src="{{ $imageUrl }}" 
+                    alt="{{ $property->address }}"
+                    class="w-full h-full object-cover"
+                >
+                
+                <!-- Favorite Toggle -->
+                <button 
+                    onclick="toggleFavorite({{ $property->id }})"
+                    class="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition {{ $isFavorited ? 'text-red-500' : 'text-gray-400' }}"
+                >
+                    <svg class="w-5 h-5 {{ $isFavorited ? 'fill-current' : '' }}" fill="{{ $isFavorited ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </button>
+                
+                <!-- Price Badge -->
+                <div class="absolute bottom-3 left-3">
+                    <span class="px-3 py-1 bg-teal-600 text-white text-sm font-bold rounded-lg">
+                        ${{ number_format($property->price_per_week) }}/week
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 p-6">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <!-- Property Code -->
+                        <p class="text-xs text-gray-500 font-medium mb-1">{{ $property->property_code }}</p>
+                        
+                        <!-- Address -->
+                        <h3 class="text-xl font-bold text-gray-900 mb-1">
+                            {{ $property->address }}
+                        </h3>
+                        <p class="text-sm text-gray-600">{{ $property->suburb }}, {{ $property->state }} {{ $property->postcode }}</p>
+                    </div>
+                    
+                    <!-- Application Status Badge -->
+                    @if($hasApplications)
+                        <div>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $statusConfig[$latestStatus]['class'] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ $statusConfig[$latestStatus]['text'] ?? ucfirst($latestStatus) }}
+                                @if(count($applicationStatuses) > 1)
+                                    <span class="ml-1">({{ count($applicationStatuses) }})</span>
+                                @endif
+                            </span>
+                        </div>
+                    @endif
+                </div>
+                
+                <!-- Features -->
+                <div class="flex items-center gap-6 mb-4 text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        <span class="font-medium">{{ $property->bedrooms }} Bedrooms</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-medium">{{ $property->bathrooms }} Bathrooms</span>
+                    </div>
+                    @if($property->parking_spaces > 0)
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                            </svg>
+                            <span class="font-medium">{{ $property->parking_spaces }} Parking</span>
+                        </div>
+                    @endif
+                </div>
+                
+                <!-- Property Type & Features -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded">
+                        {{ ucfirst($property->property_type) }}
+                    </span>
+                    @if($property->pet_friendly)
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">Pet Friendly</span>
+                    @endif
+                    @if($property->furnished)
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded">Furnished</span>
+                    @endif
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <a 
+                        href="{{ route('user.applications.create', ['property_id' => $property->id]) }}"
+                        class="px-6 py-2 bg-teal-600 text-white text-center font-semibold rounded-lg hover:bg-teal-700 transition"
+                    >
+                        Apply Now
+                    </a>
+                    <a 
+                        href="{{ route('properties.show', $property->public_url_code) }}"
+                        target="_blank"
+                        class="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
+                    >
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+@once
+@push('scripts')
+<script>
+function toggleFavorite(propertyId) {
+    fetch(`/user/favorites/${propertyId}/toggle`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+@endpush
+@endonce

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\PropertyApplication;
 use App\Models\Property;
+use App\Models\Favorite;
+use App\Models\Application;
+use App\Models\SavedProperty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -331,5 +334,123 @@ class ApplicationController extends Controller
         
         return redirect()->route('user.applications.index')
             ->with('success', 'Draft application deleted successfully.');
+    }
+
+    /**
+     * Browse active properties to apply for
+     */
+    public function browse(Request $request)
+    {
+        $query = Property::with(['images', 'agency'])
+            ->where('status', 'active');
+        
+        // Search by address/suburb/code
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('address', 'like', "%{$search}%")
+                ->orWhere('suburb', 'like', "%{$search}%")
+                ->orWhere('property_code', 'like', "%{$search}%");
+            });
+        }
+        
+        // Filter by bedrooms
+        if ($request->filled('bedrooms')) {
+            if ($request->bedrooms === '5+') {
+                $query->where('bedrooms', '>=', 5);
+            } else {
+                $query->where('bedrooms', $request->bedrooms);
+            }
+        }
+        
+        // Filter by bathrooms
+        if ($request->filled('bathrooms')) {
+            if ($request->bathrooms === '3+') {
+                $query->where('bathrooms', '>=', 3);
+            } else {
+                $query->where('bathrooms', $request->bathrooms);
+            }
+        }
+        
+        // Filter by parking
+        if ($request->filled('parking')) {
+            if ($request->parking === '2+') {
+                $query->where('parking_spaces', '>=', 2);
+            } else {
+                $query->where('parking_spaces', $request->parking);
+            }
+        }
+        
+        // Filter by property type
+        if ($request->filled('property_type')) {
+            $query->where('property_type', $request->property_type);
+        }
+        
+        // Filter by price range
+        if ($request->filled('price_min')) {
+            $query->where('price_per_week', '>=', $request->price_min);
+        }
+        if ($request->filled('price_max')) {
+            $query->where('price_per_week', '<=', $request->price_max);
+        }
+        
+        // Filter by pet friendly
+        if ($request->filled('pet_friendly') && $request->pet_friendly == '1') {
+            $query->where('pet_friendly', true);
+        }
+        
+        // Filter by furnished
+        if ($request->filled('furnished') && $request->furnished == '1') {
+            $query->where('furnished', true);
+        }
+        
+        // Sort
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price_per_week', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price_per_week', 'desc');
+                break;
+            case 'bedrooms_high':
+                $query->orderBy('bedrooms', 'desc');
+                break;
+            case 'bedrooms_low':
+                $query->orderBy('bedrooms', 'asc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default: // newest
+                $query->orderBy('created_at', 'desc');
+        }
+        
+        $viewMode = $request->get('view', 'grid');
+        $properties = $query->paginate(12)->appends($request->except('page'));
+        
+        // Get user's saved properties (favorited)
+        $favoriteIds = SavedProperty::where('user_id', Auth::id())
+                                    ->pluck('property_id')
+                                    ->toArray();
+        
+        // Get properties user has applied to (get all application statuses)
+        $appliedProperties = Application::where('user_id', Auth::id())
+                                        ->get()
+                                        ->groupBy('property_id')
+                                        ->map(function($applications) {
+                                            return $applications->pluck('status')->toArray();
+                                        });
+        
+        // Get total count
+        $totalCount = Property::where('status', 'available')->count();
+        
+        return view('user.applications.browse', compact(
+            'properties',
+            'viewMode',
+            'favoriteIds',
+            'appliedProperties',
+            'totalCount'
+        ));
     }
 }

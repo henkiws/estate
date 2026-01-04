@@ -255,30 +255,37 @@ function toggleFavorite(propertyId, button) {
         if (data.success) {
             if (data.favorited) {
                 // Property was saved
-                button.classList.add('border-red-500', 'text-red-500', 'bg-red-50');
-                button.classList.remove('border-gray-300', 'text-gray-700', 'border-white/30', 'bg-white/10');
-                button.innerHTML = '♥ Saved';
-            } else {
-                // Property was unsaved
-                button.classList.remove('border-red-500', 'text-red-500', 'bg-red-50', 'bg-white/20');
+                button.classList.add('bg-white/20');
                 
                 // Check if it's the desktop purple button or mobile button
                 if (button.classList.contains('backdrop-blur')) {
-                    // Desktop button - restore purple styling
-                    button.classList.add('border-white/30', 'bg-white/10');
+                    // Desktop button - keep purple styling but show saved state
+                    button.innerHTML = '♥ Saved';
+                } else {
+                    // Mobile button - add red styling
+                    button.classList.add('border-red-500', 'text-red-500', 'bg-red-50');
+                    button.classList.remove('border-gray-300', 'text-gray-700');
+                    button.innerHTML = '♥ Saved';
+                }
+            } else {
+                // Property was unsaved
+                button.classList.remove('bg-white/20');
+                
+                // Check if it's the desktop purple button or mobile button
+                if (button.classList.contains('backdrop-blur')) {
+                    // Desktop button - restore original purple styling
+                    button.innerHTML = '♡ Save Property';
                 } else {
                     // Mobile button - restore gray styling
+                    button.classList.remove('border-red-500', 'text-red-500', 'bg-red-50');
                     button.classList.add('border-gray-300', 'text-gray-700');
+                    button.innerHTML = '♡ Save Property';
                 }
-                button.innerHTML = '♡ Save Property';
             }
             
             // Show toast message if available
             if (window.showToast) {
                 window.showToast(data.message, 'success');
-            } else {
-                // Fallback alert
-                alert(data.message);
             }
         }
     })

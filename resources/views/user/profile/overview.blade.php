@@ -16,10 +16,10 @@
                 
                 <!-- Overall Progress Badge -->
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border-4 border-teal-500 bg-white shadow-lg">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-[#5E17EB] bg-white shadow-lg">
                         <div class="text-center">
-                            <span class="block text-2xl font-bold text-teal-600" id="overall-percentage">45%</span>
-                            <span class="block text-xs text-gray-500">Complete</span>
+                            <span class="block text-xl font-bold text-[#5E17EB]" id="overall-percentage">45%</span>
+                            <span class="block text-[10px] text-gray-500 leading-tight">Done</span>
                         </div>
                     </div>
                 </div>
@@ -69,6 +69,9 @@
         
         <!-- Profile Sections -->
         <div class="space-y-4">
+
+            <!-- Section 0: About You (State Selection) -->
+            @include('user.profile.cards.about-you-card')
             
             <!-- Section 1: Personal Details -->
             @include('user.profile.cards.personal-details-card')

@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupportTicket extends Model
 {
@@ -19,6 +17,7 @@ class SupportTicket extends Model
         'category',
         'priority',
         'status',
+        'user_type',
         'assigned_to',
         'resolved_at',
         'closed_at',
@@ -27,149 +26,80 @@ class SupportTicket extends Model
     protected $casts = [
         'resolved_at' => 'datetime',
         'closed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
-
-    /**
-     * Boot the model
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($ticket) {
-            if (!$ticket->ticket_number) {
-                $ticket->ticket_number = self::generateTicketNumber();
-            }
-        });
-    }
 
     /**
      * Generate unique ticket number
      */
-    public static function generateTicketNumber(): string
+    public static function generateTicketNumber()
     {
         do {
             $number = 'TKT-' . strtoupper(substr(uniqid(), -8));
         } while (self::where('ticket_number', $number)->exists());
-
+        
         return $number;
     }
 
     /**
      * Get the user who created the ticket
      */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     /**
-     * Get the staff member assigned to the ticket
+     * Get assigned staff member
      */
-    public function assignedTo(): BelongsTo
+    public function assignedTo()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /**
-     * Get all replies for the ticket
+     * Get ticket replies
      */
-    public function replies(): HasMany
+    public function replies()
     {
         return $this->hasMany(SupportTicketReply::class, 'ticket_id');
     }
 
     /**
-     * Get all attachments for the ticket
+     * Get ticket attachments
      */
-    public function attachments(): HasMany
+    public function attachments()
     {
         return $this->hasMany(SupportTicketAttachment::class, 'ticket_id');
     }
 
     /**
-     * Scope for open tickets
-     */
-    public function scopeOpen($query)
-    {
-        return $query->where('status', 'open');
-    }
-
-    /**
-     * Scope for closed tickets
-     */
-    public function scopeClosed($query)
-    {
-        return $query->whereIn('status', ['resolved', 'closed']);
-    }
-
-    /**
-     * Scope for user's tickets
-     */
-    public function scopeForUser($query, $userId)
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    /**
-     * Check if ticket is open
-     */
-    public function isOpen(): bool
-    {
-        return in_array($this->status, ['open', 'in_progress', 'waiting_response']);
-    }
-
-    /**
-     * Check if ticket is closed
-     */
-    public function isClosed(): bool
-    {
-        return in_array($this->status, ['resolved', 'closed']);
-    }
-
-    /**
      * Get status badge color
      */
-    public function getStatusColorAttribute(): string
+    public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'open' => 'blue',
-            'in_progress' => 'yellow',
-            'waiting_response' => 'purple',
-            'resolved' => 'green',
-            'closed' => 'gray',
-            default => 'gray'
+            'open' => 'bg-blue-100 text-blue-800',
+            'in_progress' => 'bg-yellow-100 text-yellow-800',
+            'waiting_response' => 'bg-purple-100 text-purple-800',
+            'resolved' => 'bg-green-100 text-green-800',
+            'closed' => 'bg-gray-100 text-gray-800',
+            default => 'bg-gray-100 text-gray-800',
         };
     }
 
     /**
      * Get priority badge color
      */
-    public function getPriorityColorAttribute(): string
+    public function getPriorityColorAttribute()
     {
         return match($this->priority) {
-            'low' => 'gray',
-            'medium' => 'blue',
-            'high' => 'orange',
-            'urgent' => 'red',
-            default => 'gray'
-        };
-    }
-
-    /**
-     * Get category display name
-     */
-    public function getCategoryNameAttribute(): string
-    {
-        return match($this->category) {
-            'profile' => 'Profile',
-            'application' => 'Application',
-            'property' => 'Property',
-            'payment' => 'Payment',
-            'account' => 'Account',
-            'technical' => 'Technical',
-            'other' => 'Other',
-            default => 'Other'
+            'urgent' => 'bg-red-100 text-red-800',
+            'high' => 'bg-orange-100 text-orange-800',
+            'medium' => 'bg-yellow-100 text-yellow-800',
+            'low' => 'bg-green-100 text-green-800',
+            default => 'bg-gray-100 text-gray-800',
         };
     }
 }
