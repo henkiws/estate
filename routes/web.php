@@ -461,7 +461,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
 Route::post('/webhook/stripe', [App\Http\Controllers\Agency\SubscriptionController::class, 'webhook'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('webhook.stripe');
 
 // Property browse and detail pages
-Route::get('/properties', [App\Http\Controllers\PropertyBrowseController::class, 'index'])->name('properties.index');
+// Route::get('/properties', [App\Http\Controllers\PropertyBrowseController::class, 'index'])->name('properties.index');
 Route::get('/properties/{publicUrlCode}', [App\Http\Controllers\PropertyBrowseController::class, 'show'])->name('properties.show');
 
 Route::post('/api/favorites/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'toggle'])->name('api.favorites.toggle')->middleware('auth');
