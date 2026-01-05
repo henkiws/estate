@@ -65,9 +65,6 @@ class AgencyController extends Controller
         return view('admin.agencies.index', compact('agencies', 'stats'));
     }
 
-    /**
-     * Display the specified agency for review
-     */
     public function show($id)
     {
         $agency = $this->agencyRepository->findWithAllRelations($id);
@@ -78,15 +75,53 @@ class AgencyController extends Controller
             ->orderBy('name', 'asc')
             ->get();
         
-        // Get agents
-        $agents = $agency->agents()->with('user')->get();
+        // Get agents with their performance stats
+        $agents = $agency->agents()
+            ->with('user')
+            ->withCount([
+                'properties as total_properties',
+                'listings as active_listings',
+                'properties as sold_properties' => function($query) {
+                    $query->where('status', 'sold');
+                }
+            ])
+            ->get();
         
-        // Get subscription info
-        $subscription = $agency->activeSubscription;
+        // Get properties with key information and relationships
+        $properties = $agency->properties()
+            ->with(['listingAgent'])
+            ->select('id', 'property_code', 'property_type', 'listing_type', 
+                    'street_number', 'street_name', 'street_type', 'unit_number',
+                    'suburb', 'state', 'postcode', 'headline',
+                    'bedrooms', 'bathrooms', 'parking_spaces', 
+                    'price', 'rent_per_week', 'rent_per_month',
+                    'status', 'is_published', 'is_featured',
+                    'created_at', 'updated_at', 'listed_at')
+            ->latest()
+            ->get();
         
-        // Get recent transactions
+        // Calculate property statistics
+        $propertyStats = [
+            'total' => $properties->count(),
+            'active' => $properties->where('status', 'active')->count(),
+            'leased' => $properties->where('status', 'leased')->count(),
+            'sold' => $properties->where('status', 'sold')->count(),
+            'draft' => $properties->where('status', 'draft')->count(),
+            'under_contract' => $properties->where('status', 'under_contract')->count(),
+            'by_type' => $properties->groupBy('property_type')->map->count(),
+            'by_listing_type' => $properties->groupBy('listing_type')->map->count(),
+            'published' => $properties->where('is_published', true)->count(),
+            'featured' => $properties->where('is_featured', true)->count(),
+        ];
+        
+        // Get subscription info with plan details
+        $subscription = $agency->subscription()
+            ->with('plan')
+            ->first();
+        
+        // Get recent transactions for billing history (fixed relationship)
         $transactions = $agency->transactions()
-            ->with('subscriptionPlan')
+            ->with(['subscription.plan:id,name']) // Load plan through subscription
             ->latest()
             ->take(10)
             ->get();
@@ -94,18 +129,37 @@ class AgencyController extends Controller
         // Get activity logs
         $activityLogs = ActivityLog::where('subject_type', Agency::class)
             ->where('subject_id', $id)
-            ->with('causer')
+            ->with('causer:id,name')
             ->latest()
             ->take(20)
             ->get();
+        
+        // Calculate quick stats for sidebar
+        $quickStats = [
+            'total_agents' => $agents->count(),
+            'active_agents' => $agents->where('status', 'active')->count(),
+            'total_properties' => $propertyStats['total'],
+            'active_properties' => $propertyStats['active'],
+            'published_properties' => $propertyStats['published'],
+            'total_documents' => $documentRequirements->count(),
+            'approved_documents' => $documentRequirements->where('status', 'approved')->count(),
+            'pending_documents' => $documentRequirements->where('status', 'pending_review')->count(),
+            'total_transactions' => $transactions->count(),
+            'total_revenue' => $transactions->where('status', 'completed')->sum('amount'),
+            'member_since' => $agency->created_at,
+            'verified_at' => $agency->verified_at,
+        ];
 
         return view('admin.agencies.show', compact(
             'agency',
             'documentRequirements',
             'agents',
+            'properties',
+            'propertyStats',
             'subscription',
             'transactions',
-            'activityLogs'
+            'activityLogs',
+            'quickStats'
         ));
     }
 
