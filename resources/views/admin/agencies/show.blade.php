@@ -31,101 +31,105 @@
 
 {{-- Header Section --}}
 <div class="mb-8">
-    <div class="flex items-start gap-4 mb-6">
-        <a href="{{ route('admin.agencies.index') }}" 
-           class="p-2 hover:bg-[#DDEECD] rounded-lg transition-colors">
-            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </a>
-        <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $agency->agency_name }}</h1>
-            <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
-                <span class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Registered {{ $agency->created_at->format('M d, Y') }}
-                </span>
-                <span>•</span>
-                <span>{{ $agency->created_at->diffForHumans() }}</span>
-            </div>
-            
-            {{-- Status Badge --}}
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold shadow-sm
-                {{ $agency->status === 'active' ? 'bg-[#DDEECD] text-gray-800' : '' }}
-                {{ $agency->status === 'approved' ? 'bg-[#E6FF4B] text-gray-800' : '' }}
-                {{ $agency->status === 'pending' ? 'bg-[#E6FF4B]/50 text-gray-800' : '' }}
-                {{ $agency->status === 'rejected' ? 'bg-gray-200 text-gray-600' : '' }}
-                {{ $agency->status === 'suspended' ? 'bg-gray-300 text-gray-700' : '' }}
-                {{ $agency->status === 'inactive' ? 'bg-gray-100 text-gray-500' : '' }}">
-                <span class="w-2.5 h-2.5 rounded-full
-                    {{ $agency->status === 'active' ? 'bg-gray-700 animate-pulse' : '' }}
-                    {{ $agency->status === 'approved' ? 'bg-gray-700' : '' }}
-                    {{ $agency->status === 'pending' ? 'bg-gray-700 animate-pulse' : '' }}
-                    {{ $agency->status === 'rejected' ? 'bg-gray-500' : '' }}
-                    {{ $agency->status === 'suspended' ? 'bg-gray-600' : '' }}
-                    {{ $agency->status === 'inactive' ? 'bg-gray-400' : '' }}">
-                </span>
-                {{ ucfirst($agency->status) }}
-                @if($agency->status === 'approved')
-                <span class="text-xs opacity-75">• Awaiting Subscription</span>
-                @endif
+    <div class="flex flex-col lg:flex-row lg:items-start gap-4 mb-6">
+        <!-- Back Button & Agency Info -->
+        <div class="flex items-start gap-4 flex-1">
+            <a href="{{ route('admin.agencies.index') }}" 
+               class="p-2 hover:bg-[#DDEECD] rounded-lg transition-colors flex-shrink-0">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="flex-1 min-w-0">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2 break-words">{{ $agency->agency_name }}</h1>
+                <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-600 mb-3">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Registered </span>{{ $agency->created_at->format('M d, Y') }}
+                    </span>
+                    <span class="hidden sm:inline">•</span>
+                    <span>{{ $agency->created_at->diffForHumans() }}</span>
+                </div>
+                
+                {{-- Status Badge --}}
+                <div class="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-xl font-semibold shadow-sm text-sm
+                    {{ $agency->status === 'active' ? 'bg-[#DDEECD] text-gray-800' : '' }}
+                    {{ $agency->status === 'approved' ? 'bg-[#E6FF4B] text-gray-800' : '' }}
+                    {{ $agency->status === 'pending' ? 'bg-[#E6FF4B]/50 text-gray-800' : '' }}
+                    {{ $agency->status === 'rejected' ? 'bg-gray-200 text-gray-600' : '' }}
+                    {{ $agency->status === 'suspended' ? 'bg-gray-300 text-gray-700' : '' }}
+                    {{ $agency->status === 'inactive' ? 'bg-gray-100 text-gray-500' : '' }}">
+                    <span class="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full flex-shrink-0
+                        {{ $agency->status === 'active' ? 'bg-gray-700 animate-pulse' : '' }}
+                        {{ $agency->status === 'approved' ? 'bg-gray-700' : '' }}
+                        {{ $agency->status === 'pending' ? 'bg-gray-700 animate-pulse' : '' }}
+                        {{ $agency->status === 'rejected' ? 'bg-gray-500' : '' }}
+                        {{ $agency->status === 'suspended' ? 'bg-gray-600' : '' }}
+                        {{ $agency->status === 'inactive' ? 'bg-gray-400' : '' }}">
+                    </span>
+                    <span>{{ ucfirst($agency->status) }}</span>
+                    @if($agency->status === 'approved')
+                    <span class="text-xs opacity-75 hidden sm:inline">• Awaiting Subscription</span>
+                    @endif
+                </div>
             </div>
         </div>
         
         {{-- Action Buttons --}}
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2 lg:flex-shrink-0">
             @if($agency->status === 'pending')
-            <form action="{{ route('admin.agencies.approve', $agency->id) }}" method="POST" class="inline">
+            <form action="{{ route('admin.agencies.approve', $agency->id) }}" method="POST" class="w-full sm:w-auto">
                 @csrf
                 <button type="submit" 
                         onclick="return confirm('Approve {{ $agency->agency_name }}? They will be able to choose a subscription plan.')"
-                        class="px-6 py-3 bg-[#DDEECD] text-gray-800 rounded-xl font-semibold hover:bg-[#DDEECD]/80 transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 bg-[#DDEECD] text-gray-800 rounded-xl font-semibold hover:bg-[#DDEECD]/80 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-sm md:text-base">
+                    <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Approve Agency
+                    <span class="hidden sm:inline">Approve Agency</span>
+                    <span class="sm:hidden">Approve</span>
                 </button>
             </form>
             <button onclick="openRejectModal()" 
-                    class="px-6 py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex-1 sm:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+                <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
-                Reject
+                <span>Reject</span>
             </button>
             @elseif($agency->status === 'active' || $agency->status === 'approved')
-            <form action="{{ route('admin.agencies.suspend', $agency->id) }}" method="POST" class="inline">
+            <form action="{{ route('admin.agencies.suspend', $agency->id) }}" method="POST" class="flex-1 sm:flex-none">
                 @csrf
                 <button type="submit" 
                         onclick="return confirm('Suspend {{ $agency->agency_name }}? They will lose access to the platform.')"
-                        class="px-6 py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+                    <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                     </svg>
-                    Suspend
+                    <span>Suspend</span>
                 </button>
             </form>
             @elseif($agency->status === 'suspended')
-            <form action="{{ route('admin.agencies.reactivate', $agency->id) }}" method="POST" class="inline">
+            <form action="{{ route('admin.agencies.reactivate', $agency->id) }}" method="POST" class="flex-1 sm:flex-none">
                 @csrf
                 <button type="submit" 
                         onclick="return confirm('Reactivate {{ $agency->agency_name }}?')"
-                        class="px-6 py-3 bg-[#E6FF4B] text-gray-800 rounded-xl font-semibold hover:bg-[#E6FF4B]/80 transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full px-4 md:px-6 py-2.5 md:py-3 bg-[#E6FF4B] text-gray-800 rounded-xl font-semibold hover:bg-[#E6FF4B]/80 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+                    <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Reactivate
+                    <span>Reactivate</span>
                 </button>
             </form>
             @endif
             <a href="{{ route('admin.agencies.edit', $agency->id) }}" 
-               class="px-6 py-3 bg-[#E6FF4B] text-gray-800 rounded-xl font-semibold hover:bg-[#E6FF4B]/80 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="flex-1 sm:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-[#E6FF4B] text-gray-800 rounded-xl font-semibold hover:bg-[#E6FF4B]/80 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+                <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
-                Edit
+                <span>Edit</span>
             </a>
         </div>
     </div>

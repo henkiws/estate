@@ -8,7 +8,7 @@
             </div>
 
             <!-- Search Form -->
-            <form method="GET" action="{{ route('properties.index') }}" class="max-w-4xl mx-auto">
+            <form method="GET" action="{{ route('user.applications.browse') }}" class="max-w-4xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-xl p-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <!-- Listing Type -->
@@ -265,7 +265,7 @@
                     </svg>
                     <h3 class="text-2xl font-bold text-gray-900 mb-2">No properties found</h3>
                     <p class="text-gray-600 mb-6">Try adjusting your search filters</p>
-                    <a href="{{ route('properties.index') }}" class="inline-block px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-colors">
+                    <a href="{{ route('user.applications.browse') }}" class="inline-block px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-colors">
                         View All Properties
                     </a>
                 </div>

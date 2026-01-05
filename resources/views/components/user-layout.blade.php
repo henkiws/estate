@@ -36,7 +36,7 @@
 
                     <!-- Navigation Links -->
                     <div class="hidden sm:flex sm:items-center sm:space-x-8">
-                        <a href="{{ route('properties.index') }}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors">
+                        <a href="{{ route('user.applications.browse') }}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors">
                             Browse Properties
                         </a>
                         <a href="{{ route('user.dashboard') }}" class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors">

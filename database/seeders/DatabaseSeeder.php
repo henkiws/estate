@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             SubscriptionPlansSeeder::class,
             UpdateSubscriptionPlansWithStripeIDsSeeder::class,
             TransactionBillingSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

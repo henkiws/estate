@@ -26,7 +26,7 @@
                 </svg>
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">No Saved Properties</h3>
                 <p class="text-gray-500 mb-6">Start browsing to save your favorite properties</p>
-                <a href="{{ route('properties.index') }}" class="inline-block px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                <a href="{{ route('user.applications.browse') }}" class="inline-block px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
                     Browse Properties
                 </a>
             </div>

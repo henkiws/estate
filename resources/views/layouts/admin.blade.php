@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/images/ico-yellow.png') }}">
     <title>@yield('title', 'Dashboard') - Plyform</title>
 
@@ -248,6 +249,259 @@
             });
         });
     </script>
+
+    <script>
+        // Notification System
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const notificationsList = document.getElementById('notificationsList');
+            const unreadBadge = document.getElementById('unreadBadge');
+            const unreadCount = document.getElementById('unreadCount');
+            const newNotifBadge = document.getElementById('newNotifBadge');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const loadingNotifications = document.getElementById('loadingNotifications');
+            const emptyNotifications = document.getElementById('emptyNotifications');
+            
+            let isDropdownOpen = false;
+            let notifications = [];
+            let unreadCountValue = 0;
+            
+            // Toggle dropdown
+            notificationsBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                isDropdownOpen = !isDropdownOpen;
+                
+                if (isDropdownOpen) {
+                    notificationsDropdown.classList.remove('hidden');
+                    loadNotifications();
+                } else {
+                    notificationsDropdown.classList.add('hidden');
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (isDropdownOpen && !notificationsDropdown.contains(e.target)) {
+                    notificationsDropdown.classList.add('hidden');
+                    isDropdownOpen = false;
+                }
+            });
+            
+            // Prevent dropdown from closing when clicking inside
+            notificationsDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Load notifications from API
+            function loadNotifications() {
+                fetch('{{ route("api.notifications.get") }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        notifications = data.notifications;
+                        unreadCountValue = data.unread_count;
+                        
+                        updateBadges();
+                        renderNotifications();
+                    })
+                    .catch(error => {
+                        console.error('Error loading notifications:', error);
+                        showError();
+                    });
+            }
+            
+            // Update badge indicators
+            function updateBadges() {
+                if (unreadCountValue > 0) {
+                    unreadBadge.classList.remove('hidden');
+                    unreadCount.classList.remove('hidden');
+                    unreadCount.textContent = unreadCountValue > 9 ? '9+' : unreadCountValue;
+                    newNotifBadge.classList.remove('hidden');
+                    newNotifBadge.textContent = `${unreadCountValue} New`;
+                    markAllReadBtn.classList.remove('hidden');
+                } else {
+                    unreadBadge.classList.add('hidden');
+                    unreadCount.classList.add('hidden');
+                    newNotifBadge.classList.add('hidden');
+                    markAllReadBtn.classList.add('hidden');
+                }
+            }
+            
+            // Render notifications
+            function renderNotifications() {
+                loadingNotifications.classList.add('hidden');
+                
+                if (notifications.length === 0) {
+                    emptyNotifications.classList.remove('hidden');
+                    notificationsList.innerHTML = '';
+                    return;
+                }
+                
+                emptyNotifications.classList.add('hidden');
+                
+                notificationsList.innerHTML = notifications.map(notif => {
+                    const isUnread = !notif.read_at;
+                    
+                    // Priority colors for badges
+                    const priorityColors = {
+                        high: 'bg-red-100 text-red-800',
+                        medium: 'bg-yellow-100 text-yellow-800',
+                        low: 'bg-green-100 text-green-800'
+                    };
+                    
+                    // Priority dot colors (for unread indicator)
+                    const priorityDotColors = {
+                        high: 'bg-red-500',
+                        medium: 'bg-yellow-500',
+                        low: 'bg-green-500'
+                    };
+                    
+                    const categoryIcons = {
+                        payment: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                        approval: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                        document: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+                        support: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                        subscription: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+                        maintenance: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                        general: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+                    };
+                    
+                    const categoryBgColors = {
+                        payment: 'bg-plyform-mint/30',
+                        approval: 'bg-green-100',
+                        document: 'bg-blue-100',
+                        support: 'bg-purple-100',
+                        subscription: 'bg-yellow-100',
+                        maintenance: 'bg-plyform-orange/20',
+                        general: 'bg-gray-100'
+                    };
+                    
+                    return `
+                        <div class="notification-item p-4 hover:bg-plyform-mint/10 transition-colors cursor-pointer border-b border-gray-50 ${isUnread ? 'bg-blue-50/30' : ''}" 
+                            data-notification-id="${notif.id}"
+                            onclick="handleNotificationClick(${notif.id}, ${notif.action_url ? `'${notif.action_url}'` : 'null'})">
+                            <div class="flex gap-3">
+                                <div class="w-10 h-10 ${categoryBgColors[notif.category] || 'bg-gray-100'} rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${categoryIcons[notif.category] || categoryIcons.general}"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2 mb-1">
+                                        <p class="text-sm font-semibold text-plyform-dark">${notif.title}</p>
+                                        ${notif.priority !== 'medium' ? `
+                                            <span class="text-xs px-2 py-0.5 ${priorityColors[notif.priority]} rounded-full font-semibold whitespace-nowrap">
+                                                ${notif.priority}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                    <p class="text-xs text-gray-600 line-clamp-2">${notif.message}</p>
+                                    <p class="text-xs text-gray-400 mt-2">${notif.time_ago || 'Just now'}</p>
+                                </div>
+                                ${isUnread ? `
+                                    <div class="w-2 h-2 ${priorityDotColors[notif.priority] || 'bg-plyform-orange'} rounded-full flex-shrink-0 mt-2"></div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Handle notification click
+            window.handleNotificationClick = function(notificationId, actionUrl) {
+                // Mark as read
+                fetch(`/api/notifications/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI
+                        const notifElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                        if (notifElement) {
+                            notifElement.classList.remove('bg-blue-50/30');
+                            const dot = notifElement.querySelector('.bg-plyform-orange.rounded-full');
+                            if (dot) dot.remove();
+                        }
+                        
+                        // Update counts
+                        unreadCountValue = Math.max(0, unreadCountValue - 1);
+                        updateBadges();
+                        
+                        // Navigate to action URL if provided
+                        if (actionUrl) {
+                            window.location.href = actionUrl;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as read:', error);
+                });
+            };
+            
+            // Mark all as read
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (!confirm('Mark all notifications as read?')) {
+                    return;
+                }
+                
+                fetch('{{ route("api.notifications.read-all") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI
+                        document.querySelectorAll('.notification-item').forEach(item => {
+                            item.classList.remove('bg-blue-50/30');
+                            const dot = item.querySelector('.bg-plyform-orange.rounded-full');
+                            if (dot) dot.remove();
+                        });
+                        
+                        unreadCountValue = 0;
+                        updateBadges();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking all as read:', error);
+                });
+            });
+            
+            // Show error state
+            function showError() {
+                loadingNotifications.classList.add('hidden');
+                notificationsList.innerHTML = `
+                    <div class="p-8 text-center">
+                        <svg class="w-16 h-16 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <h3 class="text-sm font-medium text-gray-900 mb-1">Failed to load</h3>
+                        <p class="text-xs text-gray-600">Please try again later</p>
+                    </div>
+                `;
+            }
+            
+            // Load notifications on page load
+            loadNotifications();
+            
+            // Refresh notifications every 60 seconds
+            setInterval(function() {
+                if (!isDropdownOpen) {
+                    loadNotifications();
+                }
+            }, 60000);
+        });
+        </script>
 
     @stack('scripts')
 

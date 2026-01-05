@@ -290,6 +290,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         // Activity
         Route::get('/activity', [App\Http\Controllers\Admin\ProfileController::class, 'activity'])->name('activity');
     });
+    Route::controller(App\Http\Controllers\Admin\NotificationController::class)
+        ->prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/analytics', 'analytics')->name('analytics');
+            Route::get('/{notification}', 'show')->name('show');
+            Route::delete('/{notification}', 'destroy')->name('destroy');
+        });
     // Support Management
     Route::controller(App\Http\Controllers\Admin\SupportController::class)
         ->prefix('support')->name('support.')->group(function () {
@@ -454,6 +463,16 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     });
 
    
+});
+
+// API Routes for all authenticated users (for topbar notifications)
+Route::middleware('auth')->group(function () {
+    Route::get('/api/notifications', [App\Http\Controllers\Admin\NotificationController::class, 'getNotifications'])
+        ->name('api.notifications.get');
+    Route::post('/api/notifications/{notification}/read', [App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])
+        ->name('api.notifications.read');
+    Route::post('/api/notifications/read-all', [App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])
+        ->name('api.notifications.read-all');
 });
 // ============================================
 // Stripe Webhook (No CSRF protection)

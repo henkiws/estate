@@ -1,7 +1,7 @@
 <div class="bg-white rounded-xl shadow-sm border p-6 sticky top-4">
     <h3 class="font-bold text-lg mb-4">Filters</h3>
     
-    <form method="GET" action="{{ route('properties.index') }}">
+    <form method="GET" action="{{ route('user.applications.browse') }}">
         <!-- Price Range -->
         <div class="mb-6">
             <label class="font-medium text-sm mb-2 block">Price Range</label>

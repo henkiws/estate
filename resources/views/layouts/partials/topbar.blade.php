@@ -41,83 +41,43 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-plyform-orange rounded-full animate-pulse"></span>
+                    <span id="unreadBadge" class="absolute top-1 right-1 w-2 h-2 bg-plyform-orange rounded-full animate-pulse hidden"></span>
+                    <span id="unreadCount" class="absolute -top-1 -right-1 bg-plyform-orange text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden"></span>
                 </button>
                 
                 <!-- Notifications Dropdown Menu -->
                 <div id="notificationsDropdown" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
                     <div class="p-4 border-b border-gray-100 flex items-center justify-between">
                         <h3 class="font-bold text-plyform-dark">Notifications</h3>
-                        <span class="text-xs font-semibold text-plyform-dark bg-plyform-yellow px-2 py-1 rounded-full">3 New</span>
+                        <div class="flex items-center gap-2">
+                            <span id="newNotifBadge" class="text-xs font-semibold text-plyform-dark bg-plyform-yellow px-2 py-1 rounded-full hidden"></span>
+                            <button id="markAllReadBtn" class="text-xs font-semibold text-plyform-purple hover:text-plyform-dark transition hidden">
+                                Mark all read
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="max-h-96 overflow-y-auto custom-scrollbar">
-                        <!-- Notification Item 1 -->
-                        <div class="p-4 hover:bg-plyform-mint/10 transition-colors cursor-pointer border-b border-gray-50" data-notification>
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 bg-plyform-mint/30 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-plyform-dark">Payment Received</p>
-                                    <p class="text-xs text-gray-600 line-clamp-2">Sarah Johnson paid $1,500 for Apartment 3B</p>
-                                    <p class="text-xs text-gray-400 mt-1">2 hours ago</p>
-                                </div>
-                                <div class="w-2 h-2 bg-plyform-orange rounded-full flex-shrink-0 mt-2"></div>
-                            </div>
+                    <div id="notificationsContainer" class="max-h-96 overflow-y-auto custom-scrollbar">
+                        <!-- Loading state -->
+                        <div id="loadingNotifications" class="p-8 text-center">
+                            <svg class="animate-spin h-8 w-8 text-plyform-purple mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-sm text-gray-600">Loading notifications...</p>
                         </div>
                         
-                        <!-- Notification Item 2 -->
-                        <div class="p-4 hover:bg-plyform-mint/10 transition-colors cursor-pointer border-b border-gray-50" data-notification>
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 bg-plyform-orange/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-plyform-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-plyform-dark">Maintenance Request</p>
-                                    <p class="text-xs text-gray-600 line-clamp-2">Kitchen sink leak reported at House 12A</p>
-                                    <p class="text-xs text-gray-400 mt-1">5 hours ago</p>
-                                </div>
-                                <div class="w-2 h-2 bg-plyform-orange rounded-full flex-shrink-0 mt-2"></div>
-                            </div>
+                        <!-- Empty state -->
+                        <div id="emptyNotifications" class="p-8 text-center hidden">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <h3 class="text-sm font-medium text-gray-900 mb-1">No notifications</h3>
+                            <p class="text-xs text-gray-600">You're all caught up!</p>
                         </div>
                         
-                        <!-- Notification Item 3 -->
-                        <div class="p-4 hover:bg-plyform-mint/10 transition-colors cursor-pointer border-b border-gray-50" data-notification>
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 bg-plyform-mint/30 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-plyform-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-plyform-dark">Maintenance Completed</p>
-                                    <p class="text-xs text-gray-600 line-clamp-2">HVAC repair finished at Office Suite 5</p>
-                                    <p class="text-xs text-gray-400 mt-1">Yesterday</p>
-                                </div>
-                                <div class="w-2 h-2 bg-plyform-yellow rounded-full flex-shrink-0 mt-2"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Notification Item 4 -->
-                        <div class="p-4 hover:bg-plyform-mint/10 transition-colors cursor-pointer" data-notification>
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 bg-plyform-purple/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-plyform-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-plyform-dark">Upcoming Payment Due</p>
-                                    <p class="text-xs text-gray-600 line-clamp-2">Rent payment due in 5 days for Apartment 3B</p>
-                                    <p class="text-xs text-gray-400 mt-1">2 days ago</p>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Notifications will be dynamically inserted here -->
+                        <div id="notificationsList"></div>
                     </div>
                     
                     <div class="p-3 border-t border-gray-100">
