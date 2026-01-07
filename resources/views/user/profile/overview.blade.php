@@ -18,7 +18,7 @@
                 <div class="text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-[#5E17EB] bg-white shadow-lg">
                         <div class="text-center">
-                            <span class="block text-xl font-bold text-[#5E17EB]" id="overall-percentage">45%</span>
+                            <span class="block text-sm font-bold text-[#5E17EB]" id="overall-percentage">45%</span>
                             <span class="block text-[10px] text-gray-500 leading-tight">Done</span>
                         </div>
                     </div>

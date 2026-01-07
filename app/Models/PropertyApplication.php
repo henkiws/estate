@@ -33,6 +33,9 @@ class PropertyApplication extends Model
         'documents',
         'inspection_confirmed',
         'inspection_date',
+
+        'property_inspection',      // ← Add this
+        'inspection_date',           // ← Add this
         
         // New simplified fields (from your blade form)
         'move_in_date',
@@ -64,6 +67,7 @@ class PropertyApplication extends Model
         'number_of_occupants' => 'integer',
         'references' => 'array',
         'documents' => 'array',
+        'inspection_date' => 'date',
         'occupants_details' => 'array', // NEW
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
@@ -318,5 +322,37 @@ class PropertyApplication extends Model
             'status' => 'withdrawn',
             'withdrawn_at' => now(),
         ]);
+    }
+
+    /**
+     * Check if property was inspected
+     */
+    public function hasInspectedProperty(): bool
+    {
+        return $this->property_inspection === 'yes';
+    }
+
+    /**
+     * Get formatted inspection status
+     */
+    public function getInspectionStatusAttribute(): string
+    {
+        if ($this->property_inspection === 'yes') {
+            return $this->inspection_date 
+                ? 'Inspected on ' . $this->inspection_date->format('M d, Y')
+                : 'Inspected';
+        }
+        
+        return 'Not inspected';
+    }
+
+    /**
+     * Get inspection status badge color
+     */
+    public function getInspectionBadgeColorAttribute(): string
+    {
+        return $this->property_inspection === 'yes' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800';
     }
 }

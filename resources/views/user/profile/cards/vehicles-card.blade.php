@@ -38,7 +38,7 @@
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
                 <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 border-[#5E17EB] bg-white">
-                    <span class="text-sm font-bold text-[#5E17EB]" id="vehicles-percentage">100%</span>
+                    <span class="text-xs font-bold text-[#5E17EB]" id="vehicles-percentage">100%</span>
                 </div>
                 
                 <!-- Edit Button -->

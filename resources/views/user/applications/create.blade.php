@@ -106,7 +106,7 @@
             <input type="hidden" name="submit_type" id="submit_type_input" value="submit">
             
             <x-form-section-card title="Application Details" required>
-                
+    
                 <div class="grid md:grid-cols-2 gap-4">
                     <!-- Move-in Date -->
                     <div>
@@ -149,6 +149,88 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
+                
+                <!-- Property Inspection -->
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                        Have you inspected the property? <span class="text-red-500">*</span>
+                        <x-profile-help-text text="Property managers value applicants who have inspected the property" />
+                    </label>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-teal-500 transition has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50">
+                            <input 
+                                type="radio" 
+                                name="property_inspection" 
+                                value="yes" 
+                                {{ old('property_inspection') === 'yes' ? 'checked' : '' }}
+                                required
+                                onchange="toggleInspectionDateField(true)"
+                                class="mt-1 text-teal-600 focus:ring-teal-500"
+                            >
+                            <div class="ml-3">
+                                <span class="font-semibold text-gray-900">Yes, I have or plan to inspect the property</span>
+                                <p class="text-sm text-gray-600 mt-1">I have viewed the property or have an inspection scheduled</p>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-teal-500 transition has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50">
+                            <input 
+                                type="radio" 
+                                name="property_inspection" 
+                                value="no" 
+                                {{ old('property_inspection') === 'no' ? 'checked' : '' }}
+                                required
+                                onchange="toggleInspectionDateField(false)"
+                                class="mt-1 text-teal-600 focus:ring-teal-500"
+                            >
+                            <div class="ml-3">
+                                <span class="font-semibold text-gray-900">No, I accept the property as is</span>
+                                <p class="text-sm text-gray-600 mt-1">I am comfortable proceeding without an in-person inspection</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Inspection Date Field (conditional) -->
+                    <div id="inspection-date-container" class="mt-4 hidden">
+                        <div class="bg-teal-50 border-2 border-teal-200 rounded-lg p-4">
+                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                When did you inspect this property? <span class="text-red-500">*</span>
+                                <x-profile-help-text text="Provide the date of your inspection or scheduled inspection" />
+                            </label>
+                            <input 
+                                type="date" 
+                                name="inspection_date" 
+                                id="inspection_date_input"
+                                value="{{ old('inspection_date') }}"
+                                max="{{ date('Y-m-d') }}"
+                                class="w-full px-4 py-3 border border-teal-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('inspection_date') border-red-500 @enderror"
+                            >
+                            <p class="mt-1 text-xs text-gray-600">Select the date you inspected or will inspect the property</p>
+                            @error('inspection_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <!-- Info Message -->
+                    <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    <strong class="font-semibold">Tip:</strong> Inspecting a property before applying can show property managers that you're serious about renting.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @error('property_inspection')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
                 
                 <!-- Number of Occupants -->
@@ -435,6 +517,198 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Change button text to show loading based on which was clicked
         if (currentSubmitType === 'submit') {
+            submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
+        } else {
+            draftBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...</span>';
+        }
+    });
+    
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.animate-fade-in');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        }, 5000);
+    });
+});
+</script>
+
+<script>
+let currentSubmitType2 = 'submit'; // Default to submit
+
+function setSubmitType(type) {
+    currentSubmitType2 = type;
+    // Update hidden input
+    document.getElementById('submit_type_input').value = type;
+}
+
+// Toggle inspection date field
+function toggleInspectionDateField(show) {
+    const container = document.getElementById('inspection-date-container');
+    const input = document.getElementById('inspection_date_input');
+    
+    if (show) {
+        container.classList.remove('hidden');
+        input.required = true;
+    } else {
+        container.classList.add('hidden');
+        input.required = false;
+        input.value = ''; // Clear the value when hidden
+    }
+}
+
+function updateOccupantsFields(count) {
+    const container = document.getElementById('occupants-container');
+    const section = document.getElementById('occupants-section');
+    
+    // Convert to number and validate
+    count = parseInt(count) || 0;
+    
+    // Show section if count is at least 1
+    if (count >= 1) {
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+        return;
+    }
+    
+    // Clear existing
+    container.innerHTML = '';
+    
+    // Create fields for ALL occupants (including yourself as Occupant 1)
+    for (let i = 0; i < count; i++) {
+        const occupantNumber = i + 1;
+        const isPrimary = i === 0;
+        
+        const occupantFields = `
+            <div class="p-4 border-2 ${isPrimary ? 'border-teal-200 bg-teal-50' : 'border-gray-200'} rounded-lg mb-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <h4 class="font-semibold text-gray-900">
+                        ${isPrimary ? '👤 Primary Applicant (You)' : `Occupant ${occupantNumber}`}
+                    </h4>
+                    ${isPrimary ? '<span class="text-xs bg-teal-600 text-white px-2 py-1 rounded-full">Primary</span>' : ''}
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 mb-2 block">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="occupants_details[${i}][first_name]" 
+                            value="${getOldValue('occupants_details.' + i + '.first_name')}"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            placeholder="${isPrimary ? 'Your first name' : 'First name'}"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 mb-2 block">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="occupants_details[${i}][last_name]" 
+                            value="${getOldValue('occupants_details.' + i + '.last_name')}"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            placeholder="${isPrimary ? 'Your last name' : 'Last name'}"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 mb-2 block">
+                            Relationship <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="occupants_details[${i}][relationship]" 
+                            value="${isPrimary ? 'Primary Applicant' : getOldValue('occupants_details.' + i + '.relationship')}"
+                            ${isPrimary ? 'readonly' : 'required'}
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 ${isPrimary ? 'bg-gray-100' : ''}"
+                            placeholder="${isPrimary ? 'Primary Applicant' : 'e.g., Partner, Child, Roommate'}"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 mb-2 block">
+                            Age ${isPrimary ? '<span class="text-red-500">*</span>' : '(Optional)'}
+                        </label>
+                        <input 
+                            type="number" 
+                            name="occupants_details[${i}][age]" 
+                            value="${getOldValue('occupants_details.' + i + '.age')}"
+                            min="${isPrimary ? '18' : '0'}"
+                            max="120"
+                            ${isPrimary ? 'required' : ''}
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            placeholder="${isPrimary ? 'Your age (must be 18+)' : 'Age'}"
+                        >
+                        ${isPrimary ? '<p class="text-xs text-gray-500 mt-1">Primary applicant must be 18 or older</p>' : ''}
+                    </div>
+                    
+                    ${isPrimary ? `
+                    <div class="md:col-span-2">
+                        <label class="text-sm font-medium text-gray-700 mb-2 block">
+                            Email <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            name="occupants_details[${i}][email]" 
+                            value="{{ auth()->user()->email }}"
+                            readonly
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">From your account</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', occupantFields);
+    }
+}
+
+// Helper function to get old form values
+function getOldValue(key) {
+    // This would need to be populated from Laravel's old() helper
+    // For now, return empty string
+    return '';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize occupants fields
+    const occupantsInput = document.querySelector('input[name="number_of_occupants"]');
+    if (occupantsInput && occupantsInput.value >= 1) {
+        updateOccupantsFields(occupantsInput.value);
+    }
+    
+    // Initialize inspection date field based on old value
+    const inspectionYes = document.querySelector('input[name="property_inspection"][value="yes"]');
+    if (inspectionYes && inspectionYes.checked) {
+        toggleInspectionDateField(true);
+    }
+    
+    // Prevent double submission
+    const form = document.getElementById('application-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const draftBtn = document.getElementById('draft-btn');
+    
+    form.addEventListener('submit', function(e) {
+        // Don't prevent default - let form submit naturally
+        
+        // Disable both buttons to prevent double submission
+        submitBtn.disabled = true;
+        draftBtn.disabled = true;
+        
+        // Change button text to show loading based on which was clicked
+        if (currentSubmitType2 === 'submit') {
             submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
         } else {
             draftBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...</span>';

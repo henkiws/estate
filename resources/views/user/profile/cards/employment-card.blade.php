@@ -42,7 +42,7 @@
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
                 <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->employments && $user->employments->count() > 0 ? 'border-[#5E17EB]' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $user->employments && $user->employments->count() > 0 ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="employment-percentage">
+                    <span class="text-xs font-bold {{ $user->employments && $user->employments->count() > 0 ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="employment-percentage">
                         @if($user->employments && $user->employments->count() > 0)
                             100%
                         @else

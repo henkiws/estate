@@ -119,7 +119,7 @@ class ApplicationController extends Controller
         return view('user.applications.create', compact('property'));
     }
 
-    /**
+   /**
      * Store a newly created application
      */
     public function store(Request $request)
@@ -128,6 +128,8 @@ class ApplicationController extends Controller
             'property_id' => 'required|exists:properties,id',
             'move_in_date' => 'required|date|after:today',
             'lease_term' => 'required|integer|min:1|max:24',
+            'property_inspection' => 'required|in:yes,no',
+            'inspection_date' => 'required_if:property_inspection,yes|nullable|date|before_or_equal:today',
             'number_of_occupants' => 'required|integer|min:1|max:10',
             'occupants_details' => 'nullable|array',
             'occupants_details.*.first_name' => 'required_with:occupants_details|string|max:255',
@@ -169,20 +171,21 @@ class ApplicationController extends Controller
                 'email' => $user->email,
                 'phone' => $user->profile->phone,
                 'date_of_birth' => $user->profile->date_of_birth,
-                'phone' => 0,
                 'current_address' => '',
                 'annual_income' => 0,
                 
                 // Application details
                 'move_in_date' => $validated['move_in_date'],
                 'lease_term' => $validated['lease_term'],
+                'property_inspection' => $validated['property_inspection'],
+                'inspection_date' => $validated['property_inspection'] === 'yes' ? $validated['inspection_date'] : null,
                 'number_of_occupants' => $validated['number_of_occupants'],
                 'occupants_details' => $validated['occupants_details'] ?? null,
                 'special_requests' => $validated['special_requests'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 
                 // Timestamps
-                'submitted_at' => now(),
+                'submitted_at' => $status === 'pending' ? now() : null,
             ]);
             
             DB::commit();

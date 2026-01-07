@@ -441,6 +441,12 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::delete('/favorites/{favorite}', [App\Http\Controllers\User\FavoriteController::class, 'destroy'])->name('favorites.destroy');
     });
 
+    Route::controller(App\Http\Controllers\User\NotificationController::class)
+        ->prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{notification}', 'show')->name('show');
+        });
+
     // Support & Help
     Route::controller(App\Http\Controllers\User\SupportController::class)->prefix('support')->name('support.')->group(function () {
         Route::get('/', 'index')->name('index');                    // List all tickets

@@ -42,7 +42,7 @@
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
                 <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->references && $user->references->count() >= 2 ? 'border-[#5E17EB]' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $user->references && $user->references->count() >= 2 ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="references-percentage">
+                    <span class="text-xs font-bold {{ $user->references && $user->references->count() >= 2 ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="references-percentage">
                         @if($user->references && $user->references->count() >= 2)
                             100%
                         @else

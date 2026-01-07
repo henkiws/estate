@@ -40,7 +40,7 @@
             <div class="flex items-start gap-4 ml-4">
                 <!-- Completion Percentage -->
                 <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->first_name ? 'border-[#5E17EB]' : 'border-gray-300' }} bg-white">
-                    <span class="text-sm font-bold {{ $profile && $profile->first_name ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="personal-details-percentage">
+                    <span class="text-xs font-bold {{ $profile && $profile->first_name ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="personal-details-percentage">
                         @if($profile && $profile->first_name)
                             100%
                         @else
