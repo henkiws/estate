@@ -501,4 +501,28 @@ class Property extends Model
         return $this->savedByUsers()->count();
     }
 
+    /**
+     * Get current tenant(s) for this property
+     */
+    public function tenants()
+    {
+        return $this->hasMany(Tenant::class);
+    }
+
+    /**
+     * Get active tenant for this property
+     */
+    public function activeTenant()
+    {
+        return $this->hasOne(Tenant::class)->where('status', 'active');
+    }
+
+    /**
+     * Check if property has active tenant
+     */
+    public function hasActiveTenant()
+    {
+        return $this->activeTenant()->exists();
+    }
+
 }

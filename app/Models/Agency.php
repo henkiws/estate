@@ -244,4 +244,20 @@ class Agency extends Model
     {
         return $this->hasMany(AgencyDocumentRequirement::class);
     }
+
+    /**
+    * Get tenant record if application was converted
+    */
+    public function tenant()
+    {
+        return $this->hasOne(Tenant::class);
+    }
+
+    /**
+     * Check if application has been converted to tenant
+     */
+    public function hasBeenConvertedToTenant()
+    {
+        return $this->tenant()->exists();
+    }
 }

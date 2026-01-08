@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto px-4 py-8">
         
         <!-- Breadcrumb -->
         <nav class="flex mb-4" aria-label="Breadcrumb">

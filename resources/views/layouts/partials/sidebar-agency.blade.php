@@ -51,12 +51,43 @@
                 </svg>
                 Properties
             </a>
+
+            <a href="{{ route('agency.applications.index') }}" class="flex items-center justify-between gap-3 px-4 py-3 {{ request()->routeIs('agency.applications.*') ? 'text-plyform-dark bg-gradient-to-r from-plyform-yellow to-plyform-mint font-semibold' : 'text-gray-700 hover:bg-plyform-mint/10' }} rounded-xl font-medium transition-colors">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Applications
+                </div>
+                @php
+                    $pendingApplications = \App\Models\PropertyApplication::where('agency_id', auth()->user()->agency_id)
+                        ->where('status', 'pending')
+                        ->count();
+                @endphp
+                @if($pendingApplications > 0)
+                    <span class="bg-plyform-orange text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                        {{ $pendingApplications }}
+                    </span>
+                @endif
+            </a>
             
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-plyform-mint/10 rounded-xl font-medium transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                Tenants
+            <a href="{{ route('agency.tenants.index') }}" class="flex items-center justify-between gap-3 px-4 py-3 {{ request()->routeIs('agency.tenants.*') ? 'text-plyform-dark bg-gradient-to-r from-plyform-yellow to-plyform-mint font-semibold' : 'text-gray-700 hover:bg-plyform-mint/10' }} rounded-xl font-medium transition-colors">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Tenants
+                </div>
+                @php
+                    $activeTenants = \App\Models\Tenant::where('agency_id', auth()->user()->agency_id)
+                        ->where('status', 'active')
+                        ->count();
+                @endphp
+                @if($activeTenants > 0)
+                    <span class="bg-plyform-mint/30 text-plyform-dark text-xs font-bold px-2 py-1 rounded-full">
+                        {{ $activeTenants }}
+                    </span>
+                @endif
             </a>
             
             <a href="{{ route('agency.billing.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('agency.billing.*') ? 'text-plyform-dark bg-gradient-to-r from-plyform-yellow to-plyform-mint font-semibold' : 'text-gray-700 hover:bg-plyform-mint/10' }} rounded-xl font-medium transition-colors">
@@ -64,13 +95,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
                 Billing & Payments
-            </a>
-            
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-plyform-mint/10 rounded-xl font-medium transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Documents
             </a>
             
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-plyform-mint/10 rounded-xl font-medium transition-colors">

@@ -174,6 +174,28 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             Route::post('/{application}/reject', [ApplicationController::class, 'reject'])->name('reject');
             Route::delete('/{application}', [ApplicationController::class, 'destroy'])->name('destroy');
         });
+
+        Route::controller(App\Http\Controllers\Agency\ApplicationController::class)
+            ->prefix('applications')->name('applications.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{application}', 'show')->name('show');
+                Route::post('/{application}/approve', 'approve')->name('approve');
+                Route::post('/{application}/reject', 'reject')->name('reject');
+                Route::post('/{application}/under-review', 'markUnderReview')->name('under-review');
+            });
+
+        Route::controller(App\Http\Controllers\Agency\TenantController::class)
+            ->prefix('tenants')->name('tenants.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{tenant}', 'show')->name('show');
+                Route::get('/{tenant}/edit', 'edit')->name('edit');
+                Route::put('/{tenant}', 'update')->name('update');
+                Route::post('/{tenant}/move-in', 'markAsMovedIn')->name('move-in');
+                Route::post('/{tenant}/move-out', 'markAsMovedOut')->name('move-out');
+                Route::post('/{tenant}/give-notice', 'giveNotice')->name('give-notice');
+                Route::post('/{tenant}/mark-bond-paid', 'markBondPaid')->name('mark-bond-paid');
+                Route::post('/{tenant}/update-payment-due', 'updatePaymentDue')->name('update-payment-due');
+            });
     });
 
     // Support & Help

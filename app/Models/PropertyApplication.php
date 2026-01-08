@@ -355,4 +355,20 @@ class PropertyApplication extends Model
             ? 'bg-green-100 text-green-800' 
             : 'bg-gray-100 text-gray-800';
     }
+
+    /**
+    * Get tenant record if application was converted
+    */
+    public function tenant()
+    {
+        return $this->hasOne(Tenant::class);
+    }
+
+    /**
+     * Check if application has been converted to tenant
+     */
+    public function hasBeenConvertedToTenant()
+    {
+        return $this->tenant()->exists();
+    }
 }

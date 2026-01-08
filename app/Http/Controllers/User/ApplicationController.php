@@ -185,7 +185,7 @@ class ApplicationController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 
                 // Timestamps
-                'submitted_at' => $status === 'pending' ? now() : null,
+                'submitted_at' => now(),
             ]);
             
             DB::commit();

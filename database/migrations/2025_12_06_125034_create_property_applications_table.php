@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email');
-            $table->string('phone', 20);
+            $table->string('phone', 20)->nullable();
             $table->date('date_of_birth')->nullable();
             $table->text('current_address');
             

@@ -17,11 +17,6 @@ return new class extends Migration
                   ->after('lease_term')
                   ->nullable()
                   ->comment('Whether applicant has inspected the property');
-            
-            $table->date('inspection_date')
-                  ->after('property_inspection')
-                  ->nullable()
-                  ->comment('Date when property was inspected (if applicable)');
         });
     }
 
@@ -31,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('property_applications', function (Blueprint $table) {
-            $table->dropColumn(['property_inspection', 'inspection_date']);
+            $table->dropColumn(['property_inspection']);
         });
     }
 };
