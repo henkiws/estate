@@ -196,6 +196,16 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
                 Route::post('/{tenant}/mark-bond-paid', 'markBondPaid')->name('mark-bond-paid');
                 Route::post('/{tenant}/update-payment-due', 'updatePaymentDue')->name('update-payment-due');
             });
+
+        Route::controller(App\Http\Controllers\Agency\ReportController::class)
+            ->prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/properties', 'properties')->name('properties');
+                Route::get('/applications', 'applications')->name('applications');
+                Route::get('/tenants', 'tenants')->name('tenants');
+                Route::get('/financial', 'financial')->name('financial');
+                Route::post('/export', 'export')->name('export');
+            });
     });
 
     Route::controller(App\Http\Controllers\Agency\NotificationController::class)
