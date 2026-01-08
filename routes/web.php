@@ -198,6 +198,12 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             });
     });
 
+    Route::controller(App\Http\Controllers\Agency\NotificationController::class)
+        ->prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{notification}', 'show')->name('show');
+        });
+
     // Support & Help
     Route::controller(App\Http\Controllers\Agency\SupportController::class)
         ->prefix('support')->name('support.')->group(function () {
@@ -355,7 +361,11 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
         return view('agent.dashboard');
     })->name('dashboard');
     
-    // More agent routes...
+    Route::controller(App\Http\Controllers\Agent\NotificationController::class)
+        ->prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{notification}', 'show')->name('show');
+        });
 });
 
 // ============================================
