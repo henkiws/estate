@@ -33,6 +33,9 @@ class PropertyApplication extends Model
         'documents',
         'inspection_confirmed',
         'inspection_date',
+        'utility_electricity',
+        'utility_gas',
+        'utility_internet',
 
         'property_inspection',      // ← Add this
         'inspection_date',           // ← Add this
@@ -74,6 +77,9 @@ class PropertyApplication extends Model
         'withdrawn_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'utility_electricity' => 'boolean',
+        'utility_gas' => 'boolean',
+        'utility_internet' => 'boolean',
     ];
 
     /**

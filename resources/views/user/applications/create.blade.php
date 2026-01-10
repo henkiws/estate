@@ -3,391 +3,3066 @@
 @section('title', 'New Application')
 
 @section('content')
-<div class="py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">New Rental Application</h1>
-        <p class="text-gray-600 mb-8">Complete the form below to apply for this property</p>
-        
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="mb-6 bg-green-50 border-2 border-green-500 text-green-700 px-4 py-3 rounded-xl flex items-center gap-2 animate-fade-in">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        <!-- Info Message -->
-        @if(session('info'))
-            <div class="mb-6 bg-blue-50 border-2 border-blue-500 text-blue-700 px-4 py-3 rounded-xl flex items-center gap-2 animate-fade-in">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                </svg>
-                <span>{{ session('info') }}</span>
-            </div>
-        @endif
-
-        <!-- Warning Message -->
-        @if(session('warning'))
-            <div class="mb-6 bg-yellow-50 border-2 border-yellow-500 text-yellow-700 px-4 py-3 rounded-xl flex items-center gap-2 animate-fade-in">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                <span>{{ session('warning') }}</span>
-            </div>
-        @endif
-
-        <!-- Error Message -->
-        @if(session('error'))
-            <div class="mb-6 bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2 animate-fade-in">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                </svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-
-        <!-- Validation Errors -->
-        @if($errors->any())
-            <div class="mb-6 bg-red-50 border-2 border-red-500 text-red-700 px-4 py-3 rounded-xl animate-fade-in">
-                <div class="flex items-center gap-2 mb-2">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <strong class="font-semibold">Please fix the following errors:</strong>
-                </div>
-                <ul class="list-disc list-inside space-y-1 text-sm ml-7">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        
-        <!-- Property Preview -->
-        @if($property)
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <h2 class="font-bold text-gray-900 mb-4">Property You're Applying For:</h2>
-                <div class="flex items-start gap-4">
-                    @if($property->floorplan_path && Storage::disk('public')->exists($property->floorplan_path))
-                        <img 
-                            src="{{ Storage::url($property->floorplan_path) }}" 
-                            alt="{{ $property->title }}"
-                            class="w-32 h-32 object-cover rounded-lg"
-                            onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'128\' height=\'128\' fill=\'%23e5e7eb\'%3E%3Crect width=\'128\' height=\'128\' fill=\'%23f3f4f6\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3ENo Image%3C/text%3E%3C/svg%3E';"
-                        >
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column - Property Preview -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
+                    
+                    <!-- Property Image -->
+                    @if($property->images->count() > 0)
+                        <div class="relative mb-4 rounded-xl overflow-hidden group">
+                            <img 
+                                src="{{ Storage::url($property->images->first()->image_path) }}" 
+                                alt="{{ $property->headline }}"
+                                class="w-full h-48 object-cover"
+                            >
+                            @if($property->images->count() > 1)
+                                <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-sm font-semibold text-gray-700">
+                                    📸 {{ $property->images->count() }} photos
+                                </div>
+                            @endif
+                        </div>
                     @else
-                        <div class="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
                     @endif
-                    <div>
-                        <h3 class="font-bold text-lg">{{ $property->title ?? $property->street_address }}</h3>
-                        <p class="text-gray-600">{{ $property->suburb }}, {{ $property->state }} {{ $property->postcode }}</p>
-                        @if($property->listing_type === 'rent')
-                            <p class="text-teal-600 font-bold mt-2">${{ number_format($property->rent_amount) }}/{{ $property->rent_period }}</p>
-                        @else
-                            <p class="text-teal-600 font-bold mt-2">${{ number_format($property->sale_price) }}</p>
+                    
+                    <!-- Property Title -->
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">{{ $property->headline ?? $property->short_address }}</h2>
+                    
+                    <!-- Property Details -->
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            {{ $property->street_address }}, {{ $property->suburb }} {{ $property->state }} {{ $property->postcode }}
+                        </div>
+                    </div>
+                    
+                    <!-- Property Stats -->
+                    <div class="flex items-center gap-4 py-3 border-y border-gray-200 mb-4">
+                        @if($property->bedrooms)
+                            <div class="flex items-center gap-1.5 text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                <span class="text-sm font-medium">{{ $property->bedrooms }}</span>
+                            </div>
+                        @endif
+                        
+                        @if($property->bathrooms)
+                            <div class="flex items-center gap-1.5 text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-sm font-medium">{{ $property->bathrooms }}</span>
+                            </div>
+                        @endif
+                        
+                        @if($property->parking)
+                            <div class="flex items-center gap-1.5 text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                </svg>
+                                <span class="text-sm font-medium">{{ $property->parking }}</span>
+                            </div>
                         @endif
                     </div>
-                </div>
-            </div>
-        @endif
-        
-        <!-- Application Form -->
-        <form method="POST" action="{{ route('user.applications.store') }}" id="application-form">
-            @csrf
-            
-            <input type="hidden" name="property_id" value="{{ $property->id }}">
-            <input type="hidden" name="submit_type" id="submit_type_input" value="submit">
-            
-            <x-form-section-card title="Application Details" required>
-    
-                <div class="grid md:grid-cols-2 gap-4">
-                    <!-- Move-in Date -->
-                    <div>
-                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                            Desired Move-in Date <span class="text-red-500">*</span>
-                            <x-profile-help-text text="When would you like to move in?" />
-                        </label>
-                        <input 
-                            type="date" 
-                            name="move_in_date" 
-                            value="{{ old('move_in_date') }}"
-                            min="{{ date('Y-m-d', strtotime('+1 day')) }}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('move_in_date') border-red-500 @enderror"
-                        >
-                        @error('move_in_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    
+                    <!-- Rent/Price -->
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-600 mb-1">Rent</div>
+                        <div class="text-2xl font-bold text-gray-900">${{ number_format($property->rent_per_week) }} <span class="text-base font-normal text-gray-600">per week</span></div>
                     </div>
                     
-                    <!-- Lease Term -->
-                    <div>
-                        <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                            Lease Term <span class="text-red-500">*</span>
-                            <x-profile-help-text text="How many months do you want to lease?" />
-                        </label>
-                        <select 
-                            name="lease_term" 
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('lease_term') border-red-500 @enderror"
-                        >
-                            <option value="">Select lease term</option>
-                            @for($i = 1; $i <= 24; $i++)
-                                <option value="{{ $i }}" {{ old('lease_term') == $i ? 'selected' : '' }}>
-                                    {{ $i }} {{ $i === 1 ? 'month' : 'months' }}
-                                </option>
-                            @endfor
-                        </select>
-                        @error('lease_term')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-600 mb-1">Bond</div>
+                        <div class="text-xl font-bold text-gray-900">${{ number_format($property->bond_amount ?? ($property->rent_per_week * 4)) }}</div>
                     </div>
-                </div>
-                
-                <!-- Property Inspection -->
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-                        Have you inspected the property? <span class="text-red-500">*</span>
-                        <x-profile-help-text text="Property managers value applicants who have inspected the property" />
-                    </label>
                     
-                    <div class="space-y-3">
-                        <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-teal-500 transition has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50">
-                            <input 
-                                type="radio" 
-                                name="property_inspection" 
-                                value="yes" 
-                                {{ old('property_inspection') === 'yes' ? 'checked' : '' }}
-                                required
-                                onchange="toggleInspectionDateField(true)"
-                                class="mt-1 text-teal-600 focus:ring-teal-500"
-                            >
-                            <div class="ml-3">
-                                <span class="font-semibold text-gray-900">Yes, I have or plan to inspect the property</span>
-                                <p class="text-sm text-gray-600 mt-1">I have viewed the property or have an inspection scheduled</p>
-                            </div>
-                        </label>
+                    <div class="mb-6">
+                        <div class="text-sm text-gray-600 mb-1">Available</div>
+                        <div class="text-base font-semibold text-gray-900">{{ \Carbon\Carbon::parse($property->available_date)->format('d M Y') }}</div>
+                    </div>
+                    
+                    <!-- Property Inspection Question -->
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <div class="text-sm font-semibold text-gray-900 mb-3">Have you inspected the property?</div>
                         
-                        <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-teal-500 transition has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50">
-                            <input 
-                                type="radio" 
-                                name="property_inspection" 
-                                value="no" 
-                                {{ old('property_inspection') === 'no' ? 'checked' : '' }}
-                                required
-                                onchange="toggleInspectionDateField(false)"
-                                class="mt-1 text-teal-600 focus:ring-teal-500"
-                            >
-                            <div class="ml-3">
-                                <span class="font-semibold text-gray-900">No, I accept the property as is</span>
-                                <p class="text-sm text-gray-600 mt-1">I am comfortable proceeding without an in-person inspection</p>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Inspection Date Field (conditional) -->
-                    <div id="inspection-date-container" class="mt-4 hidden">
-                        <div class="bg-teal-50 border-2 border-teal-200 rounded-lg p-4">
-                            <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                When did you inspect this property? <span class="text-red-500">*</span>
-                                <x-profile-help-text text="Provide the date of your inspection or scheduled inspection" />
+                        <div class="space-y-2">
+                            <label class="flex items-start cursor-pointer group">
+                                <input 
+                                    type="radio" 
+                                    name="sidebar_inspection" 
+                                    value="yes"
+                                    class="mt-1 text-teal-600 focus:ring-teal-500"
+                                    onchange="syncInspectionChoice('yes')"
+                                >
+                                <div class="ml-3">
+                                    <span class="text-sm font-medium text-gray-900 group-hover:text-teal-600">Yes, I have or plan to inspect the property</span>
+                                </div>
                             </label>
-                            <input 
-                                type="date" 
-                                name="inspection_date" 
-                                id="inspection_date_input"
-                                value="{{ old('inspection_date') }}"
-                                max="{{ date('Y-m-d') }}"
-                                class="w-full px-4 py-3 border border-teal-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('inspection_date') border-red-500 @enderror"
-                            >
-                            <p class="mt-1 text-xs text-gray-600">Select the date you inspected or will inspect the property</p>
-                            @error('inspection_date')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            
+                            <label class="flex items-start cursor-pointer group">
+                                <input 
+                                    type="radio" 
+                                    name="sidebar_inspection" 
+                                    value="no"
+                                    checked
+                                    class="mt-1 text-teal-600 focus:ring-teal-500"
+                                    onchange="syncInspectionChoice('no')"
+                                >
+                                <div class="ml-3">
+                                    <span class="text-sm font-medium text-gray-900 group-hover:text-teal-600">No, I accept the property as is</span>
+                                </div>
+                            </label>
                         </div>
-                    </div>
-                    
-                    <!-- Info Message -->
-                    <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
-                        <div class="flex items-start">
-                            <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                            </svg>
-                            <div class="ml-3">
-                                <p class="text-sm text-blue-700">
-                                    <strong class="font-semibold">Tip:</strong> Inspecting a property before applying can show property managers that you're serious about renting.
-                                </p>
+                        
+                        <!-- Inspection Date Field (conditional) -->
+                        <div id="inspection-date-sidebar" class="mt-3 hidden">
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">Inspection Date</label>
+                            <input 
+                                type="date"
+                                id="sidebar_inspection_date"
+                                max="{{ date('Y-m-d') }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                                onchange="syncInspectionDate(this.value)"
+                            >
+                        </div>
+                        
+                        <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <p class="text-xs text-blue-700">Inspecting a property before applying can show property managers that you're serious</p>
                             </div>
                         </div>
                     </div>
                     
-                    @error('property_inspection')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <!-- Number of Occupants -->
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                        Number of Occupants <span class="text-red-500">*</span>
-                        <x-profile-help-text text="Including yourself" />
-                    </label>
-                    <input 
-                        type="number" 
-                        name="number_of_occupants" 
-                        value="{{ old('number_of_occupants', 1) }}"
-                        min="1"
-                        max="10"
-                        required
-                        onkeyup="updateOccupantsFields(this.value)"
-                        onchange="updateOccupantsFields(this.value)"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('number_of_occupants') border-red-500 @enderror"
-                    >
-                    @error('number_of_occupants')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-            </x-form-section-card>
-            
-            <!-- Additional Occupants -->
-            <div id="occupants-section" class="hidden">
-                <x-form-section-card title="Occupants Details" description="Provide details about all people who will be living in the property">
-                    <div id="occupants-container"></div>
-                </x-form-section-card>
-            </div>
-            
-            <!-- Special Requests & Notes -->
-            <x-form-section-card title="Additional Information">
-                
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                        Special Requests
-                        <x-profile-help-text text="e.g., Pet accommodation, parking needs, early move-in" />
-                    </label>
-                    <textarea 
-                        name="special_requests" 
-                        rows="4"
-                        maxlength="1000"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('special_requests') border-red-500 @enderror"
-                        placeholder="Any special requirements or requests..."
-                    >{{ old('special_requests') }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500">Maximum 1000 characters</p>
-                    @error('special_requests')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                        Additional Notes
-                    </label>
-                    <textarea 
-                        name="notes" 
-                        rows="3"
-                        maxlength="1000"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 @error('notes') border-red-500 @enderror"
-                        placeholder="Anything else you'd like the property manager to know..."
-                    >{{ old('notes') }}</textarea>
-                    @error('notes')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-            </x-form-section-card>
-            
-            <!-- Submit Buttons -->
-            <div class="flex items-center justify-between mt-6">
-                <a 
-                    href="{{ route('user.dashboard') }}" 
-                    class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
-                >
-                    Cancel
-                </a>
-                
-                <div class="flex gap-3">
-                    <button 
-                        type="submit" 
-                        onclick="setSubmitType('draft')"
-                        class="px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        id="draft-btn"
-                    >
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                            </svg>
-                            Save as Draft
-                        </span>
-                    </button>
+                    <!-- Lease Details Quick Form -->
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">Preferred lease start date</label>
+                            <input 
+                                type="date"
+                                id="sidebar_move_in_date"
+                                name="sidebar_move_in_date"
+                                min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                                placeholder="Day Month Year"
+                                onchange="syncMoveInDate(this.value)"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">Initial lease term (months)</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button type="button" onclick="setLeaseTerm(6)" class="lease-term-btn px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold hover:border-teal-500 hover:bg-teal-50 transition">6</button>
+                                <button type="button" onclick="setLeaseTerm(12)" class="lease-term-btn px-3 py-2 border-2 border-teal-500 bg-teal-50 rounded-lg text-sm font-semibold transition">12</button>
+                                <button type="button" onclick="setLeaseTerm(18)" class="lease-term-btn px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold hover:border-teal-500 hover:bg-teal-50 transition">18</button>
+                                <button type="button" onclick="setLeaseTerm(24)" class="lease-term-btn px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold hover:border-teal-500 hover:bg-teal-50 transition">24</button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">Rent per week</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <input 
+                                    type="number"
+                                    name="sidebar_rent"
+                                    value="{{ $property->rent_per_week }}"
+                                    readonly
+                                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50"
+                                >
+                            </div>
+                        </div>
+                    </div>
                     
-                    <button 
-                        type="submit" 
-                        onclick="setSubmitType('submit')"
-                        class="px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                        id="submit-btn"
-                    >
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Submit Application
-                        </span>
-                    </button>
                 </div>
             </div>
             
-        </form>
+            <!-- Right Column - Application Steps -->
+            <div class="lg:col-span-2">
+                
+                <!-- Progress Header -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Application Progress</h1>
+                            <p class="text-sm text-gray-600 mt-1">Review and complete your application</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-teal-600" id="progress-percentage">0%</div>
+                            <div class="text-xs text-gray-600">Complete</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                @if(session('success'))
+                    <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-green-800">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-red-800">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-red-800 mb-1">Please fix the following errors:</p>
+                                <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                
+                <form method="POST" action="{{ route('user.applications.store') }}" id="application-form">
+                    @csrf
+                    <input type="hidden" name="property_id" value="{{ $property->id }}">
+                    <input type="hidden" name="move_in_date" id="move_in_date_hidden" value="{{ old('move_in_date') }}">
+                    <input type="hidden" name="lease_term" id="lease_term_hidden" value="{{ old('lease_term', 12) }}">
+                    <input type="hidden" name="property_inspection" id="property_inspection_hidden" value="{{ old('property_inspection', 'no') }}">
+                    <input type="hidden" name="inspection_date" id="inspection_date_hidden" value="{{ old('inspection_date') }}">
+                    
+                    <!-- Section Cards -->
+                    <div class="space-y-4">
+                        
+                        <!-- About Me Section -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="about_me">
+                            <button type="button" onclick="toggleSection('about_me')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_about_me">
+                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">About me</span>
+                                        @if(auth()->user()->profile && auth()->user()->profile->first_name)
+                                            <p class="text-xs text-gray-500">{{ auth()->user()->profile->first_name }} {{ auth()->user()->profile->last_name }}</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Complete your personal details</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Personal Details Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Personal Details</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Your legal name as it appears on official documents</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <div class="grid md:grid-cols-3 gap-4">
+                                        
+                                        <!-- Title -->
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                Title <span class="text-plyform-orange">*</span>
+                                            </label>
+                                            <select 
+                                                name="title" 
+                                                required
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('title') border-red-500 @enderror"
+                                            >
+                                                <option value="">Select title</option>
+                                                <option value="Mr" {{ old('title', auth()->user()->profile->title ?? '') == 'Mr' ? 'selected' : '' }}>Mr</option>
+                                                <option value="Mrs" {{ old('title', auth()->user()->profile->title ?? '') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                                                <option value="Ms" {{ old('title', auth()->user()->profile->title ?? '') == 'Ms' ? 'selected' : '' }}>Ms</option>
+                                                <option value="Miss" {{ old('title', auth()->user()->profile->title ?? '') == 'Miss' ? 'selected' : '' }}>Miss</option>
+                                                <option value="Dr" {{ old('title', auth()->user()->profile->title ?? '') == 'Dr' ? 'selected' : '' }}>Dr</option>
+                                                <option value="Prof" {{ old('title', auth()->user()->profile->title ?? '') == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                                <option value="Other" {{ old('title', auth()->user()->profile->title ?? '') == 'Other' ? 'selected' : '' }}>Other</option>
+                                            </select>
+                                            @error('title')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                        <!-- First Name -->
+                                        <div class="md:col-span-2">
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                First Name <span class="text-plyform-orange">*</span>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                name="first_name" 
+                                                value="{{ old('first_name', auth()->user()->profile->first_name ?? '') }}"
+                                                required
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('first_name') border-red-500 @enderror"
+                                                placeholder="Enter your first name"
+                                            >
+                                            @error('first_name')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        
+                                        <!-- Middle Name -->
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                Middle Name
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                name="middle_name" 
+                                                value="{{ old('middle_name', auth()->user()->profile->middle_name ?? '') }}"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('middle_name') border-red-500 @enderror"
+                                                placeholder="Enter your middle name (optional)"
+                                            >
+                                            @error('middle_name')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                        <!-- Last Name -->
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                Last Name <span class="text-plyform-orange">*</span>
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                name="last_name" 
+                                                value="{{ old('last_name', auth()->user()->profile->last_name ?? '') }}"
+                                                required
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('last_name') border-red-500 @enderror"
+                                                placeholder="Enter your last name"
+                                            >
+                                            @error('last_name')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        
+                                        <!-- Surname -->
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                Surname
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                name="surname" 
+                                                value="{{ old('surname', auth()->user()->profile->surname ?? '') }}"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('surname') border-red-500 @enderror"
+                                                placeholder="Enter surname (if applicable)"
+                                            >
+                                            @error('surname')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                        <!-- Date of Birth -->
+                                        <div>
+                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                Date of Birth <span class="text-plyform-orange">*</span>
+                                            </label>
+                                            <input 
+                                                type="date" 
+                                                name="date_of_birth" 
+                                                value="{{ old('date_of_birth', auth()->user()->profile && auth()->user()->profile->date_of_birth ? auth()->user()->profile->date_of_birth->format('Y-m-d') : '') }}"
+                                                required
+                                                max="{{ now()->subYears(18)->format('Y-m-d') }}"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('date_of_birth') border-red-500 @enderror"
+                                            >
+                                            @error('date_of_birth')
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                <!-- Contact Information Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4 mt-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Contact Information</h4>
+                                            <p class="text-sm text-gray-600 mt-1">How property managers can reach you</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <!-- Email Address -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Email Address <span class="text-plyform-orange">*</span>
+                                        </label>
+                                        <input 
+                                            type="email" 
+                                            name="email" 
+                                            value="{{ old('email', auth()->user()->email) }}"
+                                            required
+                                            readonly
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                                        >
+                                        <p class="mt-1 text-xs text-gray-500">Email cannot be changed here. Contact support if you need to update it.</p>
+                                    </div>
+                                    
+                                    <!-- Mobile Number -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Mobile Number <span class="text-plyform-orange">*</span>
+                                        </label>
+                                        <div class="flex gap-2">
+                                            <!-- Country Code Dropdown -->
+                                            <select 
+                                                name="mobile_country_code" 
+                                                required
+                                                class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('mobile_country_code') border-red-500 @enderror"
+                                            >
+                                                <option value="+61" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
+                                                <option value="+1" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
+                                                <option value="+44" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
+                                                <option value="+64" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
+                                                <option value="+86" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86</option>
+                                                <option value="+81" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+81' ? 'selected' : '' }}>🇯🇵 +81</option>
+                                                <option value="+82" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+82' ? 'selected' : '' }}>🇰🇷 +82</option>
+                                                <option value="+65" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+65' ? 'selected' : '' }}>🇸🇬 +65</option>
+                                                <option value="+60" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+60' ? 'selected' : '' }}>🇲🇾 +60</option>
+                                                <option value="+62" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+62' ? 'selected' : '' }}>🇮🇩 +62</option>
+                                            </select>
+                                            
+                                            <!-- Mobile Number Input -->
+                                            <input 
+                                                type="tel" 
+                                                name="mobile_number" 
+                                                value="{{ old('mobile_number', auth()->user()->profile->mobile_number ?? '') }}"
+                                                required
+                                                pattern="[0-9]{8,15}"
+                                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('mobile_number') border-red-500 @enderror"
+                                                placeholder="412345678"
+                                            >
+                                        </div>
+                                        @error('mobile_country_code')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                        @error('mobile_number')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                        <p class="mt-1 text-xs text-gray-500">Enter your mobile number without spaces or leading zero (e.g., 412345678)</p>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Address History -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="address_history">
+                            <button type="button" onclick="toggleSection('address_history')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ auth()->user()->addresses && auth()->user()->addresses->count() > 0 ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_address_history">
+                                        @if(auth()->user()->addresses && auth()->user()->addresses->count() > 0)
+                                            <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Address history</span>
+                                        @if(auth()->user()->addresses && auth()->user()->addresses->count() > 0)
+                                            <p class="text-xs text-gray-500">{{ auth()->user()->addresses->count() }} {{ Str::plural('address', auth()->user()->addresses->count()) }}</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Not completed yet</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Address History Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Address History</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Provide details of your residential history for the past 3 years</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <!-- Info Box -->
+                                    <div class="p-4 bg-plyform-yellow/10 border border-plyform-yellow/30 rounded-lg mb-6">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <p class="text-sm text-plyform-dark">
+                                                <strong>Note:</strong> Please provide at least 3 years of address history. Include your current address and previous addresses.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="addresses-container">
+                                        @php
+                                            $addresses = old('addresses', auth()->user()->addresses->toArray() ?: [['living_arrangement' => '']]);
+                                        @endphp
+                                        
+                                        @foreach($addresses as $index => $address)
+                                            <div class="address-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="{{ $index }}">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <h4 class="font-semibold text-plyform-dark">Address {{ $index + 1 }}</h4>
+                                                        @if($index === 0)
+                                                            <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded">Current</span>
+                                                        @endif
+                                                    </div>
+                                                    @if($index > 0)
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="removeAddressItem({{ $index }})"
+                                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- Living Arrangement -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Living Arrangement <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <select 
+                                                        name="addresses[{{ $index }}][living_arrangement]" 
+                                                        required
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                    >
+                                                        <option value="">Select arrangement</option>
+                                                        <option value="owner" {{ ($address['living_arrangement'] ?? '') == 'owner' ? 'selected' : '' }}>Owner</option>
+                                                        <option value="renting_agent" {{ ($address['living_arrangement'] ?? '') == 'renting_agent' ? 'selected' : '' }}>Renting through Agent</option>
+                                                        <option value="renting_privately" {{ ($address['living_arrangement'] ?? '') == 'renting_privately' ? 'selected' : '' }}>Renting Privately</option>
+                                                        <option value="with_parents" {{ ($address['living_arrangement'] ?? '') == 'with_parents' ? 'selected' : '' }}>Living with Parents</option>
+                                                        <option value="sharing" {{ ($address['living_arrangement'] ?? '') == 'sharing' ? 'selected' : '' }}>Sharing</option>
+                                                        <option value="other" {{ ($address['living_arrangement'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <!-- Full Address -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Full Address <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        name="addresses[{{ $index }}][address]" 
+                                                        value="{{ $address['address'] ?? '' }}"
+                                                        required
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        placeholder="123 Main Street, Sydney NSW 2000"
+                                                    >
+                                                </div>
+                                                
+                                                <!-- Duration -->
+                                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                                    <div>
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Years Lived <span class="text-plyform-orange">*</span>
+                                                        </label>
+                                                        <select 
+                                                            name="addresses[{{ $index }}][years_lived]" 
+                                                            required
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        >
+                                                            @for($i = 0; $i <= 20; $i++)
+                                                                <option value="{{ $i }}" {{ ($address['years_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'year' : 'years' }}</option>
+                                                            @endfor
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Months Lived <span class="text-plyform-orange">*</span>
+                                                        </label>
+                                                        <select 
+                                                            name="addresses[{{ $index }}][months_lived]" 
+                                                            required
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        >
+                                                            @for($i = 0; $i <= 11; $i++)
+                                                                <option value="{{ $i }}" {{ ($address['months_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'month' : 'months' }}</option>
+                                                            @endfor
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Reason for Leaving -->
+                                                @if($index > 0)
+                                                    <div class="mb-4">
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Reason for Leaving
+                                                        </label>
+                                                        <textarea 
+                                                            name="addresses[{{ $index }}][reason_for_leaving]" 
+                                                            rows="3"
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all resize-none"
+                                                            placeholder="e.g., End of lease, relocated for work, purchased property..."
+                                                        >{{ $address['reason_for_leaving'] ?? '' }}</textarea>
+                                                    </div>
+                                                @endif
+                                                
+                                                <!-- Different Postal Address -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            name="addresses[{{ $index }}][different_postal_address]" 
+                                                            value="1"
+                                                            onchange="togglePostalAddress({{ $index }})"
+                                                            {{ ($address['different_postal_address'] ?? false) ? 'checked' : '' }}
+                                                            class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-plyform-yellow/20"
+                                                        >
+                                                        <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="postal-address-field {{ ($address['different_postal_address'] ?? false) ? '' : 'hidden' }}" data-index="{{ $index }}">
+                                                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                                        Postal Address <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        name="addresses[{{ $index }}][postal_code]" 
+                                                        value="{{ $address['postal_code'] ?? '' }}"
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        placeholder="PO Box 123, Sydney NSW 2000"
+                                                    >
+                                                </div>
+                                                
+                                                <!-- Is Current Address -->
+                                                @if($index === 0)
+                                                    <input type="hidden" name="addresses[{{ $index }}][is_current]" value="1">
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    
+                                    <!-- Add Address Button -->
+                                    <button 
+                                        type="button" 
+                                        onclick="addAddressItem()"
+                                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                        </svg>
+                                        Add Previous Address
+                                    </button>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Employment -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="employment">
+                            <button type="button" onclick="toggleSection('employment')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ auth()->user()->employments && auth()->user()->employments->count() > 0 ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_employment">
+                                        @if(auth()->user()->employments && auth()->user()->employments->count() > 0)
+                                            <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Employment</span>
+                                        @if(auth()->user()->employments && auth()->user()->employments->count() > 0)
+                                            <p class="text-xs text-gray-500">Currently at {{ auth()->user()->employments->first()->company_name }}</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Not completed yet</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Has Employment Toggle -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            name="has_employment" 
+                                            id="has-employment"
+                                            value="1"
+                                            onchange="toggleEmploymentSection()"
+                                            {{ old('has_employment', auth()->user()->employments->count() > 0) ? 'checked' : '' }}
+                                            class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                        >
+                                        <span class="font-medium text-plyform-dark">I am currently employed or have employment history</span>
+                                    </label>
+                                    <p class="text-sm text-gray-600 mt-2 ml-8">Check this if you have current or past employment to declare</p>
+                                </div>
+
+                                <div id="employment-section" class="{{ old('has_employment', auth()->user()->employments->count() > 0) ? '' : 'hidden' }}">
+                                    <!-- Employment History Section -->
+                                    <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h4 class="text-base font-semibold text-plyform-dark">Employment History</h4>
+                                                <p class="text-sm text-gray-600 mt-1">Provide details about your current and previous employment</p>
+                                            </div>
+                                            <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                        </div>
+                                        
+                                        <div id="employment-container">
+                                            @php
+                                                $employments = old('employments', auth()->user()->employments->toArray() ?: [['company_name' => '', 'position' => '']]);
+                                            @endphp
+                                            
+                                            @foreach($employments as $index => $employment)
+                                                <div class="employment-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-purple/30 transition-colors bg-white" data-index="{{ $index }}">
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <h4 class="font-semibold text-plyform-dark">Employment {{ $index + 1 }}</h4>
+                                                        @if($index > 0)
+                                                            <button 
+                                                                type="button" 
+                                                                onclick="removeEmployment({{ $index }})"
+                                                                class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <!-- Company & Position -->
+                                                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Company Name <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="text" 
+                                                                name="employments[{{ $index }}][company_name]" 
+                                                                value="{{ $employment['company_name'] ?? '' }}"
+                                                                required
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="ABC Company Pty Ltd"
+                                                            >
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Position/Job Title <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="text" 
+                                                                name="employments[{{ $index }}][position]" 
+                                                                value="{{ $employment['position'] ?? '' }}"
+                                                                required
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="Senior Developer"
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Company Address -->
+                                                    <div class="mb-4">
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Company Address <span class="text-plyform-orange">*</span>
+                                                        </label>
+                                                        <input 
+                                                            type="text" 
+                                                            name="employments[{{ $index }}][address]" 
+                                                            value="{{ $employment['address'] ?? '' }}"
+                                                            required
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                            placeholder="123 Business St, Sydney NSW 2000"
+                                                        >
+                                                    </div>
+                                                    
+                                                    <!-- Salary & Manager -->
+                                                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Gross Annual Salary <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <span class="absolute left-4 top-3.5 text-gray-500">$</span>
+                                                                <input 
+                                                                    type="number" 
+                                                                    name="employments[{{ $index }}][gross_annual_salary]" 
+                                                                    value="{{ $employment['gross_annual_salary'] ?? '' }}"
+                                                                    min="0"
+                                                                    required
+                                                                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                    placeholder="75000"
+                                                                >
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Manager/Supervisor Name <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="text" 
+                                                                name="employments[{{ $index }}][manager_full_name]" 
+                                                                value="{{ $employment['manager_full_name'] ?? '' }}"
+                                                                required
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="John Smith"
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Contact Details -->
+                                                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Contact Number <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="tel" 
+                                                                name="employments[{{ $index }}][contact_number]" 
+                                                                value="{{ $employment['contact_number'] ?? '' }}"
+                                                                required
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="0400 000 000"
+                                                            >
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Email Address <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="email" 
+                                                                name="employments[{{ $index }}][email]" 
+                                                                value="{{ $employment['email'] ?? '' }}"
+                                                                required
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="manager@company.com"
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Employment Dates -->
+                                                    <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Start Date <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="date" 
+                                                                name="employments[{{ $index }}][start_date]" 
+                                                                value="{{ isset($employment['start_date']) ? \Carbon\Carbon::parse($employment['start_date'])->format('Y-m-d') : '' }}"
+                                                                required
+                                                                max="{{ now()->format('Y-m-d') }}"
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                            >
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                Still Employed?
+                                                            </label>
+                                                            <label class="flex items-center gap-3 cursor-pointer mt-3 p-2 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    name="employments[{{ $index }}][still_employed]" 
+                                                                    value="1"
+                                                                    onchange="toggleEndDate({{ $index }})"
+                                                                    {{ ($employment['still_employed'] ?? false) ? 'checked' : '' }}
+                                                                    class="w-5 h-5 text-plyform-yellow rounded focus:ring-plyform-yellow/20"
+                                                                >
+                                                                <span class="text-sm">Yes, currently employed</span>
+                                                            </label>
+                                                        </div>
+                                                        
+                                                        <div class="end-date-field" data-index="{{ $index }}">
+                                                            <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                                End Date <span class="text-plyform-orange required-if">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="date" 
+                                                                name="employments[{{ $index }}][end_date]" 
+                                                                value="{{ isset($employment['end_date']) ? \Carbon\Carbon::parse($employment['end_date'])->format('Y-m-d') : '' }}"
+                                                                max="{{ now()->format('Y-m-d') }}"
+                                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Employment Letter Upload -->
+                                                    <div>
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Employment Letter (Optional)
+                                                        </label>
+                                                        <input 
+                                                            type="file" 
+                                                            name="employments[{{ $index }}][employment_letter]"
+                                                            accept=".pdf,.jpg,.jpeg,.png"
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all"
+                                                        >
+                                                        <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        
+                                        <!-- Add Employment Button -->
+                                        <button 
+                                            type="button" 
+                                            onclick="addEmployment()"
+                                            class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                            </svg>
+                                            Add Previous Employment
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Finances -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="finances">
+                            <button type="button" onclick="toggleSection('finances')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ auth()->user()->incomes && auth()->user()->incomes->count() > 0 ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_finances">
+                                        @if(auth()->user()->incomes && auth()->user()->incomes->count() > 0)
+                                            <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Finances</span>
+                                        @if(auth()->user()->incomes && auth()->user()->incomes->count() > 0)
+                                            @php
+                                                $totalWeekly = auth()->user()->incomes->sum('net_weekly_amount');
+                                                $totalAnnual = $totalWeekly * 52;
+                                            @endphp
+                                            <p class="text-xs text-gray-500">${{ number_format($totalAnnual, 2) }} per annum</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Not completed yet</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Income Sources Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Income Sources</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Tell us about your income sources to demonstrate your ability to pay rent</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <div id="income-container">
+                                        @php
+                                            $incomes = old('incomes', auth()->user()->incomes->toArray() ?: [['source_of_income' => '', 'net_weekly_amount' => '']]);
+                                        @endphp
+                                        
+                                        @foreach($incomes as $index => $income)
+                                            <div class="income-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="{{ $index }}">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <h4 class="font-semibold text-plyform-dark">Income Source {{ $index + 1 }}</h4>
+                                                    @if($index > 0)
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="removeIncome({{ $index }})"
+                                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                
+                                                <div class="grid md:grid-cols-2 gap-4">
+                                                    <!-- Source of Income -->
+                                                    <div>
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Source of Income <span class="text-plyform-orange">*</span>
+                                                        </label>
+                                                        <select 
+                                                            name="incomes[{{ $index }}][source_of_income]" 
+                                                            required
+                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        >
+                                                            <option value="">Select source</option>
+                                                            <option value="full_time_employment" {{ ($income['source_of_income'] ?? '') == 'full_time_employment' ? 'selected' : '' }}>Full-time Employment</option>
+                                                            <option value="part_time_employment" {{ ($income['source_of_income'] ?? '') == 'part_time_employment' ? 'selected' : '' }}>Part-time Employment</option>
+                                                            <option value="casual_employment" {{ ($income['source_of_income'] ?? '') == 'casual_employment' ? 'selected' : '' }}>Casual Employment</option>
+                                                            <option value="self_employed" {{ ($income['source_of_income'] ?? '') == 'self_employed' ? 'selected' : '' }}>Self-Employed</option>
+                                                            <option value="centrelink" {{ ($income['source_of_income'] ?? '') == 'centrelink' ? 'selected' : '' }}>Centrelink</option>
+                                                            <option value="pension" {{ ($income['source_of_income'] ?? '') == 'pension' ? 'selected' : '' }}>Pension</option>
+                                                            <option value="investment" {{ ($income['source_of_income'] ?? '') == 'investment' ? 'selected' : '' }}>Investment Income</option>
+                                                            <option value="savings" {{ ($income['source_of_income'] ?? '') == 'savings' ? 'selected' : '' }}>Savings</option>
+                                                            <option value="other" {{ ($income['source_of_income'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <!-- Net Weekly Amount -->
+                                                    <div>
+                                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                            Net Weekly Amount <span class="text-plyform-orange">*</span>
+                                                        </label>
+                                                        <div class="relative">
+                                                            <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
+                                                            <input 
+                                                                type="number" 
+                                                                name="incomes[{{ $index }}][net_weekly_amount]" 
+                                                                value="{{ $income['net_weekly_amount'] ?? '' }}"
+                                                                step="0.01"
+                                                                min="0"
+                                                                required
+                                                                onchange="calculateTotal()"
+                                                                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                                placeholder="0.00"
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Bank Statement Upload -->
+                                                <div class="mt-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Bank Statement (Optional)
+                                                    </label>
+                                                    <input 
+                                                        type="file" 
+                                                        name="incomes[{{ $index }}][bank_statement]"
+                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30"
+                                                    >
+                                                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    
+                                    <!-- Add Income Button -->
+                                    <button 
+                                        type="button" 
+                                        onclick="addIncome()"
+                                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                        </svg>
+                                        Add Another Income Source
+                                    </button>
+                                    
+                                    <!-- Total Income Display -->
+                                    <div class="mt-6 p-5 bg-plyform-mint/20 border border-plyform-mint/50 rounded-lg">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <span class="font-semibold text-plyform-dark">Total Weekly Income:</span>
+                                                <p class="text-sm text-gray-600 mt-1">This helps property managers assess affordability</p>
+                                            </div>
+                                            <span class="text-3xl font-bold text-plyform-dark" id="total-income">$0.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Identity Documents -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="identity_documents">
+                            <button type="button" onclick="toggleSection('identity_documents')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ auth()->user()->identifications && auth()->user()->identifications->count() > 0 ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_identity_documents">
+                                        @if(auth()->user()->identifications && auth()->user()->identifications->count() > 0)
+                                            <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Identity documents</span>
+                                        @if(auth()->user()->identifications && auth()->user()->identifications->count() > 0)
+                                            <p class="text-xs text-gray-500">{{ auth()->user()->identifications->count() }} {{ Str::plural('document', auth()->user()->identifications->count()) }} uploaded</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Not completed yet</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Identification Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Identification Documents</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Upload identification documents to verify your identity</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <!-- Info Box -->
+                                    <div class="p-4 bg-plyform-yellow/10 border border-plyform-yellow/30 rounded-lg mb-6">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <h4 class="font-semibold text-plyform-dark mb-2">Accepted Documents:</h4>
+                                                <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
+                                                    <div>• Australian Driver's Licence</div>
+                                                    <div>• Passport</div>
+                                                    <div>• Birth Certificate</div>
+                                                    <div>• Medicare Card</div>
+                                                </div>
+                                                <p class="text-sm text-plyform-dark mt-2">
+                                                    Upload clear, high-quality scans or photos of your documents.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="identification-container">
+                                        @php
+                                            $identifications = old('identifications', auth()->user()->identifications->toArray() ?: [['identification_type' => '']]);
+                                        @endphp
+                                        
+                                        @foreach($identifications as $index => $id)
+                                            <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-yellow/50 transition-colors bg-white" data-index="{{ $index }}">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <h4 class="font-semibold text-plyform-dark">Document {{ $index + 1 }}</h4>
+                                                    @if($index > 0)
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="removeIdentificationItem({{ $index }})"
+                                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- ID Type -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Document Type <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <select 
+                                                        name="identifications[{{ $index }}][identification_type]" 
+                                                        required
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                    >
+                                                        <option value="">Select document type</option>
+                                                        <option value="australian_drivers_licence" {{ ($id['identification_type'] ?? '') == 'australian_drivers_licence' ? 'selected' : '' }}>Australian Driver's Licence</option>
+                                                        <option value="passport" {{ ($id['identification_type'] ?? '') == 'passport' ? 'selected' : '' }}>Passport</option>
+                                                        <option value="birth_certificate" {{ ($id['identification_type'] ?? '') == 'birth_certificate' ? 'selected' : '' }}>Birth Certificate</option>
+                                                        <option value="medicare" {{ ($id['identification_type'] ?? '') == 'medicare' ? 'selected' : '' }}>Medicare Card</option>
+                                                        <option value="other" {{ ($id['identification_type'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <!-- Document Number (Optional) -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Document Number (Optional)
+                                                    </label>
+                                                    <input 
+                                                        type="text" 
+                                                        name="identifications[{{ $index }}][document_number]"
+                                                        value="{{ $id['document_number'] ?? '' }}"
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                        placeholder="e.g., ABC123456"
+                                                    >
+                                                </div>
+                                                
+                                                <!-- Document Upload -->
+                                                <div class="mb-4">
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Upload Document <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="file" 
+                                                        name="identifications[{{ $index }}][document]"
+                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                        {{ isset($id['document_path']) ? '' : 'required' }}
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all"
+                                                    >
+                                                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
+                                                    @if(isset($id['document_path']))
+                                                        <p class="mt-1 text-xs text-green-600 flex items-center gap-1">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                                            </svg>
+                                                            Document already uploaded
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- Expiry Date (Optional) -->
+                                                <div>
+                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                        Expiry Date (if applicable)
+                                                    </label>
+                                                    <input 
+                                                        type="date" 
+                                                        name="identifications[{{ $index }}][expiry_date]"
+                                                        value="{{ isset($id['expiry_date']) ? \Carbon\Carbon::parse($id['expiry_date'])->format('Y-m-d') : '' }}"
+                                                        min="{{ now()->format('Y-m-d') }}"
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                                    >
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    
+                                    <!-- Add ID Button -->
+                                    <button 
+                                        type="button" 
+                                        onclick="addIdentificationItem()"
+                                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                        </svg>
+                                        Add Another Document
+                                    </button>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="emergency_contact">
+                            <button type="button" onclick="toggleSection('emergency_contact')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ auth()->user()->profile && auth()->user()->profile->has_emergency_contact ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_emergency_contact">
+                                        @if(auth()->user()->profile && auth()->user()->profile->has_emergency_contact)
+                                            <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-gray-900">Emergency contact</span>
+                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Optional</span>
+                                        </div>
+                                        @if(auth()->user()->profile && auth()->user()->profile->has_emergency_contact)
+                                            <p class="text-xs text-gray-500">{{ auth()->user()->profile->emergency_contact_name }}</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">Not completed yet</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Emergency Contact Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="mb-4">
+                                        <h4 class="text-base font-semibold text-plyform-dark">Emergency Contact</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Someone we can contact in case of emergency</p>
+                                    </div>
+                                    
+                                    <!-- Has Emergency Contact Toggle -->
+                                    <div class="mb-4">
+                                        <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                                            <div class="relative">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="has_emergency_contact" 
+                                                    id="has_emergency_contact"
+                                                    value="1"
+                                                    {{ old('has_emergency_contact', auth()->user()->profile->has_emergency_contact ?? false) ? 'checked' : '' }}
+                                                    onchange="toggleEmergencyContact()"
+                                                    class="sr-only peer"
+                                                >
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-plyform-yellow/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-plyform-yellow"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-plyform-dark">I have an emergency contact</span>
+                                        </label>
+                                    </div>
+
+                                    <div id="emergency-contact-fields" style="display: {{ old('has_emergency_contact', auth()->user()->profile->has_emergency_contact ?? false) ? 'block' : 'none' }};">
+                                        <div class="grid md:grid-cols-2 gap-4">
+                                            
+                                            <!-- Emergency Contact Name -->
+                                            <div>
+                                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                    Full Name <span class="text-plyform-orange">*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    name="emergency_contact_name" 
+                                                    value="{{ old('emergency_contact_name', auth()->user()->profile->emergency_contact_name ?? '') }}"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_name') border-red-500 @enderror"
+                                                    placeholder="Emergency contact name"
+                                                >
+                                                @error('emergency_contact_name')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            
+                                            <!-- Relationship -->
+                                            <div>
+                                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                    Relationship <span class="text-plyform-orange">*</span>
+                                                </label>
+                                                <select 
+                                                    name="emergency_contact_relationship" 
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_relationship') border-red-500 @enderror"
+                                                >
+                                                    <option value="">Select relationship</option>
+                                                    <option value="parent" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'parent' ? 'selected' : '' }}>Parent</option>
+                                                    <option value="sibling" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'sibling' ? 'selected' : '' }}>Sibling</option>
+                                                    <option value="partner" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'partner' ? 'selected' : '' }}>Partner</option>
+                                                    <option value="spouse" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'spouse' ? 'selected' : '' }}>Spouse</option>
+                                                    <option value="friend" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'friend' ? 'selected' : '' }}>Friend</option>
+                                                    <option value="other" {{ old('emergency_contact_relationship', auth()->user()->profile->emergency_contact_relationship ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                                @error('emergency_contact_relationship')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <div class="grid md:grid-cols-2 gap-4 mt-4">
+                                            
+                                            <!-- Emergency Contact Phone -->
+                                            <div>
+                                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                    Phone Number <span class="text-plyform-orange">*</span>
+                                                </label>
+                                                <div class="flex gap-2">
+                                                    <select 
+                                                        name="emergency_contact_country_code" 
+                                                        class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_country_code') border-red-500 @enderror"
+                                                    >
+                                                        <option value="+61" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
+                                                        <option value="+1" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
+                                                        <option value="+44" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
+                                                        <option value="+64" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
+                                                        <option value="+86" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86</option>
+                                                        <option value="+81" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+81' ? 'selected' : '' }}>🇯🇵 +81</option>
+                                                        <option value="+82" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+82' ? 'selected' : '' }}>🇰🇷 +82</option>
+                                                        <option value="+65" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+65' ? 'selected' : '' }}>🇸🇬 +65</option>
+                                                    </select>
+                                                    <input 
+                                                        type="tel" 
+                                                        name="emergency_contact_number" 
+                                                        value="{{ old('emergency_contact_number', auth()->user()->profile->emergency_contact_number ?? '') }}"
+                                                        pattern="[0-9]{8,15}"
+                                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_number') border-red-500 @enderror"
+                                                        placeholder="412345678"
+                                                    >
+                                                </div>
+                                                @error('emergency_contact_country_code')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                                @error('emergency_contact_number')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            
+                                            <!-- Emergency Contact Email -->
+                                            <div>
+                                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                                    Email Address <span class="text-plyform-orange">*</span>
+                                                </label>
+                                                <input 
+                                                    type="email" 
+                                                    name="emergency_contact_email" 
+                                                    value="{{ old('emergency_contact_email', auth()->user()->profile->emergency_contact_email ?? '') }}"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_email') border-red-500 @enderror"
+                                                    placeholder="emergency@example.com"
+                                                >
+                                                @error('emergency_contact_email')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Household -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="household">
+                            <button type="button" onclick="toggleSection('household')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_household">
+                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Household</span>
+                                        <p class="text-xs text-gray-500" id="household-summary">1 person (you)</p>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Household Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Household Information</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Who will be living in this property?</p>
+                                        </div>
+                                        <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                    </div>
+                                    
+                                    <!-- Number of Occupants -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Number of Occupants <span class="text-plyform-orange">*</span>
+                                            <span class="text-xs text-gray-500 font-normal">(Including yourself)</span>
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="number_of_occupants" 
+                                            value="{{ old('number_of_occupants', 1) }}"
+                                            min="1"
+                                            max="10"
+                                            required
+                                            onkeyup="validateOccupantsInput(this)"
+                                            onchange="validateOccupantsInput(this)"
+                                            oninput="validateOccupantsInput(this)"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('number_of_occupants') border-red-500 @enderror"
+                                        >
+                                        @error('number_of_occupants')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                        <p class="text-xs text-gray-500 mt-1">Minimum 1 person (yourself). Maximum 10 people.</p>
+                                    </div>
+                                    
+                                    <!-- Occupants Details Section -->
+                                    <div id="occupants-section" class="hidden">
+                                        <div class="mt-6 p-4 bg-white rounded-lg border-2 border-gray-200">
+                                            <h5 class="text-sm font-semibold text-plyform-dark mb-4">Occupants Details</h5>
+                                            <p class="text-sm text-gray-600 mb-4">Provide details about all people who will be living in the property</p>
+                                            <div id="occupants-container"></div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Pets -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="pets">
+                            <button type="button" onclick="toggleSection('pets')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_pets">
+                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-gray-900">Pets</span>
+                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Optional</span>
+                                        </div>
+                                        @if(auth()->user()->pets && auth()->user()->pets->count() > 0)
+                                            <p class="text-xs text-gray-500">{{ auth()->user()->pets->count() }} {{ Str::plural('pet', auth()->user()->pets->count()) }}</p>
+                                        @else
+                                            <p class="text-xs text-gray-500">None</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Has Pets Toggle -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            name="has_pets" 
+                                            id="has-pets"
+                                            value="1"
+                                            onchange="togglePetsSection()"
+                                            {{ old('has_pets', auth()->user()->pets->count() > 0) ? 'checked' : '' }}
+                                            class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                        >
+                                        <span class="font-medium text-plyform-dark">I have pets</span>
+                                    </label>
+                                    <p class="text-sm text-gray-600 mt-2 ml-8">Check this if you have any pets that will be living with you</p>
+                                </div>
+
+                                <div id="pets-section" style="display: {{ old('has_pets', auth()->user()->pets->count() > 0) ? 'block' : 'none' }};">
+                                    <!-- Pet Information Section -->
+                                    <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h4 class="text-base font-semibold text-plyform-dark">Pet Information</h4>
+                                                <p class="text-sm text-gray-600 mt-1">Provide details about your pets</p>
+                                            </div>
+                                            <span class="text-plyform-orange text-sm font-medium">* Required</span>
+                                        </div>
+                                        
+                                        <div id="pets-container">
+                                            @php
+                                                $pets = old('pets', auth()->user()->pets->toArray() ?: [['type' => '']]);
+                                            @endphp
+                                            
+                                            @foreach($pets as $index => $pet)
+                                                <div class="pet-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-orange/30 transition-colors bg-white" data-index="{{ $index }}">
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <h4 class="font-semibold text-plyform-dark">Pet {{ $index + 1 }}</h4>
+                                                        @if($index > 0)
+                                                            <button type="button" onclick="removePetItem({{ $index }})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <div class="grid md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
+                                                            <select name="pets[{{ $index }}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                                                <option value="">Select type</option>
+                                                                <option value="dog" {{ ($pet['type'] ?? '') == 'dog' ? 'selected' : '' }}>Dog</option>
+                                                                <option value="cat" {{ ($pet['type'] ?? '') == 'cat' ? 'selected' : '' }}>Cat</option>
+                                                                <option value="bird" {{ ($pet['type'] ?? '') == 'bird' ? 'selected' : '' }}>Bird</option>
+                                                                <option value="fish" {{ ($pet['type'] ?? '') == 'fish' ? 'selected' : '' }}>Fish</option>
+                                                                <option value="rabbit" {{ ($pet['type'] ?? '') == 'rabbit' ? 'selected' : '' }}>Rabbit</option>
+                                                                <option value="other" {{ ($pet['type'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
+                                                            <input type="text" name="pets[{{ $index }}][breed]" value="{{ $pet['breed'] ?? '' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., Golden Retriever">
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
+                                                            <select name="pets[{{ $index }}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                                                <option value="">Select</option>
+                                                                <option value="1" {{ ($pet['desexed'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                                                                <option value="0" {{ ($pet['desexed'] ?? '') == '0' ? 'selected' : '' }}>No</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
+                                                            <select name="pets[{{ $index }}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                                                <option value="">Select size</option>
+                                                                <option value="small" {{ ($pet['size'] ?? '') == 'small' ? 'selected' : '' }}>Small (under 10kg)</option>
+                                                                <option value="medium" {{ ($pet['size'] ?? '') == 'medium' ? 'selected' : '' }}>Medium (10-25kg)</option>
+                                                                <option value="large" {{ ($pet['size'] ?? '') == 'large' ? 'selected' : '' }}>Large (over 25kg)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="mt-4">
+                                                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
+                                                        <input type="text" name="pets[{{ $index }}][registration_number]" value="{{ $pet['registration_number'] ?? '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., 123456">
+                                                        <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
+                                                    </div>
+                                                    
+                                                    <div class="mt-4">
+                                                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
+                                                        <input type="file" name="pets[{{ $index }}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                                                        <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        
+                                        <button type="button" onclick="addAnotherPet()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                            </svg>
+                                            Add Another Pet
+                                        </button>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <!-- Utility Connection Service -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="utility_connections">
+                            <button type="button" onclick="toggleSection('utility_connections')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_utility_connections">
+                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-gray-900">Utility connection service</span>
+                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Optional</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500" id="utility-summary">Optional free service</p>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Utility Connection Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="mb-4">
+                                        <h4 class="text-base font-semibold text-plyform-dark">Utility Connections</h4>
+                                        <p class="text-sm text-gray-600 mt-1">This is a free service that connects all your utilities</p>
+                                    </div>
+                                    
+                                    <!-- Info Box -->
+                                    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm text-blue-900 font-medium mb-1">Once we have received this application, we will call you to confirm your details.</p>
+                                                <p class="text-xs text-blue-800">Direct Connect will make all reasonable efforts to contact you within 24 hours of the nearest working day on receipt of this Application to confirm the information on this Application after signing and sending it to the utility providers. Direct Connect is a utility one stop connection service.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Utilities Selection -->
+                                    <div class="bg-white rounded-lg p-5 border-2 border-gray-200">
+                                        <h5 class="text-sm font-semibold text-plyform-dark mb-4">Please tick utilities as required</h5>
+                                        
+                                        <div class="grid md:grid-cols-3 gap-4">
+                                            
+                                            <!-- Electricity -->
+                                            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-200 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="utility_electricity" 
+                                                    value="1"
+                                                    {{ old('utility_electricity') ? 'checked' : '' }}
+                                                    onchange="updateUtilitySummary()"
+                                                    class="w-6 h-6 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                                >
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                    </svg>
+                                                    <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">Electricity</span>
+                                                </div>
+                                            </label>
+                                            
+                                            <!-- Gas -->
+                                            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-200 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="utility_gas" 
+                                                    value="1"
+                                                    {{ old('utility_gas') ? 'checked' : '' }}
+                                                    onchange="updateUtilitySummary()"
+                                                    class="w-6 h-6 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                                >
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>
+                                                    </svg>
+                                                    <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">Gas</span>
+                                                </div>
+                                            </label>
+                                            
+                                            <!-- Internet -->
+                                            <label class="flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-200 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="utility_internet" 
+                                                    value="1"
+                                                    {{ old('utility_internet') ? 'checked' : '' }}
+                                                    onchange="updateUtilitySummary()"
+                                                    class="w-6 h-6 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                                >
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                                    </svg>
+                                                    <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">Internet</span>
+                                                </div>
+                                            </label>
+                                            
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Declaration -->
+                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-300">
+                                        <h5 class="text-xs font-bold text-gray-900 mb-2 uppercase">Declaration and Execution</h5>
+                                        <p class="text-xs text-gray-700 leading-relaxed">
+                                            By signing this application, I/we consent to Direct Connect arranging for the connection and disconnection of the nominated utility services and to providing information contained in this application to utility providers for the purpose acknowledged below. I/we have read, carefully considered the Terms and Conditions of Direct Connect and having read and understood them together with the Privacy Collection Notice set out below, declare that all the information contained in this Application is true and correct and that I/we can pay for, and are legally entitled to enter into a contract for the provision of the information disclosed in this Application to a supplier or potential supplier of the Services in accordance with the Privacy Collection Notice and to obtain any other information necessary in relation to the Services, pursuant to Direct Connect.
+                                        </p>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Notes -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="additional_notes">
+                            <button type="button" onclick="toggleSection('additional_notes')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center section-status" id="status_additional_notes">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-gray-900">Additional information</span>
+                                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">Optional</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Notes and special requests</p>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-700 mb-2 block">Special Requests</label>
+                                        <textarea 
+                                            name="special_requests" 
+                                            rows="4"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            placeholder="e.g., Pet accommodation, parking needs, early move-in..."
+                                        >{{ old('special_requests') }}</textarea>
+                                        <p class="mt-1 text-xs text-gray-500">Maximum 1000 characters</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-700 mb-2 block">Additional Notes</label>
+                                        <textarea 
+                                            name="notes" 
+                                            rows="3"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                            placeholder="Anything else you'd like the property manager to know..."
+                                        >{{ old('notes') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="terms_conditions">
+                            <button type="button" onclick="toggleSection('terms_conditions')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center section-status" id="status_terms_conditions">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Terms and Conditions</span>
+                                        <p class="text-xs text-gray-500" id="terms-summary">Must be accepted to submit</p>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                
+                                <!-- Terms Section -->
+                                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                                    <div class="mb-4">
+                                        <h4 class="text-base font-semibold text-plyform-dark">Application Terms & Conditions</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Please read carefully before submitting your application</p>
+                                    </div>
+                                    
+                                    <!-- Terms Content Box -->
+                                    <div class="bg-white rounded-lg border-2 border-gray-200 p-6 max-h-96 overflow-y-auto">
+                                        <div class="prose prose-sm max-w-none text-gray-700">
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">1. Application Agreement</h5>
+                                            <p class="text-xs mb-4">
+                                                By submitting this application, you acknowledge that all information provided is true, accurate, and complete to the best of your knowledge. You understand that providing false or misleading information may result in the rejection of your application or termination of any tenancy agreement.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">2. Privacy and Information Use</h5>
+                                            <p class="text-xs mb-4">
+                                                You consent to the collection, use, and disclosure of your personal information for the purposes of processing this rental application, including but not limited to: conducting reference checks, verifying employment and income, performing credit checks, and contacting emergency contacts if necessary. Your information will be handled in accordance with applicable privacy laws.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">3. Reference and Background Checks</h5>
+                                            <p class="text-xs mb-4">
+                                                You authorize the property manager/landlord to contact references provided, verify employment details, conduct credit checks, and perform any other reasonable background checks deemed necessary for assessing your application. You understand that these checks may involve contacting third parties including but not limited to previous landlords, employers, and credit reporting agencies.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">4. Application Fee and Processing</h5>
+                                            <p class="text-xs mb-4">
+                                                You acknowledge that submitting this application does not guarantee approval or create any tenancy agreement. The property manager reserves the right to accept or reject any application at their discretion. Application processing times may vary, and you will be notified of the outcome once a decision has been made.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">5. Accuracy of Information</h5>
+                                            <p class="text-xs mb-4">
+                                                You declare that all documents uploaded, information provided, and statements made in this application are genuine, accurate, and not misleading. You understand that any discrepancies discovered may lead to immediate rejection of your application or termination of tenancy.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">6. Property Viewing and Inspection</h5>
+                                            <p class="text-xs mb-4">
+                                                You acknowledge that you have either inspected the property or accept the property in its current condition as described. If you have not inspected the property, you understand that you are applying based on the information and images provided, and the property manager makes no warranties regarding the condition beyond what has been disclosed.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">7. Financial Obligations</h5>
+                                            <p class="text-xs mb-4">
+                                                If your application is successful, you agree to pay the bond, rent in advance, and any other applicable fees as specified in the lease agreement. You understand that failure to pay these amounts by the specified dates may result in the offer being withdrawn.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">8. Utility Connections (If Applicable)</h5>
+                                            <p class="text-xs mb-4">
+                                                If you have opted for utility connection services, you consent to Direct Connect or the appointed utility connection service contacting you and arranging connections on your behalf. You understand this is a free service and authorize the sharing of necessary information with utility providers.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">9. Changes to Application</h5>
+                                            <p class="text-xs mb-4">
+                                                You agree to notify the property manager immediately of any changes to the information provided in this application, including changes to employment, income, contact details, or number of occupants, prior to entering into a lease agreement.
+                                            </p>
+                                            
+                                            <h5 class="text-sm font-bold text-plyform-dark mb-3">10. Governing Law</h5>
+                                            <p class="text-xs mb-4">
+                                                This application and any resulting tenancy agreement shall be governed by the laws of the state/territory in which the property is located. You agree to comply with all applicable residential tenancy legislation and regulations.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Acceptance Checkboxes -->
+                                    <div class="mt-6 space-y-4">
+                                        
+                                        <!-- Main Terms Acceptance -->
+                                        <label class="flex items-start gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-300 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                            <input 
+                                                type="checkbox" 
+                                                name="accept_terms" 
+                                                id="accept_terms"
+                                                value="1"
+                                                required
+                                                onchange="updateTermsStatus()"
+                                                class="mt-1 w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                            >
+                                            <div class="flex-1">
+                                                <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">
+                                                    I have read and agree to the Terms and Conditions <span class="text-plyform-orange">*</span>
+                                                </span>
+                                                <p class="text-xs text-gray-600 mt-1">By checking this box, you confirm that you have read, understood, and agree to abide by all terms and conditions outlined above.</p>
+                                            </div>
+                                        </label>
+                                        
+                                        <!-- Information Accuracy Declaration -->
+                                        <label class="flex items-start gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-300 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                            <input 
+                                                type="checkbox" 
+                                                name="declare_accuracy" 
+                                                id="declare_accuracy"
+                                                value="1"
+                                                required
+                                                onchange="updateTermsStatus()"
+                                                class="mt-1 w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                            >
+                                            <div class="flex-1">
+                                                <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">
+                                                    I declare that all information provided is true and accurate <span class="text-plyform-orange">*</span>
+                                                </span>
+                                                <p class="text-xs text-gray-600 mt-1">You confirm that all information, documents, and statements in this application are truthful, complete, and not misleading.</p>
+                                            </div>
+                                        </label>
+                                        
+                                        <!-- Privacy Consent -->
+                                        <label class="flex items-start gap-3 cursor-pointer p-4 rounded-lg border-2 border-gray-300 hover:border-plyform-yellow hover:bg-plyform-yellow/5 transition-all group">
+                                            <input 
+                                                type="checkbox" 
+                                                name="consent_privacy" 
+                                                id="consent_privacy"
+                                                value="1"
+                                                required
+                                                onchange="updateTermsStatus()"
+                                                class="mt-1 w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                                            >
+                                            <div class="flex-1">
+                                                <span class="text-sm font-semibold text-gray-900 group-hover:text-plyform-dark">
+                                                    I consent to privacy collection and use of my information <span class="text-plyform-orange">*</span>
+                                                </span>
+                                                <p class="text-xs text-gray-600 mt-1">You authorize the collection, use, and disclosure of your personal information for application processing, reference checks, and property management purposes.</p>
+                                            </div>
+                                        </label>
+                                        
+                                    </div>
+                                    
+                                    <!-- Warning Message -->
+                                    <div class="mt-4 p-4 bg-plyform-orange/10 border border-plyform-orange/30 rounded-lg">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-plyform-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-plyform-dark mb-1">Important Notice</p>
+                                                <p class="text-xs text-gray-700">All three checkboxes above must be ticked before you can submit your application. Please ensure you have read and understood all terms and conditions.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="mt-6 bg-gray-50 rounded-xl p-6">
+                        <p class="text-sm text-gray-600 mb-4">
+                            By submitting an application, you accept our 
+                            <a href="#" class="text-teal-600 hover:underline">Terms and conditions</a> 
+                            and the 
+                            <a href="#" class="text-teal-600 hover:underline">Personal Information Declaration Statement</a>.
+                        </p>
+                        
+                        <!-- Submit Button -->
+                        <button 
+                            type="submit"
+                            id="submit-btn"
+                            disabled
+                            class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-4 rounded-xl hover:from-red-600 hover:to-red-700 transition shadow-lg text-lg opacity-50 cursor-not-allowed"
+                        >
+                            Submit application
+                        </button>
+                    </div>
+                    
+                </form>
+                
+            </div>
+            
+        </div>
         
     </div>
 </div>
 
-<style>
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-</style>
-
 <script>
-let currentSubmitType = 'submit'; // Default to submit
-
-function setSubmitType(type) {
-    currentSubmitType = type;
-    // Update hidden input
-    document.getElementById('submit_type_input').value = type;
+// Section toggle
+function toggleSection(sectionId) {
+    const card = document.querySelector(`[data-section="${sectionId}"]`);
+    const content = card.querySelector('.section-content');
+    const chevron = card.querySelector('.section-chevron');
+    
+    const isHidden = content.classList.contains('hidden');
+    
+    if (isHidden) {
+        content.classList.remove('hidden');
+        chevron.style.transform = 'rotate(90deg)';
+    } else {
+        content.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+    }
+    
+    updateProgress();
 }
 
-function updateOccupantsFields(count) {
-    const container = document.getElementById('occupants-container');
-    const section = document.getElementById('occupants-section');
+// Update progress
+function updateProgress() {
+    // Define which sections are required vs optional
+    const requiredSections = [
+        'about_me',
+        'address_history',
+        'employment',
+        'finances',
+        'identity_documents',
+        'household',
+        'terms_conditions'
+    ];
     
-    // Convert to number and validate
-    count = parseInt(count) || 0;
+    const optionalSections = [
+        'emergency_contact',
+        'pets',
+        'utility_connections',
+        'additional_notes'
+    ];
     
-    // Show section if count is at least 1
-    if (count >= 1) {
+    // Count only required sections
+    let completedCount = 0;
+    
+    requiredSections.forEach(sectionId => {
+        const statusIcon = document.querySelector(`#status_${sectionId}`);
+        if (statusIcon && statusIcon.classList.contains('bg-teal-100')) {
+            completedCount++;
+        }
+    });
+    
+    const totalRequired = requiredSections.length;
+    const percentage = Math.round((completedCount / totalRequired) * 100);
+    
+    // Update progress display
+    const progressPercentage = document.getElementById('progress-percentage');
+    const progressBar = document.getElementById('progress-bar');
+    
+    if (progressPercentage) {
+        progressPercentage.textContent = percentage + '%';
+    }
+    
+    if (progressBar) {
+        progressBar.style.width = percentage + '%';
+        
+        // Change color based on progress
+        if (percentage === 100) {
+            progressBar.className = 'bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500';
+        } else if (percentage >= 70) {
+            progressBar.className = 'bg-gradient-to-r from-yellow-500 to-yellow-600 h-2 rounded-full transition-all duration-500';
+        } else {
+            progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
+        }
+    }
+}
+
+// Sync inspection choice
+function syncInspectionChoice(value) {
+    document.getElementById('property_inspection_hidden').value = value;
+    
+    // Show/hide inspection date field
+    const inspectionDateSidebar = document.getElementById('inspection-date-sidebar');
+    if (value === 'yes') {
+        inspectionDateSidebar.classList.remove('hidden');
+    } else {
+        inspectionDateSidebar.classList.add('hidden');
+        document.getElementById('sidebar_inspection_date').value = '';
+        document.getElementById('inspection_date_hidden').value = '';
+    }
+}
+
+// Sync inspection date
+function syncInspectionDate(value) {
+    document.getElementById('inspection_date_hidden').value = value;
+}
+
+// Sync move-in date
+function syncMoveInDate(value) {
+    document.getElementById('move_in_date_hidden').value = value;
+}
+
+// Set lease term
+function setLeaseTerm(months) {
+    document.getElementById('lease_term_hidden').value = months;
+    
+    // Update button styles
+    document.querySelectorAll('.lease-term-btn').forEach(btn => {
+        btn.classList.remove('border-teal-500', 'bg-teal-50');
+        btn.classList.add('border-gray-300');
+    });
+    
+    event.target.classList.remove('border-gray-300');
+    event.target.classList.add('border-teal-500', 'bg-teal-50');
+}
+
+// Update occupants summary
+function updateOccupantsSummary(additionalCount) {
+    const total = parseInt(additionalCount) + 1;
+    const summaries = document.querySelectorAll('#occupants-summary, #household-summary');
+    summaries.forEach(summary => {
+        summary.textContent = `Summary: ${total} person${total > 1 ? 's' : ''} (1 leaseholder${additionalCount > 0 ? ', ' + additionalCount + ' additional' : ''})`;
+    });
+}
+
+// Form submission handling
+document.addEventListener('DOMContentLoaded', function() {
+    updateProgress();
+    
+    const form = document.getElementById('application-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Disable HTML5 validation to handle it ourselves
+    form.setAttribute('novalidate', 'novalidate');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default first, we'll submit manually if valid
+        
+        // Clear any existing error messages
+        document.querySelectorAll('.field-error-message').forEach(el => el.remove());
+        document.querySelectorAll('.border-red-500').forEach(el => {
+            el.classList.remove('border-red-500');
+        });
+        
+        // Object to store first error found
+        let firstError = null;
+        
+        // Helper function to show error on field
+        function showFieldError(field, message, sectionName = null) {
+            if (!firstError) {
+                firstError = { field, message, sectionName };
+            }
+            
+            // Add red border to field
+            field.classList.add('border-red-500');
+            
+            // Create error message element
+            const errorEl = document.createElement('p');
+            errorEl.className = 'field-error-message mt-1 text-sm text-red-600 font-medium';
+            errorEl.textContent = message;
+            
+            // Insert error message after the field
+            if (field.parentElement) {
+                field.parentElement.appendChild(errorEl);
+            }
+        }
+        
+        // 1. Validate Terms & Conditions (check this first as it's at the bottom)
+        const acceptTerms = document.getElementById('accept_terms');
+        const declareAccuracy = document.getElementById('declare_accuracy');
+        const consentPrivacy = document.getElementById('consent_privacy');
+        
+        if (!acceptTerms?.checked) {
+            showFieldError(acceptTerms, 'You must accept the Terms and Conditions to submit.', 'terms_conditions');
+        }
+        if (!declareAccuracy?.checked) {
+            showFieldError(declareAccuracy, 'You must declare that all information is accurate.', 'terms_conditions');
+        }
+        if (!consentPrivacy?.checked) {
+            showFieldError(consentPrivacy, 'You must consent to privacy collection.', 'terms_conditions');
+        }
+        
+        // 2. Validate About Me section
+        const title = document.querySelector('select[name="title"]');
+        if (!title?.value) {
+            showFieldError(title, 'Please select your title.', 'about_me');
+        }
+        
+        const firstName = document.querySelector('input[name="first_name"]');
+        if (!firstName?.value || firstName.value.trim() === '') {
+            showFieldError(firstName, 'First name is required.', 'about_me');
+        }
+        
+        const lastName = document.querySelector('input[name="last_name"]');
+        if (!lastName?.value || lastName.value.trim() === '') {
+            showFieldError(lastName, 'Last name is required.', 'about_me');
+        }
+        
+        const dob = document.querySelector('input[name="date_of_birth"]');
+        if (!dob?.value) {
+            showFieldError(dob, 'Date of birth is required.', 'about_me');
+        }
+        
+        const email = document.querySelector('input[name="email"]');
+        if (!email?.value || email.value.trim() === '') {
+            showFieldError(email, 'Email is required.', 'about_me');
+        }
+        
+        const mobileNumber = document.querySelector('input[name="mobile_number"]');
+        if (!mobileNumber?.value || mobileNumber.value.trim() === '') {
+            showFieldError(mobileNumber, 'Mobile number is required.', 'about_me');
+        }
+        
+        // 3. Validate Address History
+        const address0 = document.querySelector('input[name="addresses[0][address]"]');
+        if (!address0?.value || address0.value.trim() === '') {
+            showFieldError(address0, 'At least one address is required.', 'address_history');
+        }
+        
+        const living0 = document.querySelector('select[name="addresses[0][living_arrangement]"]');
+        if (!living0?.value) {
+            showFieldError(living0, 'Living arrangement is required.', 'address_history');
+        }
+        
+        // 4. Validate Employment IF checkbox is checked
+        const hasEmployment = document.getElementById('has_employment_checkbox');
+        if (hasEmployment?.checked) {
+            const company0 = document.querySelector('input[name="employments[0][company_name]"]');
+            if (!company0?.value || company0.value.trim() === '') {
+                showFieldError(company0, 'Company name is required.', 'employment');
+            }
+            
+            const position0 = document.querySelector('input[name="employments[0][position]"]');
+            if (!position0?.value || position0.value.trim() === '') {
+                showFieldError(position0, 'Position is required.', 'employment');
+            }
+            
+            const salary0 = document.querySelector('input[name="employments[0][gross_annual_salary]"]');
+            if (!salary0?.value) {
+                showFieldError(salary0, 'Gross annual salary is required.', 'employment');
+            }
+        }
+        
+        // 5. Validate Income/Finances (always required)
+        const incomeSource0 = document.querySelector('select[name="incomes[0][source_of_income]"]');
+        if (!incomeSource0?.value) {
+            showFieldError(incomeSource0, 'Source of income is required.', 'finances');
+        }
+        
+        const incomeAmount0 = document.querySelector('input[name="incomes[0][net_weekly_amount]"]');
+        if (!incomeAmount0?.value) {
+            showFieldError(incomeAmount0, 'Net weekly amount is required.', 'finances');
+        }
+        
+        // 6. Validate Identity Documents (always required)
+        const idType0 = document.querySelector('select[name="identifications[0][identification_type]"]');
+        if (!idType0?.value) {
+            showFieldError(idType0, 'Document type is required.', 'identity_documents');
+        }
+        
+        // 7. Validate Household (always required)
+        const numOccupants = document.querySelector('input[name="number_of_occupants"]');
+        if (!numOccupants?.value || numOccupants.value < 1) {
+            showFieldError(numOccupants, 'Number of occupants is required (minimum 1).', 'household');
+        }
+        
+        const primaryFirstName = document.querySelector('input[name="occupants_details[0][first_name]"]');
+        if (!primaryFirstName?.value || primaryFirstName.value.trim() === '') {
+            showFieldError(primaryFirstName, 'Primary applicant first name is required.', 'household');
+        }
+        
+        const primaryLastName = document.querySelector('input[name="occupants_details[0][last_name]"]');
+        if (!primaryLastName?.value || primaryLastName.value.trim() === '') {
+            showFieldError(primaryLastName, 'Primary applicant last name is required.', 'household');
+        }
+        
+        const primaryAge = document.querySelector('input[name="occupants_details[0][age]"]');
+        if (!primaryAge?.value) {
+            showFieldError(primaryAge, 'Primary applicant age is required.', 'household');
+        } else if (parseInt(primaryAge.value) < 18) {
+            showFieldError(primaryAge, 'Primary applicant must be 18 years or older.', 'household');
+        }
+        
+        // 8. Validate Pets IF checkbox is checked
+        const hasPets = document.getElementById('has-pets');
+        if (hasPets?.checked) {
+            const petType0 = document.querySelector('select[name="pets[0][type]"]');
+            if (!petType0?.value) {
+                showFieldError(petType0, 'Pet type is required.', 'pets');
+            }
+            
+            const petBreed0 = document.querySelector('input[name="pets[0][breed]"]');
+            if (!petBreed0?.value || petBreed0.value.trim() === '') {
+                showFieldError(petBreed0, 'Pet breed is required.', 'pets');
+            }
+            
+            const petDesexed0 = document.querySelector('select[name="pets[0][desexed]"]');
+            if (!petDesexed0?.value && petDesexed0?.value !== '0') {
+                showFieldError(petDesexed0, 'Please specify if pet is desexed.', 'pets');
+            }
+            
+            const petSize0 = document.querySelector('select[name="pets[0][size]"]');
+            if (!petSize0?.value) {
+                showFieldError(petSize0, 'Pet size is required.', 'pets');
+            }
+        }
+        
+        // 9. Validate move-in date from sidebar
+        const moveInDate = document.getElementById('move_in_date_hidden');
+        if (!moveInDate?.value) {
+            // Show error in sidebar
+            const moveInDateDisplay = document.getElementById('move_in_date_display');
+            if (moveInDateDisplay) {
+                moveInDateDisplay.classList.add('border-2', 'border-red-500');
+                
+                const errorEl = document.createElement('p');
+                errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
+                errorEl.textContent = 'Please select a move-in date.';
+                moveInDateDisplay.parentElement.appendChild(errorEl);
+                
+                if (!firstError) {
+                    firstError = { 
+                        field: moveInDateDisplay, 
+                        message: 'Please select a move-in date.', 
+                        sectionName: null,
+                        isSidebar: true
+                    };
+                }
+            }
+        }
+        
+        // If there are errors, focus on first error
+        if (firstError) {
+            // If error is in a collapsible section, open it
+            if (firstError.sectionName) {
+                const sectionContent = document.querySelector(`[data-section="${firstError.sectionName}"] .section-content`);
+                if (sectionContent && sectionContent.classList.contains('hidden')) {
+                    toggleSection(firstError.sectionName);
+                }
+            }
+            
+            // Scroll to and focus the field
+            setTimeout(() => {
+                if (firstError.isSidebar) {
+                    // For sidebar elements, just scroll to them
+                    firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    // For form fields, scroll and focus
+                    firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.field.focus();
+                }
+                
+                // Show toast notification with error count
+                const errorCount = document.querySelectorAll('.field-error-message').length;
+                showToast(`Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} to submit your application.`, 'error');
+            }, 300);
+            
+            return false;
+        }
+        
+        // All validation passed - disable button and submit
+        // Remove pet fields if "has_pets" is not checked
+        if (!hasPets?.checked) {
+            document.querySelectorAll('[name^="pets["]').forEach(field => {
+                field.remove();
+            });
+        }
+
+        // Remove employment fields if "has_employment" is not checked
+        if (!hasEmployment?.checked) {
+            document.querySelectorAll('[name^="employments["]').forEach(field => {
+                field.remove();
+            });
+        }
+
+        // Remove emergency contact fields if not filled
+        const hasEmergencyContact = document.getElementById('has_emergency_contact');
+        if (!hasEmergencyContact?.checked) {
+            document.querySelectorAll('[name^="emergency_contact_"]').forEach(field => {
+                if (field.name !== 'has_emergency_contact') {
+                    field.remove();
+                }
+            });
+        }
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
+
+        // Submit the form
+        form.submit();
+    });
+});
+
+// Toast notification helper
+function showToast(message, type = 'error') {
+    // Remove existing toasts
+    document.querySelectorAll('.validation-toast').forEach(el => el.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = 'validation-toast fixed top-20 right-4 z-50 max-w-md px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-0';
+    
+    if (type === 'error') {
+        toast.classList.add('bg-red-50', 'border-2', 'border-red-500', 'text-red-800');
+        toast.innerHTML = `
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <div class="flex-1">
+                    <p class="font-semibold mb-1">Validation Error</p>
+                    <p class="text-sm">${message}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+    }
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(120%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Initialize address index
+var addressIndex = {{ count($addresses ?? []) }};
+
+// Toggle postal address field
+function togglePostalAddress(index) {
+    const checkbox = document.querySelector(`input[name="addresses[${index}][different_postal_address]"]`);
+    const postalField = document.querySelector(`.postal-address-field[data-index="${index}"]`);
+    
+    if (!checkbox || !postalField) {
+        return;
+    }
+    
+    const postalInput = postalField.querySelector('input');
+    
+    if (checkbox.checked) {
+        postalField.classList.remove('hidden');
+        if (postalInput) postalInput.required = true;
+    } else {
+        postalField.classList.add('hidden');
+        if (postalInput) {
+            postalInput.required = false;
+            postalInput.value = '';
+        }
+    }
+}
+
+// Add new address
+function addAddressItem() {
+    const container = document.getElementById('addresses-container');
+    
+    if (!container) {
+        console.error('Container not found!');
+        return;
+    }
+    
+    const newAddressHtml = `
+        <div class="address-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${addressIndex}">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-plyform-dark">Address ${addressIndex + 1}</h4>
+                <button type="button" onclick="removeAddressItem(${addressIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                    Remove
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Living Arrangement <span class="text-plyform-orange">*</span></label>
+                <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <option value="">Select arrangement</option>
+                    <option value="owner">Owner</option>
+                    <option value="renting_agent">Renting through Agent</option>
+                    <option value="renting_privately">Renting Privately</option>
+                    <option value="with_parents">Living with Parents</option>
+                    <option value="sharing">Sharing</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Address <span class="text-plyform-orange">*</span></label>
+                <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Years Lived <span class="text-plyform-orange">*</span></label>
+                    <select name="addresses[${addressIndex}][years_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        ${Array.from({length: 21}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'year' : 'years'}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Months Lived <span class="text-plyform-orange">*</span></label>
+                    <select name="addresses[${addressIndex}][months_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        ${Array.from({length: 12}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'month' : 'months'}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Reason for Leaving</label>
+                <textarea name="addresses[${addressIndex}][reason_for_leaving]" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all resize-none" placeholder="e.g., End of lease, relocated for work, purchased property..."></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                    <input type="checkbox" name="addresses[${addressIndex}][different_postal_address]" value="1" onchange="togglePostalAddress(${addressIndex})" class="w-5 h-5 text-plyform-yellow rounded focus:ring-plyform-yellow/20">
+                    <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
+                </label>
+            </div>
+            
+            <div class="postal-address-field hidden" data-index="${addressIndex}">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Postal Address <span class="text-plyform-orange">*</span></label>
+                <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', newAddressHtml);
+    addressIndex++;
+}
+
+// Remove address
+function removeAddressItem(index) {
+    const item = document.querySelector(`.address-item[data-index="${index}"]`);
+    if (item) {
+        item.remove();
+        // Renumber remaining addresses
+        document.querySelectorAll('.address-item').forEach((el, idx) => {
+            const heading = el.querySelector('h4');
+            if (idx === 0) {
+                heading.innerHTML = 'Address 1 <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded ml-2">Current</span>';
+            } else {
+                heading.textContent = `Address ${idx + 1}`;
+            }
+        });
+    }
+}
+
+// Initialize postal address fields on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name^="addresses"][name$="[different_postal_address]"]').forEach((checkbox) => {
+        const match = checkbox.name.match(/addresses\[(\d+)\]/);
+        if (match && checkbox.checked) {
+            const index = parseInt(match[1]);
+            togglePostalAddress(index);
+        }
+    });
+});
+
+// Employment functions
+let employmentIndex = {{ count($employments ?? []) }};
+
+function toggleEmploymentSection() {
+    const checkbox = document.getElementById('has-employment');
+    const section = document.getElementById('employment-section');
+    
+    if (checkbox.checked) {
         section.classList.remove('hidden');
     } else {
         section.classList.add('hidden');
+    }
+}
+
+function toggleEndDate(index) {
+    const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
+    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input`);
+    const requiredStar = document.querySelector(`.end-date-field[data-index="${index}"] .required-if`);
+    
+    if (checkbox.checked) {
+        endDateField.required = false;
+        endDateField.disabled = true;
+        endDateField.value = '';
+        if (requiredStar) requiredStar.classList.add('hidden');
+    } else {
+        endDateField.required = true;
+        endDateField.disabled = false;
+        if (requiredStar) requiredStar.classList.remove('hidden');
+    }
+}
+
+function addEmployment() {
+    const container = document.getElementById('employment-container');
+    const newEmployment = `
+        <div class="employment-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-purple/30 transition-colors bg-white" data-index="${employmentIndex}">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-plyform-dark">Employment ${employmentIndex + 1}</h4>
+                <button type="button" onclick="removeEmployment(${employmentIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Name <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="employments[${employmentIndex}][company_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="ABC Company Pty Ltd">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Position <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="employments[${employmentIndex}][position]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="Senior Developer">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Address <span class="text-plyform-orange">*</span></label>
+                <input type="text" name="employments[${employmentIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="123 Business St, Sydney NSW 2000">
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-gray-500">$</span>
+                        <input type="number" name="employments[${employmentIndex}][gross_annual_salary]" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="75000">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="John Smith">
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
+                    <input type="tel" name="employments[${employmentIndex}][contact_number]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="0400 000 000">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
+                    <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="manager@company.com">
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Start Date <span class="text-plyform-orange">*</span></label>
+                    <input type="date" name="employments[${employmentIndex}][start_date]" required max="{{ now()->format('Y-m-d') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Still Employed?</label>
+                    <label class="flex items-center gap-3 cursor-pointer mt-3 p-2 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                        <input type="checkbox" name="employments[${employmentIndex}][still_employed]" value="1" onchange="toggleEndDate(${employmentIndex})" class="w-5 h-5 text-plyform-yellow rounded focus:ring-plyform-yellow/20">
+                        <span class="text-sm">Yes</span>
+                    </label>
+                </div>
+                <div class="end-date-field" data-index="${employmentIndex}">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">End Date <span class="text-plyform-orange required-if">*</span></label>
+                    <input type="date" name="employments[${employmentIndex}][end_date]" required max="{{ now()->format('Y-m-d') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                </div>
+            </div>
+            
+            <div>
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Employment Letter (Optional)</label>
+                <input type="file" name="employments[${employmentIndex}][employment_letter]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all">
+                <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', newEmployment);
+    employmentIndex++;
+}
+
+function removeEmployment(index) {
+    const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+    if (item) {
+        item.remove();
+        // Renumber remaining items
+        document.querySelectorAll('.employment-item').forEach((el, idx) => {
+            el.querySelector('h4').textContent = `Employment ${idx + 1}`;
+        });
+    }
+}
+
+// Initialize end date fields on page load for employment
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox, index) => {
+        if (checkbox.checked) toggleEndDate(index);
+    });
+});
+
+// Income/Finances functions
+let incomeIndex = {{ count($incomes ?? []) }};
+
+function addIncome() {
+    const container = document.getElementById('income-container');
+    const newIncome = `
+        <div class="income-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${incomeIndex}">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-plyform-dark">Income Source ${incomeIndex + 1}</h4>
+                <button type="button" onclick="removeIncome(${incomeIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                    Remove
+                </button>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                        Source of Income <span class="text-plyform-orange">*</span>
+                    </label>
+                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        <option value="">Select source</option>
+                        <option value="full_time_employment">Full-time Employment</option>
+                        <option value="part_time_employment">Part-time Employment</option>
+                        <option value="casual_employment">Casual Employment</option>
+                        <option value="self_employed">Self-Employed</option>
+                        <option value="centrelink">Centrelink</option>
+                        <option value="pension">Pension</option>
+                        <option value="investment">Investment Income</option>
+                        <option value="savings">Savings</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                        Net Weekly Amount <span class="text-plyform-orange">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
+                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
+                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', newIncome);
+    incomeIndex++;
+    calculateTotal();
+}
+
+function removeIncome(index) {
+    const item = document.querySelector(`.income-item[data-index="${index}"]`);
+    if (item) {
+        item.remove();
+        calculateTotal();
+        // Renumber remaining items
+        document.querySelectorAll('.income-item').forEach((el, idx) => {
+            el.querySelector('h4').textContent = `Income Source ${idx + 1}`;
+        });
+    }
+}
+
+function calculateTotal() {
+    const inputs = document.querySelectorAll('input[name^="incomes"][name$="[net_weekly_amount]"]');
+    let total = 0;
+    inputs.forEach(input => {
+        const value = parseFloat(input.value) || 0;
+        total += value;
+    });
+    const totalElement = document.getElementById('total-income');
+    if (totalElement) {
+        totalElement.textContent = '$' + total.toFixed(2);
+    }
+}
+
+// Calculate total income on page load and when sections are opened
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate total when page loads
+    setTimeout(() => {
+        calculateTotal();
+    }, 100);
+});
+
+// Identity Documents functions
+var idIndex = {{ count($identifications ?? []) }};
+
+// Add new identification
+function addIdentificationItem() {
+    const container = document.getElementById('identification-container');
+    
+    if (!container) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    const newIdHtml = `
+        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-yellow/50 transition-colors bg-white" data-index="${idIndex}">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-plyform-dark">Document ${idIndex + 1}</h4>
+                <button type="button" onclick="removeIdentificationItem(${idIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Type <span class="text-plyform-orange">*</span></label>
+                <select name="identifications[${idIndex}][identification_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <option value="">Select document type</option>
+                    <option value="australian_drivers_licence">Australian Driver's Licence</option>
+                    <option value="passport">Passport</option>
+                    <option value="birth_certificate">Birth Certificate</option>
+                    <option value="medicare">Medicare Card</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Number (Optional)</label>
+                <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., ABC123456">
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
+                <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30 transition-all">
+                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
+            </div>
+            
+            <div>
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Expiry Date (if applicable)</label>
+                <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', newIdHtml);
+    idIndex++;
+}
+
+// Remove identification
+function removeIdentificationItem(index) {
+    const item = document.querySelector(`.identification-item[data-index="${index}"]`);
+    
+    if (item) {
+        item.remove();
+        // Renumber remaining documents
+        document.querySelectorAll('.identification-item').forEach((el, idx) => {
+            el.querySelector('h4').textContent = `Document ${idx + 1}`;
+        });
+    }
+}
+
+// Emergency Contact toggle function
+function toggleEmergencyContact() {
+    const checkbox = document.getElementById('has_emergency_contact');
+    const fields = document.getElementById('emergency-contact-fields');
+    
+    if (checkbox && fields) {
+        if (checkbox.checked) {
+            fields.style.display = 'block';
+        } else {
+            fields.style.display = 'none';
+        }
+    }
+}
+
+// Pets functions
+var petIndex = {{ count($pets ?? []) }};
+
+// Toggle pets section visibility
+function togglePetsSection() {
+    const checkbox = document.getElementById('has-pets');
+    const section = document.getElementById('pets-section');
+    
+    if (checkbox && section) {
+        if (checkbox.checked) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    }
+}
+
+// Add new pet
+function addAnotherPet() {
+    const container = document.getElementById('pets-container');
+    
+    if (!container) {
+        console.error('Container not found!');
         return;
     }
+    
+    const newPetHtml = `
+        <div class="pet-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-orange/30 transition-colors bg-white" data-index="${petIndex}">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="font-semibold text-plyform-dark">Pet ${petIndex + 1}</h4>
+                <button type="button" onclick="removePetItem(${petIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                    Remove
+                </button>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
+                    <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        <option value="">Select type</option>
+                        <option value="dog">Dog</option>
+                        <option value="cat">Cat</option>
+                        <option value="bird">Bird</option>
+                        <option value="fish">Fish</option>
+                        <option value="rabbit">Rabbit</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., Golden Retriever">
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
+                    <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        <option value="">Select</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
+                    <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                        <option value="">Select size</option>
+                        <option value="small">Small (under 10kg)</option>
+                        <option value="medium">Medium (10-25kg)</option>
+                        <option value="large">Large (over 25kg)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
+                <input type="text" name="pets[${petIndex}][registration_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., 123456">
+                <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
+            </div>
+            
+            <div class="mt-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
+                <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', newPetHtml);
+    petIndex++;
+}
+
+// Remove pet
+function removePetItem(index) {
+    const item = document.querySelector(`.pet-item[data-index="${index}"]`);
+    if (item) {
+        item.remove();
+        // Renumber remaining pets
+        document.querySelectorAll('.pet-item').forEach((el, idx) => {
+            el.querySelector('h4').textContent = `Pet ${idx + 1}`;
+        });
+    }
+}
+
+// Household/Occupants functions
+// Validate and update occupants input
+function validateOccupantsInput(input) {
+    let value = parseInt(input.value);
+    
+    // Prevent negative numbers and 0
+    if (value < 1 || isNaN(value)) {
+        input.value = 1;
+        value = 1;
+    }
+    
+    // Prevent more than 10
+    if (value > 10) {
+        input.value = 10;
+        value = 10;
+    }
+    
+    // Update the occupants fields
+    updateOccupantsFields(value);
+}
+
+// Update occupants fields function (keep existing, just update the call)
+function updateOccupantsFields(count) {
+    const container = document.getElementById('occupants-container');
+    const section = document.getElementById('occupants-section');
+    const summary = document.getElementById('household-summary');
+    
+    // Convert to number and validate
+    count = parseInt(count) || 1; // Default to 1 instead of 0
+    
+    // Ensure minimum of 1
+    if (count < 1) {
+        count = 1;
+    }
+    
+    // Ensure maximum of 10
+    if (count > 10) {
+        count = 10;
+    }
+    
+    // Update summary
+    if (summary) {
+        if (count === 1) {
+            summary.textContent = '1 person (you)';
+        } else {
+            summary.textContent = `${count} people (including you)`;
+        }
+    }
+    
+    // Always show section (since minimum is 1)
+    section.classList.remove('hidden');
     
     // Clear existing
     container.innerHTML = '';
@@ -398,60 +3073,60 @@ function updateOccupantsFields(count) {
         const isPrimary = i === 0;
         
         const occupantFields = `
-            <div class="p-4 border-2 ${isPrimary ? 'border-teal-200 bg-teal-50' : 'border-gray-200'} rounded-lg mb-4">
+            <div class="p-4 border-2 ${isPrimary ? 'border-plyform-mint bg-plyform-mint/10' : 'border-gray-200 bg-white'} rounded-lg mb-4">
                 <div class="flex items-center gap-2 mb-3">
-                    <h4 class="font-semibold text-gray-900">
+                    <h4 class="font-semibold text-plyform-dark">
                         ${isPrimary ? '👤 Primary Applicant (You)' : `Occupant ${occupantNumber}`}
                     </h4>
-                    ${isPrimary ? '<span class="text-xs bg-teal-600 text-white px-2 py-1 rounded-full">Primary</span>' : ''}
+                    ${isPrimary ? '<span class="text-xs bg-plyform-yellow text-plyform-dark px-2 py-1 rounded-full font-semibold">Primary</span>' : ''}
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            First Name <span class="text-red-500">*</span>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                            First Name <span class="text-plyform-orange">*</span>
                         </label>
                         <input 
                             type="text" 
                             name="occupants_details[${i}][first_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.first_name')}"
+                            value="${getOldValue('occupants_details.' + i + '.first_name', isPrimary ? '{{ auth()->user()->profile->first_name ?? "" }}' : '')}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                             placeholder="${isPrimary ? 'Your first name' : 'First name'}"
                         >
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Last Name <span class="text-red-500">*</span>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                            Last Name <span class="text-plyform-orange">*</span>
                         </label>
                         <input 
                             type="text" 
                             name="occupants_details[${i}][last_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.last_name')}"
+                            value="${getOldValue('occupants_details.' + i + '.last_name', isPrimary ? '{{ auth()->user()->profile->last_name ?? "" }}' : '')}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                             placeholder="${isPrimary ? 'Your last name' : 'Last name'}"
                         >
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Relationship <span class="text-red-500">*</span>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                            Relationship <span class="text-plyform-orange">*</span>
                         </label>
                         <input 
                             type="text" 
                             name="occupants_details[${i}][relationship]" 
                             value="${isPrimary ? 'Primary Applicant' : getOldValue('occupants_details.' + i + '.relationship')}"
                             ${isPrimary ? 'readonly' : 'required'}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 ${isPrimary ? 'bg-gray-100' : ''}"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all ${isPrimary ? 'bg-gray-100' : ''}"
                             placeholder="${isPrimary ? 'Primary Applicant' : 'e.g., Partner, Child, Roommate'}"
                         >
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Age ${isPrimary ? '<span class="text-red-500">*</span>' : '(Optional)'}
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                            Age ${isPrimary ? '<span class="text-plyform-orange">*</span>' : '(Optional)'}
                         </label>
                         <input 
                             type="number" 
@@ -460,7 +3135,7 @@ function updateOccupantsFields(count) {
                             min="${isPrimary ? '18' : '0'}"
                             max="120"
                             ${isPrimary ? 'required' : ''}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
                             placeholder="${isPrimary ? 'Your age (must be 18+)' : 'Age'}"
                         >
                         ${isPrimary ? '<p class="text-xs text-gray-500 mt-1">Primary applicant must be 18 or older</p>' : ''}
@@ -468,8 +3143,8 @@ function updateOccupantsFields(count) {
                     
                     ${isPrimary ? `
                     <div class="md:col-span-2">
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Email <span class="text-red-500">*</span>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                            Email <span class="text-plyform-orange">*</span>
                         </label>
                         <input 
                             type="email" 
@@ -489,241 +3164,108 @@ function updateOccupantsFields(count) {
     }
 }
 
-// Helper function to get old form values
-function getOldValue(key) {
-    // This would need to be populated from Laravel's old() helper
-    // For now, return empty string
-    return '';
+// Helper function to get old values (for form repopulation after validation errors)
+function getOldValue(key, defaultValue = '') {
+    // This is a simple implementation - you may need to enhance it based on your needs
+    return defaultValue;
 }
 
-// Initialize on page load
+// Initialize occupants fields on page load
 document.addEventListener('DOMContentLoaded', function() {
     const occupantsInput = document.querySelector('input[name="number_of_occupants"]');
-    if (occupantsInput && occupantsInput.value >= 1) {
+    if (occupantsInput && occupantsInput.value) {
         updateOccupantsFields(occupantsInput.value);
     }
+});
+
+// Utility Connection functions
+function updateUtilitySummary() {
+    const electricity = document.querySelector('input[name="utility_electricity"]');
+    const gas = document.querySelector('input[name="utility_gas"]');
+    const internet = document.querySelector('input[name="utility_internet"]');
+    const summary = document.getElementById('utility-summary');
     
-    // Prevent double submission
-    const form = document.getElementById('application-form');
+    if (!summary) return;
+    
+    const selected = [];
+    if (electricity && electricity.checked) selected.push('Electricity');
+    if (gas && gas.checked) selected.push('Gas');
+    if (internet && internet.checked) selected.push('Internet');
+    
+    if (selected.length === 0) {
+        summary.textContent = 'Optional free service';
+    } else {
+        summary.textContent = selected.join(', ') + ' selected';
+    }
+}
+
+// Initialize utility summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateUtilitySummary();
+});
+
+// Terms and Conditions functions
+function updateTermsStatus() {
+    const acceptTerms = document.getElementById('accept_terms');
+    const declareAccuracy = document.getElementById('declare_accuracy');
+    const consentPrivacy = document.getElementById('consent_privacy');
+    const statusIcon = document.querySelector('#status_terms_conditions');
+    const summary = document.getElementById('terms-summary');
     const submitBtn = document.getElementById('submit-btn');
-    const draftBtn = document.getElementById('draft-btn');
     
-    form.addEventListener('submit', function(e) {
-        // Don't prevent default - let form submit naturally
-        
-        // Disable both buttons to prevent double submission
-        submitBtn.disabled = true;
-        draftBtn.disabled = true;
-        
-        // Change button text to show loading based on which was clicked
-        if (currentSubmitType === 'submit') {
-            submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
+    // Check if all checkboxes are checked
+    const allChecked = acceptTerms?.checked && declareAccuracy?.checked && consentPrivacy?.checked;
+    
+    // Update status icon
+    if (statusIcon) {
+        if (allChecked) {
+            statusIcon.innerHTML = `
+                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+            `;
+            statusIcon.classList.remove('bg-gray-100');
+            statusIcon.classList.add('bg-teal-100');
         } else {
-            draftBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...</span>';
+            statusIcon.innerHTML = `
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            `;
+            statusIcon.classList.remove('bg-teal-100');
+            statusIcon.classList.add('bg-gray-100');
         }
-    });
+    }
     
-    // Auto-dismiss alerts after 5 seconds
-    const alerts = document.querySelectorAll('.animate-fade-in');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.style.transition = 'opacity 0.5s ease-out';
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
-        }, 5000);
-    });
+    // Update summary
+    if (summary) {
+        if (allChecked) {
+            summary.textContent = 'All terms accepted';
+            summary.classList.remove('text-gray-500');
+            summary.classList.add('text-teal-600');
+        } else {
+            summary.textContent = 'Must be accepted to submit';
+            summary.classList.remove('text-teal-600');
+            summary.classList.add('text-gray-500');
+        }
+    }
+    
+    // Enable/disable submit button
+    if (submitBtn) {
+        if (allChecked) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+}
+
+// Initialize terms status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateTermsStatus();
 });
 </script>
 
-<script>
-let currentSubmitType2 = 'submit'; // Default to submit
-
-function setSubmitType(type) {
-    currentSubmitType2 = type;
-    // Update hidden input
-    document.getElementById('submit_type_input').value = type;
-}
-
-// Toggle inspection date field
-function toggleInspectionDateField(show) {
-    const container = document.getElementById('inspection-date-container');
-    const input = document.getElementById('inspection_date_input');
-    
-    if (show) {
-        container.classList.remove('hidden');
-        input.required = true;
-    } else {
-        container.classList.add('hidden');
-        input.required = false;
-        input.value = ''; // Clear the value when hidden
-    }
-}
-
-function updateOccupantsFields(count) {
-    const container = document.getElementById('occupants-container');
-    const section = document.getElementById('occupants-section');
-    
-    // Convert to number and validate
-    count = parseInt(count) || 0;
-    
-    // Show section if count is at least 1
-    if (count >= 1) {
-        section.classList.remove('hidden');
-    } else {
-        section.classList.add('hidden');
-        return;
-    }
-    
-    // Clear existing
-    container.innerHTML = '';
-    
-    // Create fields for ALL occupants (including yourself as Occupant 1)
-    for (let i = 0; i < count; i++) {
-        const occupantNumber = i + 1;
-        const isPrimary = i === 0;
-        
-        const occupantFields = `
-            <div class="p-4 border-2 ${isPrimary ? 'border-teal-200 bg-teal-50' : 'border-gray-200'} rounded-lg mb-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <h4 class="font-semibold text-gray-900">
-                        ${isPrimary ? '👤 Primary Applicant (You)' : `Occupant ${occupantNumber}`}
-                    </h4>
-                    ${isPrimary ? '<span class="text-xs bg-teal-600 text-white px-2 py-1 rounded-full">Primary</span>' : ''}
-                </div>
-                
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            First Name <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][first_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.first_name')}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                            placeholder="${isPrimary ? 'Your first name' : 'First name'}"
-                        >
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Last Name <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][last_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.last_name')}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                            placeholder="${isPrimary ? 'Your last name' : 'Last name'}"
-                        >
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Relationship <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][relationship]" 
-                            value="${isPrimary ? 'Primary Applicant' : getOldValue('occupants_details.' + i + '.relationship')}"
-                            ${isPrimary ? 'readonly' : 'required'}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 ${isPrimary ? 'bg-gray-100' : ''}"
-                            placeholder="${isPrimary ? 'Primary Applicant' : 'e.g., Partner, Child, Roommate'}"
-                        >
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Age ${isPrimary ? '<span class="text-red-500">*</span>' : '(Optional)'}
-                        </label>
-                        <input 
-                            type="number" 
-                            name="occupants_details[${i}][age]" 
-                            value="${getOldValue('occupants_details.' + i + '.age')}"
-                            min="${isPrimary ? '18' : '0'}"
-                            max="120"
-                            ${isPrimary ? 'required' : ''}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                            placeholder="${isPrimary ? 'Your age (must be 18+)' : 'Age'}"
-                        >
-                        ${isPrimary ? '<p class="text-xs text-gray-500 mt-1">Primary applicant must be 18 or older</p>' : ''}
-                    </div>
-                    
-                    ${isPrimary ? `
-                    <div class="md:col-span-2">
-                        <label class="text-sm font-medium text-gray-700 mb-2 block">
-                            Email <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="email" 
-                            name="occupants_details[${i}][email]" 
-                            value="{{ auth()->user()->email }}"
-                            readonly
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                        >
-                        <p class="text-xs text-gray-500 mt-1">From your account</p>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        container.insertAdjacentHTML('beforeend', occupantFields);
-    }
-}
-
-// Helper function to get old form values
-function getOldValue(key) {
-    // This would need to be populated from Laravel's old() helper
-    // For now, return empty string
-    return '';
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize occupants fields
-    const occupantsInput = document.querySelector('input[name="number_of_occupants"]');
-    if (occupantsInput && occupantsInput.value >= 1) {
-        updateOccupantsFields(occupantsInput.value);
-    }
-    
-    // Initialize inspection date field based on old value
-    const inspectionYes = document.querySelector('input[name="property_inspection"][value="yes"]');
-    if (inspectionYes && inspectionYes.checked) {
-        toggleInspectionDateField(true);
-    }
-    
-    // Prevent double submission
-    const form = document.getElementById('application-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const draftBtn = document.getElementById('draft-btn');
-    
-    form.addEventListener('submit', function(e) {
-        // Don't prevent default - let form submit naturally
-        
-        // Disable both buttons to prevent double submission
-        submitBtn.disabled = true;
-        draftBtn.disabled = true;
-        
-        // Change button text to show loading based on which was clicked
-        if (currentSubmitType2 === 'submit') {
-            submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
-        } else {
-            draftBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...</span>';
-        }
-    });
-    
-    // Auto-dismiss alerts after 5 seconds
-    const alerts = document.querySelectorAll('.animate-fade-in');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.style.transition = 'opacity 0.5s ease-out';
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
-        }, 5000);
-    });
-});
-</script>
 @endsection
