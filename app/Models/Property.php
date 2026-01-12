@@ -525,4 +525,12 @@ class Property extends Model
         return $this->activeTenant()->exists();
     }
 
+    /**
+     * Get inspection bookings for this property
+     */
+    public function inspectionBookings()
+    {
+        return $this->hasMany(InspectionBooking::class);
+    }
+
 }

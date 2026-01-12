@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
 use App\Models\Property;
+use App\Models\PropertyApplication;
 use App\Models\PropertyImage;
 use App\Models\Agent;
+use App\Models\InspectionBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use ZipArchive;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PropertyController extends Controller
 {
@@ -479,5 +483,181 @@ class PropertyController extends Controller
 
         return redirect()->back()
             ->with('success', $message);
+    }
+
+    /**
+     * Show applications for a property
+     */
+    public function applications(Property $property)
+    {
+        // Simple check - make sure property belongs to the authenticated agency
+        if ($property->agency_id !== auth()->user()->agency_id) {
+            abort(403, 'Unauthorized access to this property.');
+        }
+        
+        $applications = $property->applications()
+            ->with(['user.profile', 'user.addresses', 'user.employments', 'user.incomes', 'user.identifications'])
+            ->latest()
+            ->paginate(20);
+        
+        return view('agency.properties.applications', compact('property', 'applications'));
+    }
+
+    /**
+     * Show inspection bookings for a property
+     */
+    public function bookings(Property $property)
+    {
+        // Simple check - make sure property belongs to the authenticated agency
+        if ($property->agency_id !== auth()->user()->agency_id) {
+            abort(403, 'Unauthorized access to this property.');
+        }
+        
+        $bookings = $property->inspectionBookings()
+            ->with('user.profile')
+            ->latest('inspection_date')
+            ->paginate(20);
+        
+        return view('agency.properties.bookings', compact('property', 'bookings'));
+    }
+
+    /**
+     * Download application with all documents as ZIP
+     */
+    public function downloadApplication(PropertyApplication $application)
+    {
+        // Check authorization - simple check instead of authorize()
+        if (auth()->user()->role !== 'admin' && $application->property->agency_id !== auth()->user()->agency_id) {
+            abort(403, 'Unauthorized access to this application.');
+        }
+        
+        // Create ZIP file with all documents
+        $zip = new ZipArchive();
+        $fileName = 'application_' . $application->id . '_' . $application->user->profile->first_name . '_' . $application->user->profile->last_name . '_' . now()->format('Y-m-d') . '.zip';
+        $zipPath = storage_path('app/temp/' . $fileName);
+        
+        // Create temp directory if it doesn't exist
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+        
+        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+            
+            // Generate PDF summary
+            $pdf = Pdf::loadView('agency.applications.pdf-summary', ['application' => $application]);
+            $pdfContent = $pdf->output();
+            $zip->addFromString('application_summary.pdf', $pdfContent);
+            
+            // Also add text summary
+            $summaryContent = $this->generateApplicationSummary($application);
+            $zip->addFromString('application_summary.txt', $summaryContent);
+            
+            // Add employment letters
+            foreach ($application->user->employments as $index => $employment) {
+                if ($employment->employment_letter_path) {
+                    $filePath = storage_path('app/public/' . $employment->employment_letter_path);
+                    if (file_exists($filePath)) {
+                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $zip->addFile($filePath, 'documents/employment_letter_' . ($index + 1) . '.' . $extension);
+                    }
+                }
+            }
+            
+            // Add bank statements
+            foreach ($application->user->incomes as $index => $income) {
+                if ($income->bank_statement_path) {
+                    $filePath = storage_path('app/public/' . $income->bank_statement_path);
+                    if (file_exists($filePath)) {
+                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $zip->addFile($filePath, 'documents/bank_statement_' . ($index + 1) . '.' . $extension);
+                    }
+                }
+            }
+            
+            // Add ID documents
+            foreach ($application->user->identifications as $index => $id) {
+                if ($id->document_path) {
+                    $filePath = storage_path('app/public/' . $id->document_path);
+                    if (file_exists($filePath)) {
+                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $zip->addFile($filePath, 'documents/id_document_' . ($index + 1) . '.' . $extension);
+                    }
+                }
+            }
+            
+            // Add pet documents
+            foreach ($application->user->pets as $index => $pet) {
+                if ($pet->document_path) {
+                    $filePath = storage_path('app/public/' . $pet->document_path);
+                    if (file_exists($filePath)) {
+                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $zip->addFile($filePath, 'documents/pet_registration_' . ($index + 1) . '.' . $extension);
+                    }
+                }
+            }
+            
+            $zip->close();
+        }
+        
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+    
+    /**
+     * Generate application summary text
+     */
+    private function generateApplicationSummary(PropertyApplication $application)
+    {
+        $summary = "RENTAL APPLICATION SUMMARY\n";
+        $summary .= "=========================\n\n";
+        $summary .= "Application ID: {$application->id}\n";
+        $summary .= "Property: {$application->property->full_address}\n";
+        $summary .= "Submitted: {$application->submitted_at->format('d M Y, h:i A')}\n";
+        $summary .= "Status: " . ucfirst($application->status) . "\n\n";
+        
+        $summary .= "APPLICANT INFORMATION\n";
+        $summary .= "---------------------\n";
+        $summary .= "Name: {$application->user->profile->first_name} {$application->user->profile->last_name}\n";
+        $summary .= "Email: {$application->user->email}\n";
+        $summary .= "Phone: {$application->user->profile->mobile_country_code} {$application->user->profile->mobile_number}\n";
+        $summary .= "Date of Birth: {$application->user->profile->date_of_birth->format('d M Y')}\n\n";
+        
+        $summary .= "APPLICATION DETAILS\n";
+        $summary .= "-------------------\n";
+        $summary .= "Move-in Date: {$application->move_in_date->format('d M Y')}\n";
+        $summary .= "Lease Term: {$application->lease_term} months\n";
+        $summary .= "Number of Occupants: {$application->number_of_occupants}\n";
+        $summary .= "Property Inspected: " . ($application->property_inspection === 'yes' ? 'Yes' : 'No') . "\n";
+        if ($application->inspection_date) {
+            $summary .= "Inspection Date: {$application->inspection_date->format('d M Y')}\n";
+        }
+        $summary .= "\n";
+        
+        $summary .= "INCOME INFORMATION\n";
+        $summary .= "------------------\n";
+        $summary .= "Total Annual Income: $" . number_format($application->annual_income, 2) . "\n\n";
+        
+        if ($application->user->employments->count() > 0) {
+            $summary .= "EMPLOYMENT HISTORY\n";
+            $summary .= "------------------\n";
+            foreach ($application->user->employments as $employment) {
+                $summary .= "Company: {$employment->company_name}\n";
+                $summary .= "Position: {$employment->position}\n";
+                $summary .= "Salary: $" . number_format($employment->gross_annual_salary, 2) . "\n\n";
+            }
+        }
+        
+        if ($application->special_requests) {
+            $summary .= "SPECIAL REQUESTS\n";
+            $summary .= "----------------\n";
+            $summary .= $application->special_requests . "\n\n";
+        }
+        
+        if ($application->notes) {
+            $summary .= "ADDITIONAL NOTES\n";
+            $summary .= "----------------\n";
+            $summary .= $application->notes . "\n\n";
+        }
+        
+        return $summary;
     }
 }

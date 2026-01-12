@@ -42,6 +42,29 @@
         <div class="lg:col-span-2 space-y-6">
             <!-- Image Gallery -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                {{-- @if($property->images->count() > 0)
+                    <!-- Main Image -->
+                    <div class="relative h-96 bg-gray-200">
+                        <img id="mainImage" src="{{ Storage::url($property->images->first()->file_path) }}" alt="{{ $property->full_address }}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 right-4 px-3 py-2 bg-black bg-opacity-60 text-white text-sm rounded-lg">
+                            {{ $property->images->count() }} Photos
+                        </div>
+                    </div>
+                    <!-- Thumbnail Grid -->
+                    <div class="grid grid-cols-5 gap-2 p-4 bg-plyform-mint/10">
+                        @foreach($property->images->take(5) as $image)
+                            <img src="{{ Storage::url($image->file_path) }}" alt="Thumbnail" 
+                                 onclick="changeMainImage('{{ Storage::url($image->file_path) }}')"
+                                 class="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-75 transition border-2 border-transparent hover:border-plyform-purple">
+                        @endforeach
+                    </div>
+                @else
+                    <div class="h-96 flex items-center justify-center bg-gradient-to-br from-plyform-purple to-plyform-dark">
+                        <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                @endif --}}
                 @if($property->floorplan_path)
                     <!-- Main Image -->
                     <div class="relative h-96 bg-gray-200">
@@ -85,84 +108,35 @@
                 </div>
 
                 <!-- Specifications -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     @if($property->bedrooms)
-                        <div class="relative group">
-                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
-                                <div class="flex items-center justify-center w-12 h-12 bg-purple-200 rounded-xl mb-3 mx-auto">
-                                    <svg class="w-7 h-7 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                                    </svg>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-purple-900 mb-1">{{ $property->bedrooms }}</div>
-                                    <div class="text-xs font-medium text-purple-700 uppercase tracking-wide">Bedrooms</div>
-                                </div>
-                            </div>
+                        <div class="text-center p-4 bg-plyform-purple/10 rounded-xl">
+                            <div class="text-3xl font-bold text-plyform-dark">{{ $property->bedrooms }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Bedrooms</div>
                         </div>
                     @endif
-                    
                     @if($property->bathrooms)
-                        <div class="relative group">
-                            <div class="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-5 border-2 border-teal-200 hover:border-teal-400 transition-all hover:shadow-lg">
-                                <div class="flex items-center justify-center w-12 h-12 bg-teal-200 rounded-xl mb-3 mx-auto">
-                                    <svg class="w-7 h-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
-                                    </svg>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-teal-900 mb-1">{{ $property->bathrooms }}</div>
-                                    <div class="text-xs font-medium text-teal-700 uppercase tracking-wide">Bathrooms</div>
-                                </div>
-                            </div>
+                        <div class="text-center p-4 bg-plyform-mint/30 rounded-xl">
+                            <div class="text-3xl font-bold text-plyform-dark">{{ $property->bathrooms }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Bathrooms</div>
                         </div>
                     @endif
-                    
                     @if($property->parking_spaces)
-                        <div class="relative group">
-                            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-5 border-2 border-yellow-200 hover:border-yellow-400 transition-all hover:shadow-lg">
-                                <div class="flex items-center justify-center w-12 h-12 bg-yellow-200 rounded-xl mb-3 mx-auto">
-                                    <svg class="w-7 h-7 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-yellow-900 mb-1">{{ $property->parking_spaces }}</div>
-                                    <div class="text-xs font-medium text-yellow-700 uppercase tracking-wide">Parking</div>
-                                </div>
-                            </div>
+                        <div class="text-center p-4 bg-plyform-yellow/30 rounded-xl">
+                            <div class="text-3xl font-bold text-plyform-dark">{{ $property->parking_spaces }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Parking</div>
                         </div>
                     @endif
-                    
                     @if($property->land_size)
-                        <div class="relative group">
-                            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-5 border-2 border-orange-200 hover:border-orange-400 transition-all hover:shadow-lg">
-                                <div class="flex items-center justify-center w-12 h-12 bg-orange-200 rounded-xl mb-3 mx-auto">
-                                    <svg class="w-7 h-7 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                                    </svg>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-orange-900 mb-1">{{ number_format($property->land_size) }}</div>
-                                    <div class="text-xs font-medium text-orange-700 uppercase tracking-wide">Land (m²)</div>
-                                </div>
-                            </div>
+                        <div class="text-center p-4 bg-plyform-orange/10 rounded-xl">
+                            <div class="text-3xl font-bold text-plyform-orange">{{ number_format($property->land_size) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Land (sqm)</div>
                         </div>
                     @endif
-                    
                     @if($property->building_size)
-                        <div class="relative group">
-                            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-5 border-2 border-indigo-200 hover:border-indigo-400 transition-all hover:shadow-lg">
-                                <div class="flex items-center justify-center w-12 h-12 bg-indigo-200 rounded-xl mb-3 mx-auto">
-                                    <svg class="w-7 h-7 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-indigo-900 mb-1">{{ number_format($property->building_size) }}</div>
-                                    <div class="text-xs font-medium text-indigo-700 uppercase tracking-wide">Building (m²)</div>
-                                </div>
-                            </div>
+                        <div class="text-center p-4 bg-plyform-purple/10 rounded-xl">
+                            <div class="text-3xl font-bold text-plyform-dark">{{ number_format($property->building_size) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Unit (sqm)</div>
                         </div>
                     @endif
                 </div>
@@ -240,101 +214,26 @@
                 </div>
             </div>
 
-            <!-- Statistics Cards - NEW DESIGN -->
+            <!-- Statistics -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <h3 class="font-bold text-plyform-dark mb-4">Statistics</h3>
-                
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <!-- Views Card -->
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                        <div class="flex items-center justify-between mb-2">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </div>
-                        <div class="text-3xl font-bold text-purple-900 mb-1">{{ number_format($property->view_count) }}</div>
-                        <div class="text-xs font-medium text-purple-700">Views</div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-plyform-purple/10 rounded-lg">
+                        <span class="text-sm text-gray-600">Views</span>
+                        <span class="font-semibold text-plyform-dark">{{ number_format($property->view_count) }}</span>
                     </div>
-
-                    <!-- Applications Card - Clickable -->
-                    <a href="{{ route('agency.properties.applications', $property) }}" 
-                       class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 hover:shadow-lg transition-all group cursor-pointer">
-                        <div class="flex items-center justify-between mb-2">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <svg class="w-4 h-4 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </div>
-                        <div class="text-3xl font-bold text-blue-900 mb-1">{{ $property->applications->count() }}</div>
-                        <div class="text-xs font-medium text-blue-700">Applications</div>
-                    </a>
-
-                    <!-- Bookings/Inspections Card - Clickable -->
-                    <a href="{{ route('agency.properties.bookings', $property) }}" 
-                       class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200 hover:shadow-lg transition-all group cursor-pointer">
-                        <div class="flex items-center justify-between mb-2">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </div>
-                        <div class="text-3xl font-bold text-yellow-900 mb-1">{{ optional($property->inspectionBookings)->count() ?? 0 }}</div>
-                        <div class="text-xs font-medium text-yellow-700">Bookings</div>
-                    </a>
-
-                    <!-- Days Listed Card -->
-                    <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
-                        <div class="flex items-center justify-between mb-2">
-                            <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="text-xl font-bold text-pink-900 mb-1">{{ $property->created_at->diffForHumans() }}</div>
-                        <div class="text-xs font-medium text-pink-700">Days Listed</div>
+                    <div class="flex items-center justify-between p-3 bg-plyform-mint/30 rounded-lg">
+                        <span class="text-sm text-gray-600">Applications</span>
+                        <span class="font-semibold text-plyform-dark">{{ $property->applications->count() }}</span>
                     </div>
-                </div>
-
-                <!-- Performance Metrics -->
-                <div class="border-t border-gray-200 pt-4 space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-600">Views per Day</span>
-                        <span class="font-semibold text-plyform-dark">
-                            {{ $property->created_at->diffInDays() > 0 ? number_format($property->view_count / $property->created_at->diffInDays(), 1) : $property->view_count }}
-                        </span>
+                    <div class="flex items-center justify-between p-3 bg-plyform-yellow/30 rounded-lg">
+                        <span class="text-sm text-gray-600">Images</span>
+                        <span class="font-semibold text-plyform-dark">{{ $property->images->count() }}</span>
                     </div>
-                    
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-600">Application Rate</span>
-                        <span class="font-semibold text-plyform-dark">
-                            {{ $property->view_count > 0 ? number_format(($property->applications->count() / $property->view_count) * 100, 1) : 0 }}%
-                        </span>
+                    <div class="flex items-center justify-between p-3 bg-plyform-orange/10 rounded-lg">
+                        <span class="text-sm text-gray-600">Listed</span>
+                        <span class="font-semibold text-gray-700">{{ $property->created_at->diffForHumans() }}</span>
                     </div>
-                    
-                    @php
-                        $bookingsCount = optional($property->inspectionBookings)->count() ?? 0;
-                    @endphp
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-600">Booking Rate</span>
-                        <span class="font-semibold text-plyform-dark">
-                            {{ $property->view_count > 0 ? number_format(($bookingsCount / $property->view_count) * 100, 1) : 0 }}%
-                        </span>
-                    </div>
-                    
-                    @if($property->status == 'leased' && $property->leased_at)
-                        <div class="flex items-center justify-between text-xs p-2 bg-green-50 border border-green-200 rounded-lg mt-3">
-                            <span class="text-green-800 font-medium">Time to Lease</span>
-                            <span class="font-bold text-green-900">
-                                {{ $property->created_at->diffInDays($property->leased_at) }} days
-                            </span>
-                        </div>
-                    @endif
                 </div>
             </div>
 

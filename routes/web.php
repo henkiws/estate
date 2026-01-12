@@ -166,6 +166,10 @@ Route::middleware(['auth', 'role:agency', 'verified'])->prefix('agency')->name('
             Route::post('/{property}/images', [App\Http\Controllers\Agency\PropertyController::class, 'uploadImages'])->name('upload-images');
             Route::delete('/{property}/images/{image}', [App\Http\Controllers\Agency\PropertyController::class, 'deleteImage'])->name('delete-image');
             Route::post('/{property}/images/{image}/featured', [App\Http\Controllers\Agency\PropertyController::class, 'setFeaturedImage'])->name('set-featured-image');
+            // Property Applications & Bookings
+            Route::get('/{property}/applications', [App\Http\Controllers\Agency\PropertyController::class, 'applications'])->name('applications');
+            Route::get('/{property}/bookings', [App\Http\Controllers\Agency\PropertyController::class, 'bookings'])->name('bookings');
+            Route::get('applications/{application}/download', [App\Http\Controllers\Agency\PropertyController::class, 'downloadApplication'])->name('applications.download');
         });
         Route::prefix('applications')->name('applications.')->group(function () {
             Route::get('/', [ApplicationController::class, 'index'])->name('index');

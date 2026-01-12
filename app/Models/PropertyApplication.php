@@ -245,20 +245,7 @@ class PropertyApplication extends Model
      */
     public function getDaysAgo(): string
     {
-        $days = $this->created_at->diffInDays(now());
-        
-        if ($days === 0) {
-            return 'Today';
-        } elseif ($days === 1) {
-            return 'Yesterday';
-        } elseif ($days < 7) {
-            return $days . ' days ago';
-        } elseif ($days < 30) {
-            $weeks = floor($days / 7);
-            return $weeks . ($weeks === 1 ? ' week ago' : ' weeks ago');
-        } else {
-            return $this->created_at->format('M j, Y');
-        }
+        return $this->created_at->diffForHumans();
     }
 
     /**

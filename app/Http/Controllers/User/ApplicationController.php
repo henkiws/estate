@@ -14,6 +14,7 @@ use App\Models\UserEmployment;
 use App\Models\UserIncome;
 use App\Models\UserIdentification;
 use App\Models\UserPet;
+use App\Models\InspectionBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -528,6 +529,17 @@ class ApplicationController extends Controller
                 // Timestamps
                 'submitted_at' => now(),
             ]);
+
+            // ============ CREATE INSPECTION BOOKING (if applicable) ============
+            if ($validated['property_inspection'] === 'yes' && $validated['inspection_date']) {
+                InspectionBooking::create([
+                    'property_id' => $property->id,
+                    'user_id' => $user->id,
+                    'inspection_date' => $validated['inspection_date'],
+                    'status' => 'completed', // Since they already inspected
+                    'notes' => 'Property inspected before application submission',
+                ]);
+            }
             
             DB::commit();
             

@@ -88,7 +88,7 @@
                 
                 <!-- Search Bar -->
                 <div class="flex-1 max-w-2xl mx-4">
-                    <div class="relative">
+                    <div class="relative hidden">
                         <input 
                             type="text" 
                             placeholder="Search properties, applications..." 
