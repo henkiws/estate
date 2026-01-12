@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -117,7 +117,7 @@
                                     <select 
                                         name="incomes[{{ $index }}][source_of_income]" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     >
                                         <option value="">Select source</option>
                                         <option value="full_time_employment" {{ ($income['source_of_income'] ?? '') == 'full_time_employment' ? 'selected' : '' }}>Full-time Employment</option>
@@ -147,7 +147,7 @@
                                             min="0"
                                             required
                                             onchange="calculateTotal()"
-                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                             placeholder="0.00"
                                         >
                                     </div>
@@ -163,7 +163,7 @@
                                     type="file" 
                                     name="incomes[{{ $index }}][bank_statement]"
                                     accept=".pdf,.jpg,.jpeg,.png"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30"
                                 >
                                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
                             </div>
@@ -175,7 +175,7 @@
                 <button 
                     type="button" 
                     onclick="addIncome()"
-                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-green hover:text-plyform-dark hover:bg-plyform-green/5 transition flex items-center justify-center gap-2 font-medium"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -208,7 +208,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -270,7 +270,7 @@ function addIncome() {
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">
                         Source of Income <span class="text-plyform-orange">*</span>
                     </label>
-                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         <option value="">Select source</option>
                         <option value="full_time_employment">Full-time Employment</option>
                         <option value="part_time_employment">Part-time Employment</option>
@@ -290,14 +290,14 @@ function addIncome() {
                     </label>
                     <div class="relative">
                         <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
-                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
+                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
                     </div>
                 </div>
             </div>
             
             <div class="mt-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
-                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
                 <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
             </div>
         </div>

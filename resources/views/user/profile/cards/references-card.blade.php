@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
@@ -141,7 +141,7 @@
                                         name="references[{{ $index }}][full_name]" 
                                         value="{{ $reference['full_name'] ?? '' }}"
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                         placeholder="John Smith"
                                     >
                                 </div>
@@ -156,7 +156,7 @@
                                         name="references[{{ $index }}][relationship]" 
                                         value="{{ $reference['relationship'] ?? '' }}"
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                         placeholder="Previous Landlord"
                                     >
                                 </div>
@@ -171,7 +171,7 @@
                                     <select 
                                         name="references[{{ $index }}][mobile_country_code]" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     >
                                         <option value="+61" {{ ($reference['mobile_country_code'] ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61 (Australia)</option>
                                         <option value="+1" {{ ($reference['mobile_country_code'] ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1 (USA/Canada)</option>
@@ -193,7 +193,7 @@
                                         value="{{ $reference['mobile_number'] ?? '' }}"
                                         required
                                         pattern="[0-9\s]+"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                         placeholder="400 000 000"
                                     >
                                 </div>
@@ -209,7 +209,7 @@
                                     name="references[{{ $index }}][email]" 
                                     value="{{ $reference['email'] ?? '' }}"
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     placeholder="reference@email.com"
                                 >
                             </div>
@@ -221,7 +221,7 @@
                 <button 
                     type="button" 
                     onclick="addReferenceItem()"
-                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-green hover:text-plyform-dark hover:bg-plyform-green/5 transition flex items-center justify-center gap-2 font-medium"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -258,7 +258,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -349,18 +349,18 @@ function addReferenceItem() {
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Name <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="references[${referenceIndex}][full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="John Smith">
+                    <input type="text" name="references[${referenceIndex}][full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Relationship <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="references[${referenceIndex}][relationship]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="Previous Landlord">
+                    <input type="text" name="references[${referenceIndex}][relationship]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Previous Landlord">
                 </div>
             </div>
             
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Country Code <span class="text-plyform-orange">*</span></label>
-                    <select name="references[${referenceIndex}][mobile_country_code]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="references[${referenceIndex}][mobile_country_code]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         <option value="+61" selected>🇦🇺 +61 (Australia)</option>
                         <option value="+1">🇺🇸 +1 (USA/Canada)</option>
                         <option value="+44">🇬🇧 +44 (UK)</option>
@@ -371,13 +371,13 @@ function addReferenceItem() {
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Mobile Number <span class="text-plyform-orange">*</span></label>
-                    <input type="tel" name="references[${referenceIndex}][mobile_number]" required pattern="[0-9\s]+" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="400 000 000">
+                    <input type="tel" name="references[${referenceIndex}][mobile_number]" required pattern="[0-9\s]+" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="400 000 000">
                 </div>
             </div>
             
             <div>
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Email Address <span class="text-plyform-orange">*</span></label>
-                <input type="email" name="references[${referenceIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="reference@email.com">
+                <input type="email" name="references[${referenceIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="reference@email.com">
             </div>
         </div>
     `;

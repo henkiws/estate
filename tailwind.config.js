@@ -25,6 +25,7 @@ export default {
         'plyform-mint': '#DDEECD',
         'plyform-dark': '#1E1C1C',
         'plyform-yellow': '#E6FF4B',
+        'plyform-green': '#0d9488',
         'plyform-orange': '#FF3600',
         'plyform-purple': '#5E17EB',
         'plyform-red': '#f86b6b',
@@ -34,6 +35,7 @@ export default {
           mint: '#DDEECD',
           dark: '#1E1C1C',
           yellow: '#E6FF4B',
+          green: '#0d9488',
           'yellow-dark': '#d4f039', // Darker yellow for hover states
           orange: '#FF3600',
           purple: '#5E17EB',

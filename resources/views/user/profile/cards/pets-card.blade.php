@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"/>
                     </svg>
@@ -74,7 +74,7 @@
                         value="1"
                         onchange="togglePetsSection()"
                         {{ old('has_pets', $user->pets->count() > 0) ? 'checked' : '' }}
-                        class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                        class="w-5 h-5 text-plyform-green border-gray-300 rounded focus:ring-2 focus:ring-plyform-green/20"
                     >
                     <span class="font-medium text-plyform-dark">I have pets</span>
                 </label>
@@ -109,7 +109,7 @@
                                 <div class="grid md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
-                                        <select name="pets[{{ $index }}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                        <select name="pets[{{ $index }}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                                             <option value="">Select type</option>
                                             <option value="dog" {{ ($pet['type'] ?? '') == 'dog' ? 'selected' : '' }}>Dog</option>
                                             <option value="cat" {{ ($pet['type'] ?? '') == 'cat' ? 'selected' : '' }}>Cat</option>
@@ -122,12 +122,12 @@
                                     
                                     <div>
                                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
-                                        <input type="text" name="pets[{{ $index }}][breed]" value="{{ $pet['breed'] ?? '' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., Golden Retriever">
+                                        <input type="text" name="pets[{{ $index }}][breed]" value="{{ $pet['breed'] ?? '' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., Golden Retriever">
                                     </div>
                                     
                                     <div>
                                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
-                                        <select name="pets[{{ $index }}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                        <select name="pets[{{ $index }}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                                             <option value="">Select</option>
                                             <option value="1" {{ ($pet['desexed'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
                                             <option value="0" {{ ($pet['desexed'] ?? '') == '0' ? 'selected' : '' }}>No</option>
@@ -136,7 +136,7 @@
                                     
                                     <div>
                                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
-                                        <select name="pets[{{ $index }}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                                        <select name="pets[{{ $index }}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                                             <option value="">Select size</option>
                                             <option value="small" {{ ($pet['size'] ?? '') == 'small' ? 'selected' : '' }}>Small (under 10kg)</option>
                                             <option value="medium" {{ ($pet['size'] ?? '') == 'medium' ? 'selected' : '' }}>Medium (10-25kg)</option>
@@ -147,20 +147,20 @@
                                 
                                 <div class="mt-4">
                                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
-                                    <input type="text" name="pets[{{ $index }}][registration_number]" value="{{ $pet['registration_number'] ?? '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., 123456">
+                                    <input type="text" name="pets[{{ $index }}][registration_number]" value="{{ $pet['registration_number'] ?? '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., 123456">
                                     <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
                                 </div>
                                 
                                 <div class="mt-4">
                                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
-                                    <input type="file" name="pets[{{ $index }}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                                    <input type="file" name="pets[{{ $index }}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
                                     <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                     
-                    <button type="button" onclick="addAnotherPet()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium">
+                    <button type="button" onclick="addAnotherPet()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-green hover:text-plyform-dark hover:bg-plyform-green/5 transition flex items-center justify-center gap-2 font-medium">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -182,7 +182,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -261,7 +261,7 @@ function addAnotherPet() {
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         <option value="">Select type</option>
                         <option value="dog">Dog</option>
                         <option value="cat">Cat</option>
@@ -274,12 +274,12 @@ function addAnotherPet() {
                 
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., Golden Retriever">
+                    <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., Golden Retriever">
                 </div>
                 
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         <option value="">Select</option>
                         <option value="1">Yes</option>
                         <option value="0">No</option>
@@ -288,7 +288,7 @@ function addAnotherPet() {
                 
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         <option value="">Select size</option>
                         <option value="small">Small (under 10kg)</option>
                         <option value="medium">Medium (10-25kg)</option>
@@ -299,13 +299,13 @@ function addAnotherPet() {
             
             <div class="mt-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
-                <input type="text" name="pets[${petIndex}][registration_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="e.g., 123456">
+                <input type="text" name="pets[${petIndex}][registration_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., 123456">
                 <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
             </div>
             
             <div class="mt-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
-                <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-yellow/20 file:text-plyform-dark hover:file:bg-plyform-yellow/30">
+                <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
                 <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
             </div>
         </div>

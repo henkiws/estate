@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     {{ strtoupper(substr($profile->first_name ?? 'U', 0, 1) . substr($profile->last_name ?? 'N', 0, 1)) }}
                 </div>
                 
@@ -92,7 +92,7 @@
                         <select 
                             name="title" 
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('title') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('title') border-red-500 @enderror"
                         >
                             <option value="">Select title</option>
                             <option value="Mr" {{ old('title', $profile->title ?? '') == 'Mr' ? 'selected' : '' }}>Mr</option>
@@ -118,7 +118,7 @@
                             name="first_name" 
                             value="{{ old('first_name', $profile->first_name ?? '') }}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('first_name') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('first_name') border-red-500 @enderror"
                             placeholder="Enter your first name"
                         >
                         @error('first_name')
@@ -139,7 +139,7 @@
                             type="text" 
                             name="middle_name" 
                             value="{{ old('middle_name', $profile->middle_name ?? '') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('middle_name') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('middle_name') border-red-500 @enderror"
                             placeholder="Enter your middle name (optional)"
                         >
                         @error('middle_name')
@@ -157,7 +157,7 @@
                             name="last_name" 
                             value="{{ old('last_name', $profile->last_name ?? '') }}"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('last_name') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('last_name') border-red-500 @enderror"
                             placeholder="Enter your last name"
                         >
                         @error('last_name')
@@ -178,7 +178,7 @@
                             type="text" 
                             name="surname" 
                             value="{{ old('surname', $profile->surname ?? '') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('surname') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('surname') border-red-500 @enderror"
                             placeholder="Enter surname (if applicable)"
                         >
                         @error('surname')
@@ -197,7 +197,7 @@
                             value="{{ old('date_of_birth', $profile->date_of_birth ? $profile->date_of_birth->format('Y-m-d') : '') }}"
                             required
                             max="{{ now()->subYears(18)->format('Y-m-d') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('date_of_birth') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('date_of_birth') border-red-500 @enderror"
                         >
                         @error('date_of_birth')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -248,7 +248,7 @@
                         <select 
                             name="mobile_country_code" 
                             required
-                            class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('mobile_country_code') border-red-500 @enderror"
+                            class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_country_code') border-red-500 @enderror"
                         >
                             <option value="+61" {{ old('mobile_country_code', $profile->mobile_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
                             <option value="+1" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
@@ -269,7 +269,7 @@
                             value="{{ old('mobile_number', $profile->mobile_number ?? '') }}"
                             required
                             pattern="[0-9]{8,15}"
-                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('mobile_number') border-red-500 @enderror"
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_number') border-red-500 @enderror"
                             placeholder="412345678"
                         >
                     </div>
@@ -304,7 +304,7 @@
                                 onchange="toggleEmergencyContact()"
                                 class="sr-only peer"
                             >
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-plyform-yellow/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-plyform-yellow"></div>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-plyform-green/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-plyform-green"></div>
                         </div>
                         <span class="text-sm font-medium text-plyform-dark">I have an emergency contact</span>
                     </label>
@@ -322,7 +322,7 @@
                                 type="text" 
                                 name="emergency_contact_name" 
                                 value="{{ old('emergency_contact_name', $profile->emergency_contact_name ?? '') }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_name') border-red-500 @enderror"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_name') border-red-500 @enderror"
                                 placeholder="Emergency contact name"
                             >
                             @error('emergency_contact_name')
@@ -337,7 +337,7 @@
                             </label>
                             <select 
                                 name="emergency_contact_relationship" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_relationship') border-red-500 @enderror"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_relationship') border-red-500 @enderror"
                             >
                                 <option value="">Select relationship</option>
                                 <option value="parent" {{ old('emergency_contact_relationship', $profile->emergency_contact_relationship ?? '') == 'parent' ? 'selected' : '' }}>Parent</option>
@@ -364,7 +364,7 @@
                             <div class="flex gap-2">
                                 <select 
                                     name="emergency_contact_country_code" 
-                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_country_code') border-red-500 @enderror"
+                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_country_code') border-red-500 @enderror"
                                 >
                                     <option value="+61" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
                                     <option value="+1" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
@@ -376,7 +376,7 @@
                                     name="emergency_contact_number" 
                                     value="{{ old('emergency_contact_number', $profile->emergency_contact_number ?? '') }}"
                                     pattern="[0-9]{8,15}"
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_number') border-red-500 @enderror"
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_number') border-red-500 @enderror"
                                     placeholder="412345678"
                                 >
                             </div>
@@ -397,7 +397,7 @@
                                 type="email" 
                                 name="emergency_contact_email" 
                                 value="{{ old('emergency_contact_email', $profile->emergency_contact_email ?? '') }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('emergency_contact_email') border-red-500 @enderror"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_email') border-red-500 @enderror"
                                 placeholder="emergency@example.com"
                             >
                             @error('emergency_contact_email')
@@ -430,7 +430,7 @@
                                 onchange="toggleGuarantor()"
                                 class="sr-only peer"
                             >
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-plyform-yellow/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-plyform-yellow"></div>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-plyform-green/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-plyform-green"></div>
                         </div>
                         <div>
                             <span class="text-sm font-medium text-plyform-dark block">I have a guarantor</span>
@@ -451,7 +451,7 @@
                                 type="text" 
                                 name="guarantor_name" 
                                 value="{{ old('guarantor_name', $profile->guarantor_name ?? '') }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('guarantor_name') border-red-500 @enderror"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_name') border-red-500 @enderror"
                                 placeholder="Guarantor's full name"
                             >
                             @error('guarantor_name')
@@ -467,7 +467,7 @@
                             <div class="flex gap-2">
                                 <select 
                                     name="guarantor_country_code" 
-                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('guarantor_country_code') border-red-500 @enderror"
+                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_country_code') border-red-500 @enderror"
                                 >
                                     <option value="+61" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
                                     <option value="+1" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
@@ -479,7 +479,7 @@
                                     name="guarantor_number" 
                                     value="{{ old('guarantor_number', $profile->guarantor_number ?? '') }}"
                                     pattern="[0-9]{8,15}"
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('guarantor_number') border-red-500 @enderror"
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_number') border-red-500 @enderror"
                                     placeholder="412345678"
                                 >
                             </div>
@@ -502,7 +502,7 @@
                             type="email" 
                             name="guarantor_email" 
                             value="{{ old('guarantor_email', $profile->guarantor_email ?? '') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all @error('guarantor_email') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_email') border-red-500 @enderror"
                             placeholder="guarantor@example.com"
                         >
                         @error('guarantor_email')
@@ -525,7 +525,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

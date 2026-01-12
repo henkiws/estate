@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -122,7 +122,7 @@
                 </div>
                 
                 <!-- Acceptance Checkbox -->
-                <div class="p-4 border-2 border-plyform-yellow/30 bg-plyform-yellow/5 rounded-lg">
+                <div class="p-4 border-2 border-plyform-green/30 bg-plyform-green/5 rounded-lg">
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input 
                             type="checkbox" 
@@ -130,7 +130,7 @@
                             value="1"
                             {{ old('terms_accepted', $profile?->terms_accepted ?? false) ? 'checked' : '' }}
                             required
-                            class="mt-1 w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-2 focus:ring-plyform-yellow/20"
+                            class="mt-1 w-5 h-5 text-plyform-green border-gray-300 rounded focus:ring-2 focus:ring-plyform-green/20"
                         >
                         <span class="text-sm text-plyform-dark font-medium">
                             I have read, understood, and agree to the above terms and conditions. 
@@ -162,7 +162,7 @@
                         name="signature" 
                         value="{{ old('signature', $profile->signature ?? '') }}"
                         required
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all font-serif text-2xl"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all font-serif text-2xl"
                         placeholder="Your Full Name"
                     >
                     <p class="mt-2 text-xs text-gray-500">By typing your name, you agree that this constitutes a legal electronic signature</p>
@@ -182,7 +182,7 @@
             </div>
             
             <!-- Final Submission Notice -->
-            <div class="p-6 bg-gradient-to-r from-plyform-mint/20 to-plyform-yellow/10 border-2 border-plyform-mint rounded-xl">
+            <div class="p-6 bg-gradient-to-r from-plyform-mint/20 to-plyform-green/10 border-2 border-plyform-mint rounded-xl">
                 <div class="flex items-start gap-4">
                     <svg class="w-8 h-8 text-plyform-dark flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -216,7 +216,7 @@
                 <button 
                     type="submit" 
                     id="final-submit-btn"
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

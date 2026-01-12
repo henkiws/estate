@@ -8,7 +8,7 @@
             <!-- Left: Icon + Content -->
             <div class="flex items-start gap-4 flex-1">
                 <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-yellow/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                     </svg>
@@ -85,7 +85,7 @@
                 </div>
                 
                 <!-- Info Box -->
-                <div class="p-4 bg-plyform-yellow/10 border border-plyform-yellow/30 rounded-lg mb-6">
+                <div class="p-4 bg-plyform-green/10 border border-plyform-green/30 rounded-lg mb-6">
                     <div class="flex gap-3">
                         <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -129,7 +129,7 @@
                                 <select 
                                     name="addresses[{{ $index }}][living_arrangement]" 
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                 >
                                     <option value="">Select arrangement</option>
                                     <option value="owner" {{ ($address['living_arrangement'] ?? '') == 'owner' ? 'selected' : '' }}>Owner</option>
@@ -151,7 +151,7 @@
                                     name="addresses[{{ $index }}][address]" 
                                     value="{{ $address['address'] ?? '' }}"
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     placeholder="123 Main Street, Sydney NSW 2000"
                                 >
                             </div>
@@ -165,7 +165,7 @@
                                     <select 
                                         name="addresses[{{ $index }}][years_lived]" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     >
                                         @for($i = 0; $i <= 20; $i++)
                                             <option value="{{ $i }}" {{ ($address['years_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'year' : 'years' }}</option>
@@ -180,7 +180,7 @@
                                     <select 
                                         name="addresses[{{ $index }}][months_lived]" 
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     >
                                         @for($i = 0; $i <= 11; $i++)
                                             <option value="{{ $i }}" {{ ($address['months_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'month' : 'months' }}</option>
@@ -198,7 +198,7 @@
                                     <textarea 
                                         name="addresses[{{ $index }}][reason_for_leaving]" 
                                         rows="3"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all resize-none"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none"
                                         placeholder="e.g., End of lease, relocated for work, purchased property..."
                                     >{{ $address['reason_for_leaving'] ?? '' }}</textarea>
                                 </div>
@@ -213,7 +213,7 @@
                                         value="1"
                                         onchange="togglePostalAddress({{ $index }})"
                                         {{ ($address['different_postal_address'] ?? false) ? 'checked' : '' }}
-                                        class="w-5 h-5 text-plyform-yellow border-gray-300 rounded focus:ring-plyform-yellow/20"
+                                        class="w-5 h-5 text-plyform-green border-gray-300 rounded focus:ring-plyform-green/20"
                                     >
                                     <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
                                 </label>
@@ -227,7 +227,7 @@
                                     type="text" 
                                     name="addresses[{{ $index }}][postal_code]" 
                                     value="{{ $address['postal_code'] ?? '' }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
                                     placeholder="PO Box 123, Sydney NSW 2000"
                                 >
                             </div>
@@ -244,7 +244,7 @@
                 <button 
                     type="button" 
                     onclick="addAddressItem()"
-                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-yellow hover:text-plyform-dark hover:bg-plyform-yellow/5 transition flex items-center justify-center gap-2 font-medium"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-plyform-green hover:text-plyform-dark hover:bg-plyform-green/5 transition flex items-center justify-center gap-2 font-medium"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -266,7 +266,7 @@
                 
                 <button 
                     type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-plyform-yellow to-plyform-mint text-plyform-dark font-semibold rounded-lg hover:from-plyform-yellow/90 hover:to-plyform-mint/90 transition shadow-sm flex items-center gap-2"
+                    class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -353,7 +353,7 @@ function addAddressItem() {
             
             <div class="mb-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Living Arrangement <span class="text-plyform-orange">*</span></label>
-                <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                     <option value="">Select arrangement</option>
                     <option value="owner">Owner</option>
                     <option value="renting_agent">Renting through Agent</option>
@@ -366,19 +366,19 @@ function addAddressItem() {
             
             <div class="mb-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Address <span class="text-plyform-orange">*</span></label>
-                <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
+                <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
             </div>
             
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Years Lived <span class="text-plyform-orange">*</span></label>
-                    <select name="addresses[${addressIndex}][years_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="addresses[${addressIndex}][years_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         ${Array.from({length: 21}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'year' : 'years'}</option>`).join('')}
                     </select>
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Months Lived <span class="text-plyform-orange">*</span></label>
-                    <select name="addresses[${addressIndex}][months_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all">
+                    <select name="addresses[${addressIndex}][months_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                         ${Array.from({length: 12}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'month' : 'months'}</option>`).join('')}
                     </select>
                 </div>
@@ -386,19 +386,19 @@ function addAddressItem() {
             
             <div class="mb-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Reason for Leaving</label>
-                <textarea name="addresses[${addressIndex}][reason_for_leaving]" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all resize-none" placeholder="e.g., End of lease, relocated for work, purchased property..."></textarea>
+                <textarea name="addresses[${addressIndex}][reason_for_leaving]" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none" placeholder="e.g., End of lease, relocated for work, purchased property..."></textarea>
             </div>
             
             <div class="mb-4">
                 <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
-                    <input type="checkbox" name="addresses[${addressIndex}][different_postal_address]" value="1" onchange="togglePostalAddress(${addressIndex})" class="w-5 h-5 text-plyform-yellow rounded focus:ring-plyform-yellow/20">
+                    <input type="checkbox" name="addresses[${addressIndex}][different_postal_address]" value="1" onchange="togglePostalAddress(${addressIndex})" class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20">
                     <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
                 </label>
             </div>
             
             <div class="postal-address-field hidden" data-index="${addressIndex}">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Postal Address <span class="text-plyform-orange">*</span></label>
-                <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
+                <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
             </div>
         </div>
     `;
