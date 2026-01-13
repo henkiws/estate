@@ -58,6 +58,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #d4ed39;
         }
+        
     </style>
     
     @stack('styles')

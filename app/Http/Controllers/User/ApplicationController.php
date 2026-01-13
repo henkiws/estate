@@ -146,6 +146,7 @@ class ApplicationController extends Controller
                 'lease_term' => 'required|integer|min:1|max:24',
                 'property_inspection' => 'required|in:yes,no',
                 'inspection_date' => 'required_if:property_inspection,yes|nullable|date|before_or_equal:today',
+                'rent_per_week' => 'required|numeric|min:0|max:999999999.99',
                 
                 // Step 1: Personal Details & Contact
                 'title' => 'required|string|in:Mr,Mrs,Ms,Miss,Dr,Prof,Other',
@@ -510,6 +511,7 @@ class ApplicationController extends Controller
                 
                 // Calculate annual income from weekly incomes
                 'annual_income' => collect($validated['incomes'])->sum('net_weekly_amount') * 52,
+                'rent_per_week' => $validated['rent_per_week'],
                 
                 // Application-specific fields
                 'move_in_date' => $validated['move_in_date'],

@@ -133,7 +133,7 @@
                             <input 
                                 type="date"
                                 id="sidebar_inspection_date"
-                                max="{{ date('Y-m-d') }}"
+                                min="{{ date('Y-m-d') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
                                 onchange="syncInspectionDate(this.value)"
                             >
@@ -175,17 +175,23 @@
                         </div>
                         
                         <div>
-                            <label class="text-sm font-medium text-gray-700 mb-2 block">Rent per week</label>
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">
+                                Rent per week <span class="text-red-500">*</span>
+                            </label>
                             <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
                                 <input 
                                     type="number"
-                                    name="sidebar_rent"
-                                    value="{{ $property->rent_per_week }}"
-                                    readonly
-                                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50"
+                                    id="rent_per_week_input"
+                                    value="{{ number_format($property->rent_per_week, 2, '.', '') }}"
+                                    required
+                                    min="0"
+                                    step="0.01"
+                                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                    placeholder="Enter weekly rent amount"
                                 >
                             </div>
+                            <p class="mt-1 text-xs text-gray-500">Enter the weekly rent amount for this property</p>
                         </div>
                     </div>
                     
@@ -260,6 +266,7 @@
                     <input type="hidden" name="property_id" value="{{ $property->id }}">
                     <input type="hidden" name="move_in_date" id="move_in_date_hidden" value="{{ old('move_in_date') }}">
                     <input type="hidden" name="lease_term" id="lease_term_hidden" value="{{ old('lease_term', 12) }}">
+                    <input type="hidden" name="rent_per_week" id="rent_per_week_hidden">
                     <input type="hidden" name="property_inspection" id="property_inspection_hidden" value="{{ old('property_inspection', 'no') }}">
                     <input type="hidden" name="inspection_date" id="inspection_date_hidden" value="{{ old('inspection_date') }}">
                     
@@ -753,7 +760,7 @@
                                         <input 
                                             type="checkbox" 
                                             name="has_employment" 
-                                            id="has-employment"
+                                            id="has_employment_checkbox"
                                             value="1"
                                             onchange="toggleEmploymentSection()"
                                             {{ old('has_employment', auth()->user()->employments->count() > 0) ? 'checked' : '' }}
@@ -2259,6 +2266,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     form.addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default first, we'll submit manually if valid
+
+        // Copy sidebar values to hidden fields
+        const rentInput = document.getElementById('rent_per_week_input');
+        const rentHidden = document.getElementById('rent_per_week_hidden');
+        
+        if (rentInput && rentHidden) {
+            rentHidden.value = rentInput.value;
+        }
+        
+        // Validate rent
+        if (!rentInput || !rentInput.value || parseFloat(rentInput.value) <= 0) {
+            alert('Please enter a valid rent amount.');
+            rentInput.focus();
+            return false;
+        }
         
         // Clear any existing error messages
         document.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -2446,6 +2468,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     firstError = { 
                         field: moveInDateDisplay, 
                         message: 'Please select a move-in date.', 
+                        sectionName: null,
+                        isSidebar: true
+                    };
+                }
+            }
+        }
+
+        // 10. Validate rent per week from sidebar
+        const rentPerWeek = document.getElementById('rent_per_week_hidden');
+        const rentPerWeekInput = document.getElementById('rent_per_week_input');
+        if (!rentPerWeek?.value || parseFloat(rentPerWeek.value) <= 0) {
+            // Show error in sidebar
+            if (rentPerWeekInput) {
+                rentPerWeekInput.classList.add('border-2', 'border-red-500');
+                
+                const errorEl = document.createElement('p');
+                errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
+                errorEl.textContent = 'Please enter a valid rent amount.';
+                rentPerWeekInput.parentElement.appendChild(errorEl);
+                
+                if (!firstError) {
+                    firstError = { 
+                        field: rentPerWeekInput, 
+                        message: 'Please enter a valid rent amount.', 
                         sectionName: null,
                         isSidebar: true
                     };
@@ -2727,9 +2773,10 @@ function toggleEndDate(index) {
             // Create new flatpickr instance
             flatpickr(endDateField, {
                 dateFormat: "Y-m-d",
-                maxDate: "today",
+                // maxDate: "today",
                 allowInput: true,
                 disableMobile: false,
+                monthSelectorType: "dropdown",
                 onChange: function(selectedDates, dateStr, instance) {
                     endDateField.value = dateStr;
                 }
@@ -2851,6 +2898,7 @@ function initializeDatePickers(container = document) {
             maxDate: "today",
             allowInput: true,
             disableMobile: false,
+            monthSelectorType: "dropdown",
             onChange: function(selectedDates, dateStr, instance) {
                 field.value = dateStr;
             }
@@ -2869,6 +2917,7 @@ function initializeDatePickers(container = document) {
                 maxDate: "today",
                 allowInput: true,
                 disableMobile: false,
+                monthSelectorType: "dropdown",
                 onChange: function(selectedDates, dateStr, instance) {
                     field.value = dateStr;
                 }
@@ -3424,3 +3473,172 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
+
+@push('styles')
+<style>
+/* Flatpickr Custom Styling */
+.flatpickr-calendar {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    font-family: inherit;
+}
+
+.flatpickr-months {
+    padding: 10px;
+    background: linear-gradient(135deg, #5E17EB 0%, #8B5CF6 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.flatpickr-month {
+    height: auto;
+    color: white;
+}
+
+.flatpickr-current-month {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 32px;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.flatpickr-current-month .numInputWrapper {
+    width: 80px;
+}
+
+.flatpickr-current-month input.cur-year {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.flatpickr-current-month input.cur-year:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Navigation Arrows */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    fill: white !important;
+    padding: 8px;
+    position: static;
+    height: auto;
+    width: auto;
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Weekdays */
+.flatpickr-weekdays {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+span.flatpickr-weekday {
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* Days */
+.flatpickr-days {
+    border: none;
+}
+
+.flatpickr-day {
+    border-radius: 8px;
+    color: #374151;
+    font-weight: 500;
+    border: none;
+    margin: 2px;
+}
+
+.flatpickr-day.today {
+    border: 2px solid #5E17EB;
+    background: transparent;
+    color: #5E17EB;
+    font-weight: 700;
+}
+
+.flatpickr-day.today:hover {
+    background: #5E17EB;
+    color: white;
+}
+
+.flatpickr-day.selected {
+    background: #5E17EB;
+    color: white;
+    border: none;
+    font-weight: 700;
+}
+
+.flatpickr-day.selected:hover {
+    background: #7C3AED;
+}
+
+.flatpickr-day:hover {
+    background: #E6FF4B;
+    color: #374151;
+    border: none;
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.disabled:hover {
+    color: #d1d5db;
+    background: transparent;
+    cursor: not-allowed;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: #9ca3af;
+}
+
+/* Input styling when calendar is open */
+.flatpickr-input.active {
+    border-color: #5E17EB !important;
+    box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1) !important;
+}
+</style>
+@endpush

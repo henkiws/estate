@@ -36,6 +36,7 @@ class PropertyApplication extends Model
         'utility_electricity',
         'utility_gas',
         'utility_internet',
+        'rent_per_week',
 
         'property_inspection',      // ← Add this
         'inspection_date',           // ← Add this
@@ -80,6 +81,7 @@ class PropertyApplication extends Model
         'utility_electricity' => 'boolean',
         'utility_gas' => 'boolean',
         'utility_internet' => 'boolean',
+        'rent_per_week' => 'decimal:2',
     ];
 
     /**
