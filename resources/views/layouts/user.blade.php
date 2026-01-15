@@ -514,7 +514,8 @@
     </script>
 
     @include('user.profile.shared-assets-scripts')
-    @stack('scripts')
+    <!-- intl-tel-input JS -->
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/intlTelInput.min.js"></script>
 
     @stack('scripts')
 </body>

@@ -396,7 +396,7 @@
                                     <div class="grid md:grid-cols-2 gap-4">
                                         
                                         <!-- Surname -->
-                                        <div>
+                                        <div class="hidden">
                                             <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                                 Surname
                                             </label>
@@ -2131,783 +2131,874 @@
     </div>
 </div>
 
+<style>
+    /* intl-tel-input custom styling */
+    .iti {
+        display: block;
+        width: 100%;
+    }
+
+    .iti__flag-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: auto;
+        left: 0;
+        padding: 0;
+    }
+
+    .iti__selected-flag {
+        padding: 0 12px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid #d1d5db;
+        background-color: #f9fafb;
+        border-radius: 0.5rem 0 0 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .iti__selected-flag:hover {
+        background-color: #f3f4f6;
+    }
+
+    .iti__country-list {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        max-height: 300px;
+        margin-top: 4px;
+    }
+
+    .iti__country {
+        padding: 10px 16px;
+        transition: background-color 0.2s;
+    }
+
+    .iti__country:hover {
+        background-color: #E6FF4B;
+    }
+
+    .iti__country.iti__highlight {
+        background-color: #DDEECD;
+    }
+
+    .iti__country-name {
+        margin-right: 8px;
+        font-weight: 500;
+    }
+
+    .iti__dial-code {
+        color: #6b7280;
+    }
+
+    .iti__selected-dial-code {
+        font-weight: 600;
+        color: #374151;
+        margin-left: 4px;
+    }
+
+    .iti input[type="tel"] {
+        padding-left: 70px !important;
+        padding-right: 1rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    /* Search box in dropdown */
+    .iti__search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        margin: 8px;
+        width: calc(100% - 16px);
+    }
+
+    .iti__search-input:focus {
+        outline: none;
+        border-color: #5E17EB;
+        box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1);
+    }
+
+    /* Divider */
+    .iti__divider {
+        border-bottom: 1px solid #e5e7eb;
+        margin: 4px 0;
+    }
+
+    /* Arrow */
+    .iti__arrow {
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #6b7280;
+        margin-left: 6px;
+    }
+
+    .iti__arrow--up {
+        border-top: none;
+        border-bottom: 4px solid #6b7280;
+    }
+</style>
+
 <script>
-// Section toggle
-function toggleSection(sectionId) {
-    const card = document.querySelector(`[data-section="${sectionId}"]`);
-    const content = card.querySelector('.section-content');
-    const chevron = card.querySelector('.section-chevron');
-    
-    const isHidden = content.classList.contains('hidden');
-    
-    if (isHidden) {
-        content.classList.remove('hidden');
-        chevron.style.transform = 'rotate(90deg)';
-    } else {
-        content.classList.add('hidden');
-        chevron.style.transform = 'rotate(0deg)';
-    }
-    
-    updateProgress();
-}
-
-// Update progress
-function updateProgress() {
-    // Define which sections are required vs optional
-    const requiredSections = [
-        'about_me',
-        'address_history',
-        'employment',
-        'finances',
-        'identity_documents',
-        'household',
-        'terms_conditions'
-    ];
-    
-    const optionalSections = [
-        'emergency_contact',
-        'pets',
-        'utility_connections',
-        'additional_notes'
-    ];
-    
-    // Count only required sections
-    let completedCount = 0;
-    
-    requiredSections.forEach(sectionId => {
-        const statusIcon = document.querySelector(`#status_${sectionId}`);
-        if (statusIcon && statusIcon.classList.contains('bg-teal-100')) {
-            completedCount++;
-        }
-    });
-    
-    const totalRequired = requiredSections.length;
-    const percentage = Math.round((completedCount / totalRequired) * 100);
-    
-    // Update progress display
-    const progressPercentage = document.getElementById('progress-percentage');
-    const progressBar = document.getElementById('progress-bar');
-    
-    if (progressPercentage) {
-        progressPercentage.textContent = percentage + '%';
-    }
-    
-    if (progressBar) {
-        progressBar.style.width = percentage + '%';
+    // Section toggle
+    function toggleSection(sectionId) {
+        const card = document.querySelector(`[data-section="${sectionId}"]`);
+        const content = card.querySelector('.section-content');
+        const chevron = card.querySelector('.section-chevron');
         
-        // Change color based on progress
-        if (percentage === 100) {
-            progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
-        } else if (percentage >= 70) {
-            progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
+        const isHidden = content.classList.contains('hidden');
+        
+        if (isHidden) {
+            content.classList.remove('hidden');
+            chevron.style.transform = 'rotate(90deg)';
         } else {
-            progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
+            content.classList.add('hidden');
+            chevron.style.transform = 'rotate(0deg)';
         }
+        
+        updateProgress();
     }
-}
 
-// Sync inspection choice
-function syncInspectionChoice(value) {
-    document.getElementById('property_inspection_hidden').value = value;
-    
-    // Show/hide inspection date field
-    const inspectionDateSidebar = document.getElementById('inspection-date-sidebar');
-    if (value === 'yes') {
-        inspectionDateSidebar.classList.remove('hidden');
-    } else {
-        inspectionDateSidebar.classList.add('hidden');
-        document.getElementById('sidebar_inspection_date').value = '';
-        document.getElementById('inspection_date_hidden').value = '';
-    }
-}
-
-// Sync inspection date
-function syncInspectionDate(value) {
-    document.getElementById('inspection_date_hidden').value = value;
-}
-
-// Sync move-in date
-function syncMoveInDate(value) {
-    document.getElementById('move_in_date_hidden').value = value;
-}
-
-// Set lease term
-function setLeaseTerm(months) {
-    document.getElementById('lease_term_hidden').value = months;
-    
-    // Update button styles
-    document.querySelectorAll('.lease-term-btn').forEach(btn => {
-        btn.classList.remove('border-teal-500', 'bg-teal-50');
-        btn.classList.add('border-gray-300');
-    });
-    
-    event.target.classList.remove('border-gray-300');
-    event.target.classList.add('border-teal-500', 'bg-teal-50');
-}
-
-// Update occupants summary
-function updateOccupantsSummary(additionalCount) {
-    const total = parseInt(additionalCount) + 1;
-    const summaries = document.querySelectorAll('#occupants-summary, #household-summary');
-    summaries.forEach(summary => {
-        summary.textContent = `Summary: ${total} person${total > 1 ? 's' : ''} (1 leaseholder${additionalCount > 0 ? ', ' + additionalCount + ' additional' : ''})`;
-    });
-}
-
-// Form submission handling
-document.addEventListener('DOMContentLoaded', function() {
-    updateProgress();
-    
-    const form = document.getElementById('application-form');
-    const submitBtn = document.getElementById('submit-btn');
-    
-    // Disable HTML5 validation to handle it ourselves
-    form.setAttribute('novalidate', 'novalidate');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent default first, we'll submit manually if valid
-
-        // Copy sidebar values to hidden fields
-        const rentInput = document.getElementById('rent_per_week_input');
-        const rentHidden = document.getElementById('rent_per_week_hidden');
+    // Update progress
+    function updateProgress() {
+        // Define which sections are required vs optional
+        const requiredSections = [
+            'about_me',
+            'address_history',
+            'employment',
+            'finances',
+            'identity_documents',
+            'household',
+            'terms_conditions'
+        ];
         
-        if (rentInput && rentHidden) {
-            rentHidden.value = rentInput.value;
-        }
+        const optionalSections = [
+            'emergency_contact',
+            'pets',
+            'utility_connections',
+            'additional_notes'
+        ];
         
-        // Validate rent
-        if (!rentInput || !rentInput.value || parseFloat(rentInput.value) <= 0) {
-            alert('Please enter a valid rent amount.');
-            rentInput.focus();
-            return false;
-        }
+        // Count only required sections
+        let completedCount = 0;
         
-        // Clear any existing error messages
-        document.querySelectorAll('.field-error-message').forEach(el => el.remove());
-        document.querySelectorAll('.border-red-500').forEach(el => {
-            el.classList.remove('border-red-500');
+        requiredSections.forEach(sectionId => {
+            const statusIcon = document.querySelector(`#status_${sectionId}`);
+            if (statusIcon && statusIcon.classList.contains('bg-teal-100')) {
+                completedCount++;
+            }
         });
         
-        // Object to store first error found
-        let firstError = null;
+        const totalRequired = requiredSections.length;
+        const percentage = Math.round((completedCount / totalRequired) * 100);
         
-        // Helper function to show error on field
-        function showFieldError(field, message, sectionName = null) {
-            if (!firstError) {
-                firstError = { field, message, sectionName };
-            }
+        // Update progress display
+        const progressPercentage = document.getElementById('progress-percentage');
+        const progressBar = document.getElementById('progress-bar');
+        
+        if (progressPercentage) {
+            progressPercentage.textContent = percentage + '%';
+        }
+        
+        if (progressBar) {
+            progressBar.style.width = percentage + '%';
             
-            // Add red border to field
-            field.classList.add('border-red-500');
-            
-            // Create error message element
-            const errorEl = document.createElement('p');
-            errorEl.className = 'field-error-message mt-1 text-sm text-red-600 font-medium';
-            errorEl.textContent = message;
-            
-            // Insert error message after the field
-            if (field.parentElement) {
-                field.parentElement.appendChild(errorEl);
-            }
-        }
-        
-        // 1. Validate Terms & Conditions (check this first as it's at the bottom)
-        const acceptTerms = document.getElementById('accept_terms');
-        const declareAccuracy = document.getElementById('declare_accuracy');
-        const consentPrivacy = document.getElementById('consent_privacy');
-        
-        if (!acceptTerms?.checked) {
-            showFieldError(acceptTerms, 'You must accept the Terms and Conditions to submit.', 'terms_conditions');
-        }
-        if (!declareAccuracy?.checked) {
-            showFieldError(declareAccuracy, 'You must declare that all information is accurate.', 'terms_conditions');
-        }
-        if (!consentPrivacy?.checked) {
-            showFieldError(consentPrivacy, 'You must consent to privacy collection.', 'terms_conditions');
-        }
-        
-        // 2. Validate About Me section
-        const title = document.querySelector('select[name="title"]');
-        if (!title?.value) {
-            showFieldError(title, 'Please select your title.', 'about_me');
-        }
-        
-        const firstName = document.querySelector('input[name="first_name"]');
-        if (!firstName?.value || firstName.value.trim() === '') {
-            showFieldError(firstName, 'First name is required.', 'about_me');
-        }
-        
-        const lastName = document.querySelector('input[name="last_name"]');
-        if (!lastName?.value || lastName.value.trim() === '') {
-            showFieldError(lastName, 'Last name is required.', 'about_me');
-        }
-        
-        const dob = document.querySelector('input[name="date_of_birth"]');
-        if (!dob?.value) {
-            showFieldError(dob, 'Date of birth is required.', 'about_me');
-        }
-        
-        const email = document.querySelector('input[name="email"]');
-        if (!email?.value || email.value.trim() === '') {
-            showFieldError(email, 'Email is required.', 'about_me');
-        }
-        
-        const mobileNumber = document.querySelector('input[name="mobile_number"]');
-        if (!mobileNumber?.value || mobileNumber.value.trim() === '') {
-            showFieldError(mobileNumber, 'Mobile number is required.', 'about_me');
-        }
-        
-        // 3. Validate Address History
-        const address0 = document.querySelector('input[name="addresses[0][address]"]');
-        if (!address0?.value || address0.value.trim() === '') {
-            showFieldError(address0, 'At least one address is required.', 'address_history');
-        }
-        
-        const living0 = document.querySelector('select[name="addresses[0][living_arrangement]"]');
-        if (!living0?.value) {
-            showFieldError(living0, 'Living arrangement is required.', 'address_history');
-        }
-        
-        // 4. Validate Employment IF checkbox is checked
-        const hasEmployment = document.getElementById('has_employment_checkbox');
-        if (hasEmployment?.checked) {
-            const company0 = document.querySelector('input[name="employments[0][company_name]"]');
-            if (!company0?.value || company0.value.trim() === '') {
-                showFieldError(company0, 'Company name is required.', 'employment');
-            }
-            
-            const position0 = document.querySelector('input[name="employments[0][position]"]');
-            if (!position0?.value || position0.value.trim() === '') {
-                showFieldError(position0, 'Position is required.', 'employment');
-            }
-            
-            const salary0 = document.querySelector('input[name="employments[0][gross_annual_salary]"]');
-            if (!salary0?.value) {
-                showFieldError(salary0, 'Gross annual salary is required.', 'employment');
-            }
-        }
-        
-        // 5. Validate Income/Finances (always required)
-        const incomeSource0 = document.querySelector('select[name="incomes[0][source_of_income]"]');
-        if (!incomeSource0?.value) {
-            showFieldError(incomeSource0, 'Source of income is required.', 'finances');
-        }
-        
-        const incomeAmount0 = document.querySelector('input[name="incomes[0][net_weekly_amount]"]');
-        if (!incomeAmount0?.value) {
-            showFieldError(incomeAmount0, 'Net weekly amount is required.', 'finances');
-        }
-        
-        // 6. Validate Identity Documents (always required)
-        const idType0 = document.querySelector('select[name="identifications[0][identification_type]"]');
-        if (!idType0?.value) {
-            showFieldError(idType0, 'Document type is required.', 'identity_documents');
-        }
-        
-        // 7. Validate Household (always required)
-        const numOccupants = document.querySelector('input[name="number_of_occupants"]');
-        if (!numOccupants?.value || numOccupants.value < 1) {
-            showFieldError(numOccupants, 'Number of occupants is required (minimum 1).', 'household');
-        }
-        
-        const primaryFirstName = document.querySelector('input[name="occupants_details[0][first_name]"]');
-        if (!primaryFirstName?.value || primaryFirstName.value.trim() === '') {
-            showFieldError(primaryFirstName, 'Primary applicant first name is required.', 'household');
-        }
-        
-        const primaryLastName = document.querySelector('input[name="occupants_details[0][last_name]"]');
-        if (!primaryLastName?.value || primaryLastName.value.trim() === '') {
-            showFieldError(primaryLastName, 'Primary applicant last name is required.', 'household');
-        }
-        
-        const primaryAge = document.querySelector('input[name="occupants_details[0][age]"]');
-        if (!primaryAge?.value) {
-            showFieldError(primaryAge, 'Primary applicant age is required.', 'household');
-        } else if (parseInt(primaryAge.value) < 18) {
-            showFieldError(primaryAge, 'Primary applicant must be 18 years or older.', 'household');
-        }
-        
-        // 8. Validate Pets IF checkbox is checked
-        const hasPets = document.getElementById('has-pets');
-        if (hasPets?.checked) {
-            const petType0 = document.querySelector('select[name="pets[0][type]"]');
-            if (!petType0?.value) {
-                showFieldError(petType0, 'Pet type is required.', 'pets');
-            }
-            
-            const petBreed0 = document.querySelector('input[name="pets[0][breed]"]');
-            if (!petBreed0?.value || petBreed0.value.trim() === '') {
-                showFieldError(petBreed0, 'Pet breed is required.', 'pets');
-            }
-            
-            const petDesexed0 = document.querySelector('select[name="pets[0][desexed]"]');
-            if (!petDesexed0?.value && petDesexed0?.value !== '0') {
-                showFieldError(petDesexed0, 'Please specify if pet is desexed.', 'pets');
-            }
-            
-            const petSize0 = document.querySelector('select[name="pets[0][size]"]');
-            if (!petSize0?.value) {
-                showFieldError(petSize0, 'Pet size is required.', 'pets');
-            }
-        }
-        
-        // 9. Validate move-in date from sidebar
-        const moveInDate = document.getElementById('move_in_date_hidden');
-        if (!moveInDate?.value) {
-            // Show error in sidebar
-            const moveInDateDisplay = document.getElementById('move_in_date_display');
-            if (moveInDateDisplay) {
-                moveInDateDisplay.classList.add('border-2', 'border-red-500');
-                
-                const errorEl = document.createElement('p');
-                errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
-                errorEl.textContent = 'Please select a move-in date.';
-                moveInDateDisplay.parentElement.appendChild(errorEl);
-                
-                if (!firstError) {
-                    firstError = { 
-                        field: moveInDateDisplay, 
-                        message: 'Please select a move-in date.', 
-                        sectionName: null,
-                        isSidebar: true
-                    };
-                }
-            }
-        }
-
-        // 10. Validate rent per week from sidebar
-        const rentPerWeek = document.getElementById('rent_per_week_hidden');
-        const rentPerWeekInput = document.getElementById('rent_per_week_input');
-        if (!rentPerWeek?.value || parseFloat(rentPerWeek.value) <= 0) {
-            // Show error in sidebar
-            if (rentPerWeekInput) {
-                rentPerWeekInput.classList.add('border-2', 'border-red-500');
-                
-                const errorEl = document.createElement('p');
-                errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
-                errorEl.textContent = 'Please enter a valid rent amount.';
-                rentPerWeekInput.parentElement.appendChild(errorEl);
-                
-                if (!firstError) {
-                    firstError = { 
-                        field: rentPerWeekInput, 
-                        message: 'Please enter a valid rent amount.', 
-                        sectionName: null,
-                        isSidebar: true
-                    };
-                }
-            }
-        }
-        
-        // If there are errors, focus on first error
-        if (firstError) {
-            // If error is in a collapsible section, open it
-            if (firstError.sectionName) {
-                const sectionContent = document.querySelector(`[data-section="${firstError.sectionName}"] .section-content`);
-                if (sectionContent && sectionContent.classList.contains('hidden')) {
-                    toggleSection(firstError.sectionName);
-                }
-            }
-            
-            // Scroll to and focus the field
-            setTimeout(() => {
-                if (firstError.isSidebar) {
-                    // For sidebar elements, just scroll to them
-                    firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    // For form fields, scroll and focus
-                    firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.field.focus();
-                }
-                
-                // Show toast notification with error count
-                const errorCount = document.querySelectorAll('.field-error-message').length;
-                showToast(`Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} to submit your application.`, 'error');
-            }, 300);
-            
-            return false;
-        }
-        
-        // All validation passed - disable button and submit
-        // Remove pet fields if "has_pets" is not checked
-        if (!hasPets?.checked) {
-            document.querySelectorAll('[name^="pets["]').forEach(field => {
-                field.remove();
-            });
-        }
-
-        // Remove employment fields if "has_employment" is not checked
-        if (!hasEmployment?.checked) {
-            document.querySelectorAll('[name^="employments["]').forEach(field => {
-                field.remove();
-            });
-        }
-
-        // Remove emergency contact fields if not filled
-        const hasEmergencyContact = document.getElementById('has_emergency_contact');
-        if (!hasEmergencyContact?.checked) {
-            document.querySelectorAll('[name^="emergency_contact_"]').forEach(field => {
-                if (field.name !== 'has_emergency_contact') {
-                    field.remove();
-                }
-            });
-        }
-
-        // Disable submit button
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
-
-        // Submit the form
-        form.submit();
-    });
-});
-
-// Toast notification helper
-function showToast(message, type = 'error') {
-    // Remove existing toasts
-    document.querySelectorAll('.validation-toast').forEach(el => el.remove());
-    
-    const toast = document.createElement('div');
-    toast.className = 'validation-toast fixed top-20 right-4 z-50 max-w-md px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-0';
-    
-    if (type === 'error') {
-        toast.classList.add('bg-red-50', 'border-2', 'border-red-500', 'text-red-800');
-        toast.innerHTML = `
-            <div class="flex items-start gap-3">
-                <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-                <div class="flex-1">
-                    <p class="font-semibold mb-1">Validation Error</p>
-                    <p class="text-sm">${message}</p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                </button>
-            </div>
-        `;
-    }
-    
-    document.body.appendChild(toast);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.style.transform = 'translateX(120%)';
-        setTimeout(() => toast.remove(), 300);
-    }, 5000);
-}
-
-// Initialize address index
-var addressIndex = {{ count($addresses ?? []) }};
-
-// Toggle postal address field
-function togglePostalAddress(index) {
-    const checkbox = document.querySelector(`input[name="addresses[${index}][different_postal_address]"]`);
-    const postalField = document.querySelector(`.postal-address-field[data-index="${index}"]`);
-    
-    if (!checkbox || !postalField) {
-        return;
-    }
-    
-    const postalInput = postalField.querySelector('input');
-    
-    if (checkbox.checked) {
-        postalField.classList.remove('hidden');
-        if (postalInput) postalInput.required = true;
-    } else {
-        postalField.classList.add('hidden');
-        if (postalInput) {
-            postalInput.required = false;
-            postalInput.value = '';
-        }
-    }
-}
-
-// Add new address
-function addAddressItem() {
-    const container = document.getElementById('addresses-container');
-    
-    if (!container) {
-        console.error('Container not found!');
-        return;
-    }
-    
-    const newAddressHtml = `
-        <div class="address-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${addressIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-plyform-dark">Address ${addressIndex + 1}</h4>
-                <button type="button" onclick="removeAddressItem(${addressIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
-                    Remove
-                </button>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Living Arrangement <span class="text-plyform-orange">*</span></label>
-                <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                    <option value="">Select arrangement</option>
-                    <option value="owner">Owner</option>
-                    <option value="renting_agent">Renting through Agent</option>
-                    <option value="renting_privately">Renting Privately</option>
-                    <option value="with_parents">Living with Parents</option>
-                    <option value="sharing">Sharing</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Address <span class="text-plyform-orange">*</span></label>
-                <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Years Lived <span class="text-plyform-orange">*</span></label>
-                    <select name="addresses[${addressIndex}][years_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        ${Array.from({length: 21}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'year' : 'years'}</option>`).join('')}
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Months Lived <span class="text-plyform-orange">*</span></label>
-                    <select name="addresses[${addressIndex}][months_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        ${Array.from({length: 12}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'month' : 'months'}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Reason for Leaving</label>
-                <textarea name="addresses[${addressIndex}][reason_for_leaving]" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none" placeholder="e.g., End of lease, relocated for work, purchased property..."></textarea>
-            </div>
-            
-            <div class="mb-4">
-                <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
-                    <input type="checkbox" name="addresses[${addressIndex}][different_postal_address]" value="1" onchange="togglePostalAddress(${addressIndex})" class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20">
-                    <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
-                </label>
-            </div>
-            
-            <div class="postal-address-field hidden" data-index="${addressIndex}">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Postal Address <span class="text-plyform-orange">*</span></label>
-                <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', newAddressHtml);
-    addressIndex++;
-}
-
-// Remove address
-function removeAddressItem(index) {
-    const item = document.querySelector(`.address-item[data-index="${index}"]`);
-    if (item) {
-        item.remove();
-        // Renumber remaining addresses
-        document.querySelectorAll('.address-item').forEach((el, idx) => {
-            const heading = el.querySelector('h4');
-            if (idx === 0) {
-                heading.innerHTML = 'Address 1 <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded ml-2">Current</span>';
+            // Change color based on progress
+            if (percentage === 100) {
+                progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
+            } else if (percentage >= 70) {
+                progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
             } else {
-                heading.textContent = `Address ${idx + 1}`;
+                progressBar.className = 'bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500';
             }
+        }
+    }
+
+    // Sync inspection choice
+    function syncInspectionChoice(value) {
+        document.getElementById('property_inspection_hidden').value = value;
+        
+        // Show/hide inspection date field
+        const inspectionDateSidebar = document.getElementById('inspection-date-sidebar');
+        if (value === 'yes') {
+            inspectionDateSidebar.classList.remove('hidden');
+        } else {
+            inspectionDateSidebar.classList.add('hidden');
+            document.getElementById('sidebar_inspection_date').value = '';
+            document.getElementById('inspection_date_hidden').value = '';
+        }
+    }
+
+    // Sync inspection date
+    function syncInspectionDate(value) {
+        document.getElementById('inspection_date_hidden').value = value;
+    }
+
+    // Sync move-in date
+    function syncMoveInDate(value) {
+        document.getElementById('move_in_date_hidden').value = value;
+    }
+
+    // Set lease term
+    function setLeaseTerm(months) {
+        document.getElementById('lease_term_hidden').value = months;
+        
+        // Update button styles
+        document.querySelectorAll('.lease-term-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50');
+            btn.classList.add('border-gray-300');
+        });
+        
+        event.target.classList.remove('border-gray-300');
+        event.target.classList.add('border-teal-500', 'bg-teal-50');
+    }
+
+    // Update occupants summary
+    function updateOccupantsSummary(additionalCount) {
+        const total = parseInt(additionalCount) + 1;
+        const summaries = document.querySelectorAll('#occupants-summary, #household-summary');
+        summaries.forEach(summary => {
+            summary.textContent = `Summary: ${total} person${total > 1 ? 's' : ''} (1 leaseholder${additionalCount > 0 ? ', ' + additionalCount + ' additional' : ''})`;
         });
     }
-}
 
-// Initialize postal address fields on page load
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('input[name^="addresses"][name$="[different_postal_address]"]').forEach((checkbox) => {
-        const match = checkbox.name.match(/addresses\[(\d+)\]/);
-        if (match && checkbox.checked) {
-            const index = parseInt(match[1]);
-            togglePostalAddress(index);
-        }
-    });
-});
-
-// Employment functions
-let employmentIndex = {{ count($employments ?? []) }};
-
-function toggleEmploymentSection() {
-    const checkbox = document.getElementById('has_employment_checkbox');
-    const section = document.getElementById('employment-section');
-    
-    if (checkbox && section) {
-        if (checkbox.checked) {
-            section.classList.remove('hidden');
-        } else {
-            section.classList.add('hidden');
-        }
-    }
-}
-
-function toggleEndDate(index) {
-    const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
-    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input`);
-    const endDateContainer = document.querySelector(`.end-date-field[data-index="${index}"]`);
-    const requiredStar = document.querySelector(`.end-date-field[data-index="${index}"] .required-if`);
-    
-    if (checkbox && checkbox.checked) {
-        // Still employed - disable and hide end date
-        endDateField.required = false;
-        endDateField.disabled = true;
-        endDateField.value = '';
-        endDateContainer.classList.add('opacity-50', 'pointer-events-none');
-        if (requiredStar) requiredStar.classList.add('hidden');
-    } else {
-        // Not employed anymore - enable end date
-        endDateField.required = true;
-        endDateField.disabled = false;
-        endDateContainer.classList.remove('opacity-50', 'pointer-events-none');
-        if (requiredStar) requiredStar.classList.remove('hidden');
+    // Form submission handling
+    document.addEventListener('DOMContentLoaded', function() {
+        updateProgress();
         
-        // Reinitialize flatpickr for this field
-        if (typeof flatpickr !== 'undefined') {
-            // Destroy existing flatpickr instance if any
-            if (endDateField._flatpickr) {
-                endDateField._flatpickr.destroy();
+        const form = document.getElementById('application-form');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        // Disable HTML5 validation to handle it ourselves
+        form.setAttribute('novalidate', 'novalidate');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default first, we'll submit manually if valid
+
+            // Copy sidebar values to hidden fields
+            const rentInput = document.getElementById('rent_per_week_input');
+            const rentHidden = document.getElementById('rent_per_week_hidden');
+            
+            if (rentInput && rentHidden) {
+                rentHidden.value = rentInput.value;
             }
             
-            // Create new flatpickr instance
-            flatpickr(endDateField, {
-                dateFormat: "Y-m-d",
-                // maxDate: "today",
-                allowInput: true,
-                disableMobile: false,
-                monthSelectorType: "dropdown",
-                onChange: function(selectedDates, dateStr, instance) {
-                    endDateField.value = dateStr;
-                }
+            // Validate rent
+            if (!rentInput || !rentInput.value || parseFloat(rentInput.value) <= 0) {
+                alert('Please enter a valid rent amount.');
+                rentInput.focus();
+                return false;
+            }
+            
+            // Clear any existing error messages
+            document.querySelectorAll('.field-error-message').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
             });
+            
+            // Object to store first error found
+            let firstError = null;
+            
+            // Helper function to show error on field
+            function showFieldError(field, message, sectionName = null) {
+                if (!firstError) {
+                    firstError = { field, message, sectionName };
+                }
+                
+                // Add red border to field
+                field.classList.add('border-red-500');
+                
+                // Create error message element
+                const errorEl = document.createElement('p');
+                errorEl.className = 'field-error-message mt-1 text-sm text-red-600 font-medium';
+                errorEl.textContent = message;
+                
+                // Insert error message after the field
+                if (field.parentElement) {
+                    field.parentElement.appendChild(errorEl);
+                }
+            }
+            
+            // 1. Validate Terms & Conditions (check this first as it's at the bottom)
+            const acceptTerms = document.getElementById('accept_terms');
+            const declareAccuracy = document.getElementById('declare_accuracy');
+            const consentPrivacy = document.getElementById('consent_privacy');
+            
+            if (!acceptTerms?.checked) {
+                showFieldError(acceptTerms, 'You must accept the Terms and Conditions to submit.', 'terms_conditions');
+            }
+            if (!declareAccuracy?.checked) {
+                showFieldError(declareAccuracy, 'You must declare that all information is accurate.', 'terms_conditions');
+            }
+            if (!consentPrivacy?.checked) {
+                showFieldError(consentPrivacy, 'You must consent to privacy collection.', 'terms_conditions');
+            }
+            
+            // 2. Validate About Me section
+            const title = document.querySelector('select[name="title"]');
+            if (!title?.value) {
+                showFieldError(title, 'Please select your title.', 'about_me');
+            }
+            
+            const firstName = document.querySelector('input[name="first_name"]');
+            if (!firstName?.value || firstName.value.trim() === '') {
+                showFieldError(firstName, 'First name is required.', 'about_me');
+            }
+            
+            const lastName = document.querySelector('input[name="last_name"]');
+            if (!lastName?.value || lastName.value.trim() === '') {
+                showFieldError(lastName, 'Last name is required.', 'about_me');
+            }
+            
+            const dob = document.querySelector('input[name="date_of_birth"]');
+            if (!dob?.value) {
+                showFieldError(dob, 'Date of birth is required.', 'about_me');
+            }
+            
+            const email = document.querySelector('input[name="email"]');
+            if (!email?.value || email.value.trim() === '') {
+                showFieldError(email, 'Email is required.', 'about_me');
+            }
+            
+            const mobileNumber = document.querySelector('input[name="mobile_number"]');
+            if (!mobileNumber?.value || mobileNumber.value.trim() === '') {
+                showFieldError(mobileNumber, 'Mobile number is required.', 'about_me');
+            }
+            
+            // 3. Validate Address History
+            const address0 = document.querySelector('input[name="addresses[0][address]"]');
+            if (!address0?.value || address0.value.trim() === '') {
+                showFieldError(address0, 'At least one address is required.', 'address_history');
+            }
+            
+            const living0 = document.querySelector('select[name="addresses[0][living_arrangement]"]');
+            if (!living0?.value) {
+                showFieldError(living0, 'Living arrangement is required.', 'address_history');
+            }
+            
+            // 4. Validate Employment IF checkbox is checked
+            const hasEmployment = document.getElementById('has_employment_checkbox');
+            if (hasEmployment?.checked) {
+                const company0 = document.querySelector('input[name="employments[0][company_name]"]');
+                if (!company0?.value || company0.value.trim() === '') {
+                    showFieldError(company0, 'Company name is required.', 'employment');
+                }
+                
+                const position0 = document.querySelector('input[name="employments[0][position]"]');
+                if (!position0?.value || position0.value.trim() === '') {
+                    showFieldError(position0, 'Position is required.', 'employment');
+                }
+                
+                const salary0 = document.querySelector('input[name="employments[0][gross_annual_salary]"]');
+                if (!salary0?.value) {
+                    showFieldError(salary0, 'Gross annual salary is required.', 'employment');
+                }
+            }
+            
+            // 5. Validate Income/Finances (always required)
+            const incomeSource0 = document.querySelector('select[name="incomes[0][source_of_income]"]');
+            if (!incomeSource0?.value) {
+                showFieldError(incomeSource0, 'Source of income is required.', 'finances');
+            }
+            
+            const incomeAmount0 = document.querySelector('input[name="incomes[0][net_weekly_amount]"]');
+            if (!incomeAmount0?.value) {
+                showFieldError(incomeAmount0, 'Net weekly amount is required.', 'finances');
+            }
+            
+            // 6. Validate Identity Documents (always required)
+            const idType0 = document.querySelector('select[name="identifications[0][identification_type]"]');
+            if (!idType0?.value) {
+                showFieldError(idType0, 'Document type is required.', 'identity_documents');
+            }
+            
+            // 7. Validate Household (always required)
+            const numOccupants = document.querySelector('input[name="number_of_occupants"]');
+            if (!numOccupants?.value || numOccupants.value < 1) {
+                showFieldError(numOccupants, 'Number of occupants is required (minimum 1).', 'household');
+            }
+            
+            const primaryFirstName = document.querySelector('input[name="occupants_details[0][first_name]"]');
+            if (!primaryFirstName?.value || primaryFirstName.value.trim() === '') {
+                showFieldError(primaryFirstName, 'Primary applicant first name is required.', 'household');
+            }
+            
+            const primaryLastName = document.querySelector('input[name="occupants_details[0][last_name]"]');
+            if (!primaryLastName?.value || primaryLastName.value.trim() === '') {
+                showFieldError(primaryLastName, 'Primary applicant last name is required.', 'household');
+            }
+            
+            const primaryAge = document.querySelector('input[name="occupants_details[0][age]"]');
+            if (!primaryAge?.value) {
+                showFieldError(primaryAge, 'Primary applicant age is required.', 'household');
+            } else if (parseInt(primaryAge.value) < 18) {
+                showFieldError(primaryAge, 'Primary applicant must be 18 years or older.', 'household');
+            }
+            
+            // 8. Validate Pets IF checkbox is checked
+            const hasPets = document.getElementById('has-pets');
+            if (hasPets?.checked) {
+                const petType0 = document.querySelector('select[name="pets[0][type]"]');
+                if (!petType0?.value) {
+                    showFieldError(petType0, 'Pet type is required.', 'pets');
+                }
+                
+                const petBreed0 = document.querySelector('input[name="pets[0][breed]"]');
+                if (!petBreed0?.value || petBreed0.value.trim() === '') {
+                    showFieldError(petBreed0, 'Pet breed is required.', 'pets');
+                }
+                
+                const petDesexed0 = document.querySelector('select[name="pets[0][desexed]"]');
+                if (!petDesexed0?.value && petDesexed0?.value !== '0') {
+                    showFieldError(petDesexed0, 'Please specify if pet is desexed.', 'pets');
+                }
+                
+                const petSize0 = document.querySelector('select[name="pets[0][size]"]');
+                if (!petSize0?.value) {
+                    showFieldError(petSize0, 'Pet size is required.', 'pets');
+                }
+            }
+            
+            // 9. Validate move-in date from sidebar
+            const moveInDate = document.getElementById('move_in_date_hidden');
+            if (!moveInDate?.value) {
+                // Show error in sidebar
+                const moveInDateDisplay = document.getElementById('move_in_date_display');
+                if (moveInDateDisplay) {
+                    moveInDateDisplay.classList.add('border-2', 'border-red-500');
+                    
+                    const errorEl = document.createElement('p');
+                    errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
+                    errorEl.textContent = 'Please select a move-in date.';
+                    moveInDateDisplay.parentElement.appendChild(errorEl);
+                    
+                    if (!firstError) {
+                        firstError = { 
+                            field: moveInDateDisplay, 
+                            message: 'Please select a move-in date.', 
+                            sectionName: null,
+                            isSidebar: true
+                        };
+                    }
+                }
+            }
+
+            // 10. Validate rent per week from sidebar
+            const rentPerWeek = document.getElementById('rent_per_week_hidden');
+            const rentPerWeekInput = document.getElementById('rent_per_week_input');
+            if (!rentPerWeek?.value || parseFloat(rentPerWeek.value) <= 0) {
+                // Show error in sidebar
+                if (rentPerWeekInput) {
+                    rentPerWeekInput.classList.add('border-2', 'border-red-500');
+                    
+                    const errorEl = document.createElement('p');
+                    errorEl.className = 'field-error-message mt-2 text-sm text-red-600 font-medium';
+                    errorEl.textContent = 'Please enter a valid rent amount.';
+                    rentPerWeekInput.parentElement.appendChild(errorEl);
+                    
+                    if (!firstError) {
+                        firstError = { 
+                            field: rentPerWeekInput, 
+                            message: 'Please enter a valid rent amount.', 
+                            sectionName: null,
+                            isSidebar: true
+                        };
+                    }
+                }
+            }
+            
+            // If there are errors, focus on first error
+            if (firstError) {
+                // If error is in a collapsible section, open it
+                if (firstError.sectionName) {
+                    const sectionContent = document.querySelector(`[data-section="${firstError.sectionName}"] .section-content`);
+                    if (sectionContent && sectionContent.classList.contains('hidden')) {
+                        toggleSection(firstError.sectionName);
+                    }
+                }
+                
+                // Scroll to and focus the field
+                setTimeout(() => {
+                    if (firstError.isSidebar) {
+                        // For sidebar elements, just scroll to them
+                        firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        // For form fields, scroll and focus
+                        firstError.field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.field.focus();
+                    }
+                    
+                    // Show toast notification with error count
+                    const errorCount = document.querySelectorAll('.field-error-message').length;
+                    showToast(`Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} to submit your application.`, 'error');
+                }, 300);
+                
+                return false;
+            }
+            
+            // All validation passed - disable button and submit
+            // Remove pet fields if "has_pets" is not checked
+            if (!hasPets?.checked) {
+                document.querySelectorAll('[name^="pets["]').forEach(field => {
+                    field.remove();
+                });
+            }
+
+            // Remove employment fields if "has_employment" is not checked
+            if (!hasEmployment?.checked) {
+                document.querySelectorAll('[name^="employments["]').forEach(field => {
+                    field.remove();
+                });
+            }
+
+            // Remove emergency contact fields if not filled
+            const hasEmergencyContact = document.getElementById('has_emergency_contact');
+            if (!hasEmergencyContact?.checked) {
+                document.querySelectorAll('[name^="emergency_contact_"]').forEach(field => {
+                    if (field.name !== 'has_emergency_contact') {
+                        field.remove();
+                    }
+                });
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
+
+            // Submit the form
+            form.submit();
+        });
+    });
+
+    // Toast notification helper
+    function showToast(message, type = 'error') {
+        // Remove existing toasts
+        document.querySelectorAll('.validation-toast').forEach(el => el.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = 'validation-toast fixed top-20 right-4 z-50 max-w-md px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-0';
+        
+        if (type === 'error') {
+            toast.classList.add('bg-red-50', 'border-2', 'border-red-500', 'text-red-800');
+            toast.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <p class="font-semibold mb-1">Validation Error</p>
+                        <p class="text-sm">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            toast.style.transform = 'translateX(120%)';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    // Initialize address index
+    var addressIndex = {{ count($addresses ?? []) }};
+
+    // Toggle postal address field
+    function togglePostalAddress(index) {
+        const checkbox = document.querySelector(`input[name="addresses[${index}][different_postal_address]"]`);
+        const postalField = document.querySelector(`.postal-address-field[data-index="${index}"]`);
+        
+        if (!checkbox || !postalField) {
+            return;
+        }
+        
+        const postalInput = postalField.querySelector('input');
+        
+        if (checkbox.checked) {
+            postalField.classList.remove('hidden');
+            if (postalInput) postalInput.required = true;
+        } else {
+            postalField.classList.add('hidden');
+            if (postalInput) {
+                postalInput.required = false;
+                postalInput.value = '';
+            }
         }
     }
-}
 
-function addEmployment() {
-    const container = document.getElementById('employment-container');
-    const today = new Date().toISOString().split('T')[0];
-    
-    const newEmployment = `
-        <div class="employment-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-purple/30 transition-colors bg-white" data-index="${employmentIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-plyform-dark">Employment ${employmentIndex + 1}</h4>
-                <button type="button" onclick="removeEmployment(${employmentIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Name <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="employments[${employmentIndex}][company_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="ABC Company Pty Ltd">
+    // Add new address
+    function addAddressItem() {
+        const container = document.getElementById('addresses-container');
+        
+        if (!container) {
+            console.error('Container not found!');
+            return;
+        }
+        
+        const newAddressHtml = `
+            <div class="address-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${addressIndex}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-plyform-dark">Address ${addressIndex + 1}</h4>
+                    <button type="button" onclick="removeAddressItem(${addressIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                        Remove
+                    </button>
                 </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Position <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="employments[${employmentIndex}][position]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Senior Developer">
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Living Arrangement <span class="text-plyform-orange">*</span></label>
+                    <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                        <option value="">Select arrangement</option>
+                        <option value="owner">Owner</option>
+                        <option value="renting_agent">Renting through Agent</option>
+                        <option value="renting_privately">Renting Privately</option>
+                        <option value="with_parents">Living with Parents</option>
+                        <option value="sharing">Sharing</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Address <span class="text-plyform-orange">*</span></label>
-                <input type="text" name="employments[${employmentIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Business St, Sydney NSW 2000">
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500">$</span>
-                        <input type="number" name="employments[${employmentIndex}][gross_annual_salary]" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="75000">
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Address <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Years Lived <span class="text-plyform-orange">*</span></label>
+                        <select name="addresses[${addressIndex}][years_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            ${Array.from({length: 21}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'year' : 'years'}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Months Lived <span class="text-plyform-orange">*</span></label>
+                        <select name="addresses[${addressIndex}][months_lived]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            ${Array.from({length: 12}, (_, i) => `<option value="${i}">${i} ${i === 1 ? 'month' : 'months'}</option>`).join('')}
+                        </select>
                     </div>
                 </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Reason for Leaving</label>
+                    <textarea name="addresses[${addressIndex}][reason_for_leaving]" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none" placeholder="e.g., End of lease, relocated for work, purchased property..."></textarea>
                 </div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
-                    <input type="tel" name="employments[${employmentIndex}][contact_number]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0400 000 000">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
-                    <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="manager@company.com">
-                </div>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Start Date <span class="text-plyform-orange">*</span></label>
-                    <input type="date" name="employments[${employmentIndex}][start_date]" required max="${today}" class="employment-start-date w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Still Employed?</label>
-                    <label class="flex items-center gap-3 cursor-pointer mt-3 p-2 rounded-lg hover:bg-plyform-mint/10 transition-colors">
-                        <input type="checkbox" name="employments[${employmentIndex}][still_employed]" value="1" onchange="toggleEndDate(${employmentIndex})" class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20">
-                        <span class="text-sm">Yes, currently employed</span>
+                
+                <div class="mb-4">
+                    <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                        <input type="checkbox" name="addresses[${addressIndex}][different_postal_address]" value="1" onchange="togglePostalAddress(${addressIndex})" class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20">
+                        <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
                     </label>
                 </div>
-                <div class="end-date-field" data-index="${employmentIndex}">
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">End Date <span class="text-plyform-orange required-if">*</span></label>
-                    <input type="date" name="employments[${employmentIndex}][end_date]" required max="${today}" class="employment-end-date w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                
+                <div class="postal-address-field hidden" data-index="${addressIndex}">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Postal Address <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
                 </div>
             </div>
-            
-            <div>
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Employment Letter (Optional)</label>
-                <input type="file" name="employments[${employmentIndex}][employment_letter]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
-                <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', newEmployment);
-    
-    // Initialize flatpickr for the new date fields
-    const newElement = container.lastElementChild;
-    initializeDatePickers(newElement);
-    
-    employmentIndex++;
-}
-
-function removeEmployment(index) {
-    const item = document.querySelector(`.employment-item[data-index="${index}"]`);
-    if (item) {
-        item.remove();
-        // Renumber remaining items
-        document.querySelectorAll('.employment-item').forEach((el, idx) => {
-            el.querySelector('h4').textContent = `Employment ${idx + 1}`;
-        });
-    }
-}
-
-// Initialize flatpickr for date fields
-function initializeDatePickers(container = document) {
-    if (typeof flatpickr === 'undefined') return;
-    
-    // Initialize start date fields
-    container.querySelectorAll('.employment-start-date, input[name^="employments"][name$="[start_date]"]').forEach(field => {
-        if (field._flatpickr) {
-            field._flatpickr.destroy();
-        }
+        `;
         
-        flatpickr(field, {
-            dateFormat: "Y-m-d",
-            maxDate: "today",
-            allowInput: true,
-            disableMobile: false,
-            monthSelectorType: "dropdown",
-            onChange: function(selectedDates, dateStr, instance) {
-                field.value = dateStr;
+        container.insertAdjacentHTML('beforeend', newAddressHtml);
+        addressIndex++;
+    }
+
+    // Remove address
+    function removeAddressItem(index) {
+        const item = document.querySelector(`.address-item[data-index="${index}"]`);
+        if (item) {
+            item.remove();
+            // Renumber remaining addresses
+            document.querySelectorAll('.address-item').forEach((el, idx) => {
+                const heading = el.querySelector('h4');
+                if (idx === 0) {
+                    heading.innerHTML = 'Address 1 <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded ml-2">Current</span>';
+                } else {
+                    heading.textContent = `Address ${idx + 1}`;
+                }
+            });
+        }
+    }
+
+    // Initialize postal address fields on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[name^="addresses"][name$="[different_postal_address]"]').forEach((checkbox) => {
+            const match = checkbox.name.match(/addresses\[(\d+)\]/);
+            if (match && checkbox.checked) {
+                const index = parseInt(match[1]);
+                togglePostalAddress(index);
             }
         });
     });
-    
-    // Initialize end date fields (only if not disabled)
-    container.querySelectorAll('.employment-end-date, input[name^="employments"][name$="[end_date]"]').forEach(field => {
-        if (!field.disabled) {
+
+    // Employment functions
+    let employmentIndex = {{ count($employments ?? []) }};
+
+    function toggleEmploymentSection() {
+        const checkbox = document.getElementById('has_employment_checkbox');
+        const section = document.getElementById('employment-section');
+        
+        if (checkbox && section) {
+            if (checkbox.checked) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+    }
+
+    function toggleEndDate(index) {
+        const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
+        const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input`);
+        const endDateContainer = document.querySelector(`.end-date-field[data-index="${index}"]`);
+        const requiredStar = document.querySelector(`.end-date-field[data-index="${index}"] .required-if`);
+        
+        if (checkbox && checkbox.checked) {
+            // Still employed - disable and hide end date
+            endDateField.required = false;
+            endDateField.disabled = true;
+            endDateField.value = '';
+            endDateContainer.classList.add('opacity-50', 'pointer-events-none');
+            if (requiredStar) requiredStar.classList.add('hidden');
+        } else {
+            // Not employed anymore - enable end date
+            endDateField.required = true;
+            endDateField.disabled = false;
+            endDateContainer.classList.remove('opacity-50', 'pointer-events-none');
+            if (requiredStar) requiredStar.classList.remove('hidden');
+            
+            // Reinitialize flatpickr for this field
+            if (typeof flatpickr !== 'undefined') {
+                // Destroy existing flatpickr instance if any
+                if (endDateField._flatpickr) {
+                    endDateField._flatpickr.destroy();
+                }
+                
+                // Create new flatpickr instance
+                flatpickr(endDateField, {
+                    dateFormat: "Y-m-d",
+                    // maxDate: "today",
+                    allowInput: true,
+                    disableMobile: false,
+                    monthSelectorType: "dropdown",
+                    onChange: function(selectedDates, dateStr, instance) {
+                        endDateField.value = dateStr;
+                    }
+                });
+            }
+        }
+    }
+
+    function addEmployment() {
+        const container = document.getElementById('employment-container');
+        const today = new Date().toISOString().split('T')[0];
+        
+        const newEmployment = `
+            <div class="employment-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-purple/30 transition-colors bg-white" data-index="${employmentIndex}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-plyform-dark">Employment ${employmentIndex + 1}</h4>
+                    <button type="button" onclick="removeEmployment(${employmentIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Name <span class="text-plyform-orange">*</span></label>
+                        <input type="text" name="employments[${employmentIndex}][company_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="ABC Company Pty Ltd">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Position <span class="text-plyform-orange">*</span></label>
+                        <input type="text" name="employments[${employmentIndex}][position]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Senior Developer">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Address <span class="text-plyform-orange">*</span></label>
+                    <input type="text" name="employments[${employmentIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Business St, Sydney NSW 2000">
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-500">$</span>
+                            <input type="number" name="employments[${employmentIndex}][gross_annual_salary]" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="75000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
+                        <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
+                        <input type="tel" name="employments[${employmentIndex}][contact_number]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0400 000 000">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
+                        <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="manager@company.com">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Start Date <span class="text-plyform-orange">*</span></label>
+                        <input type="date" name="employments[${employmentIndex}][start_date]" required max="${today}" class="employment-start-date w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Still Employed?</label>
+                        <label class="flex items-center gap-3 cursor-pointer mt-3 p-2 rounded-lg hover:bg-plyform-mint/10 transition-colors">
+                            <input type="checkbox" name="employments[${employmentIndex}][still_employed]" value="1" onchange="toggleEndDate(${employmentIndex})" class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20">
+                            <span class="text-sm">Yes, currently employed</span>
+                        </label>
+                    </div>
+                    <div class="end-date-field" data-index="${employmentIndex}">
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">End Date <span class="text-plyform-orange required-if">*</span></label>
+                        <input type="date" name="employments[${employmentIndex}][end_date]" required max="${today}" class="employment-end-date w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Employment Letter (Optional)</label>
+                    <input type="file" name="employments[${employmentIndex}][employment_letter]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
+                    <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', newEmployment);
+        
+        // Initialize flatpickr for the new date fields
+        const newElement = container.lastElementChild;
+        initializeDatePickers(newElement);
+        
+        employmentIndex++;
+    }
+
+    function removeEmployment(index) {
+        const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+        if (item) {
+            item.remove();
+            // Renumber remaining items
+            document.querySelectorAll('.employment-item').forEach((el, idx) => {
+                el.querySelector('h4').textContent = `Employment ${idx + 1}`;
+            });
+        }
+    }
+
+    // Initialize flatpickr for date fields
+    function initializeDatePickers(container = document) {
+        if (typeof flatpickr === 'undefined') return;
+        
+        // Initialize start date fields
+        container.querySelectorAll('.employment-start-date, input[name^="employments"][name$="[start_date]"]').forEach(field => {
             if (field._flatpickr) {
                 field._flatpickr.destroy();
             }
@@ -2922,559 +3013,939 @@ function initializeDatePickers(container = document) {
                     field.value = dateStr;
                 }
             });
-        }
-    });
-}
-
-// Initialize on page load for employment
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all date pickers on page load
-    initializeDatePickers();
-    
-    // Check "still employed" checkboxes and disable end dates accordingly
-    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox) => {
-        const match = checkbox.name.match(/employments\[(\d+)\]\[still_employed\]/);
-        if (match) {
-            const index = match[1];
-            if (checkbox.checked) {
-                toggleEndDate(index);
-            }
-        }
-    });
-});
-
-// Income/Finances functions
-let incomeIndex = {{ count($incomes ?? []) }};
-
-function addIncome() {
-    const container = document.getElementById('income-container');
-    const newIncome = `
-        <div class="income-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${incomeIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-plyform-dark">Income Source ${incomeIndex + 1}</h4>
-                <button type="button" onclick="removeIncome(${incomeIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
-                    Remove
-                </button>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                        Source of Income <span class="text-plyform-orange">*</span>
-                    </label>
-                    <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="">Select source</option>
-                        <option value="full_time_employment">Full-time Employment</option>
-                        <option value="part_time_employment">Part-time Employment</option>
-                        <option value="casual_employment">Casual Employment</option>
-                        <option value="self_employed">Self-Employed</option>
-                        <option value="centrelink">Centrelink</option>
-                        <option value="pension">Pension</option>
-                        <option value="investment">Investment Income</option>
-                        <option value="savings">Savings</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                        Net Weekly Amount <span class="text-plyform-orange">*</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
-                        <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
-                <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
-                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', newIncome);
-    incomeIndex++;
-    calculateTotal();
-}
-
-function removeIncome(index) {
-    const item = document.querySelector(`.income-item[data-index="${index}"]`);
-    if (item) {
-        item.remove();
-        calculateTotal();
-        // Renumber remaining items
-        document.querySelectorAll('.income-item').forEach((el, idx) => {
-            el.querySelector('h4').textContent = `Income Source ${idx + 1}`;
         });
-    }
-}
-
-function calculateTotal() {
-    const inputs = document.querySelectorAll('input[name^="incomes"][name$="[net_weekly_amount]"]');
-    let total = 0;
-    inputs.forEach(input => {
-        const value = parseFloat(input.value) || 0;
-        total += value;
-    });
-    const totalElement = document.getElementById('total-income');
-    if (totalElement) {
-        totalElement.textContent = '$' + total.toFixed(2);
-    }
-}
-
-// Calculate total income on page load and when sections are opened
-document.addEventListener('DOMContentLoaded', function() {
-    // Calculate total when page loads
-    setTimeout(() => {
-        calculateTotal();
-    }, 100);
-});
-
-// Identity Documents functions
-var idIndex = {{ count($identifications ?? []) }};
-
-// Add new identification
-function addIdentificationItem() {
-    const container = document.getElementById('identification-container');
-    
-    if (!container) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    
-    const newIdHtml = `
-        <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-green/50 transition-colors bg-white" data-index="${idIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-plyform-dark">Document ${idIndex + 1}</h4>
-                <button type="button" onclick="removeIdentificationItem(${idIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Type <span class="text-plyform-orange">*</span></label>
-                <select name="identifications[${idIndex}][identification_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                    <option value="">Select document type</option>
-                    <option value="australian_drivers_licence">Australian Driver's Licence</option>
-                    <option value="passport">Passport</option>
-                    <option value="birth_certificate">Birth Certificate</option>
-                    <option value="medicare">Medicare Card</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Number (Optional)</label>
-                <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., ABC123456">
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
-                <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
-                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
-            </div>
-            
-            <div>
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Expiry Date (if applicable)</label>
-                <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', newIdHtml);
-    idIndex++;
-}
-
-// Remove identification
-function removeIdentificationItem(index) {
-    const item = document.querySelector(`.identification-item[data-index="${index}"]`);
-    
-    if (item) {
-        item.remove();
-        // Renumber remaining documents
-        document.querySelectorAll('.identification-item').forEach((el, idx) => {
-            el.querySelector('h4').textContent = `Document ${idx + 1}`;
-        });
-    }
-}
-
-// Emergency Contact toggle function
-function toggleEmergencyContact() {
-    const checkbox = document.getElementById('has_emergency_contact');
-    const fields = document.getElementById('emergency-contact-fields');
-    
-    if (checkbox && fields) {
-        if (checkbox.checked) {
-            fields.style.display = 'block';
-        } else {
-            fields.style.display = 'none';
-        }
-    }
-}
-
-// Pets functions
-var petIndex = {{ count($pets ?? []) }};
-
-// Toggle pets section visibility
-function togglePetsSection() {
-    const checkbox = document.getElementById('has-pets');
-    const section = document.getElementById('pets-section');
-    
-    if (checkbox && section) {
-        if (checkbox.checked) {
-            section.style.display = 'block';
-        } else {
-            section.style.display = 'none';
-        }
-    }
-}
-
-// Add new pet
-function addAnotherPet() {
-    const container = document.getElementById('pets-container');
-    
-    if (!container) {
-        console.error('Container not found!');
-        return;
-    }
-    
-    const newPetHtml = `
-        <div class="pet-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-orange/30 transition-colors bg-white" data-index="${petIndex}">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-plyform-dark">Pet ${petIndex + 1}</h4>
-                <button type="button" onclick="removePetItem(${petIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
-                    Remove
-                </button>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="">Select type</option>
-                        <option value="dog">Dog</option>
-                        <option value="cat">Cat</option>
-                        <option value="bird">Bird</option>
-                        <option value="fish">Fish</option>
-                        <option value="rabbit">Rabbit</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., Golden Retriever">
-                </div>
-                
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="">Select</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
-                    <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="">Select size</option>
-                        <option value="small">Small (under 10kg)</option>
-                        <option value="medium">Medium (10-25kg)</option>
-                        <option value="large">Large (over 25kg)</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
-                <input type="text" name="pets[${petIndex}][registration_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., 123456">
-                <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
-            </div>
-            
-            <div class="mt-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
-                <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
-                <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', newPetHtml);
-    petIndex++;
-}
-
-// Remove pet
-function removePetItem(index) {
-    const item = document.querySelector(`.pet-item[data-index="${index}"]`);
-    if (item) {
-        item.remove();
-        // Renumber remaining pets
-        document.querySelectorAll('.pet-item').forEach((el, idx) => {
-            el.querySelector('h4').textContent = `Pet ${idx + 1}`;
-        });
-    }
-}
-
-// Household/Occupants functions
-// Validate and update occupants input
-function validateOccupantsInput(input) {
-    let value = parseInt(input.value);
-    
-    // Prevent negative numbers and 0
-    if (value < 1 || isNaN(value)) {
-        input.value = 1;
-        value = 1;
-    }
-    
-    // Prevent more than 10
-    if (value > 10) {
-        input.value = 10;
-        value = 10;
-    }
-    
-    // Update the occupants fields
-    updateOccupantsFields(value);
-}
-
-// Update occupants fields function (keep existing, just update the call)
-function updateOccupantsFields(count) {
-    const container = document.getElementById('occupants-container');
-    const section = document.getElementById('occupants-section');
-    const summary = document.getElementById('household-summary');
-    
-    // Convert to number and validate
-    count = parseInt(count) || 1; // Default to 1 instead of 0
-    
-    // Ensure minimum of 1
-    if (count < 1) {
-        count = 1;
-    }
-    
-    // Ensure maximum of 10
-    if (count > 10) {
-        count = 10;
-    }
-    
-    // Update summary
-    if (summary) {
-        if (count === 1) {
-            summary.textContent = '1 person (you)';
-        } else {
-            summary.textContent = `${count} people (including you)`;
-        }
-    }
-    
-    // Always show section (since minimum is 1)
-    section.classList.remove('hidden');
-    
-    // Clear existing
-    container.innerHTML = '';
-    
-    // Create fields for ALL occupants (including yourself as Occupant 1)
-    for (let i = 0; i < count; i++) {
-        const occupantNumber = i + 1;
-        const isPrimary = i === 0;
         
-        const occupantFields = `
-            <div class="p-4 border-2 ${isPrimary ? 'border-plyform-mint bg-plyform-mint/10' : 'border-gray-200 bg-white'} rounded-lg mb-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <h4 class="font-semibold text-plyform-dark">
-                        ${isPrimary ? '👤 Primary Applicant (You)' : `Occupant ${occupantNumber}`}
-                    </h4>
-                    ${isPrimary ? '<span class="text-xs bg-plyform-green text-plyform-dark px-2 py-1 rounded-full font-semibold">Primary</span>' : ''}
+        // Initialize end date fields (only if not disabled)
+        container.querySelectorAll('.employment-end-date, input[name^="employments"][name$="[end_date]"]').forEach(field => {
+            if (!field.disabled) {
+                if (field._flatpickr) {
+                    field._flatpickr.destroy();
+                }
+                
+                flatpickr(field, {
+                    dateFormat: "Y-m-d",
+                    maxDate: "today",
+                    allowInput: true,
+                    disableMobile: false,
+                    monthSelectorType: "dropdown",
+                    onChange: function(selectedDates, dateStr, instance) {
+                        field.value = dateStr;
+                    }
+                });
+            }
+        });
+    }
+
+    // Initialize on page load for employment
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all date pickers on page load
+        initializeDatePickers();
+        
+        // Check "still employed" checkboxes and disable end dates accordingly
+        document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox) => {
+            const match = checkbox.name.match(/employments\[(\d+)\]\[still_employed\]/);
+            if (match) {
+                const index = match[1];
+                if (checkbox.checked) {
+                    toggleEndDate(index);
+                }
+            }
+        });
+    });
+
+    // Income/Finances functions
+    let incomeIndex = {{ count($incomes ?? []) }};
+
+    function addIncome() {
+        const container = document.getElementById('income-container');
+        const newIncome = `
+            <div class="income-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${incomeIndex}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-plyform-dark">Income Source ${incomeIndex + 1}</h4>
+                    <button type="button" onclick="removeIncome(${incomeIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                        Remove
+                    </button>
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                            First Name <span class="text-plyform-orange">*</span>
+                            Source of Income <span class="text-plyform-orange">*</span>
                         </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][first_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.first_name', isPrimary ? '{{ auth()->user()->profile->first_name ?? "" }}' : '')}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                            placeholder="${isPrimary ? 'Your first name' : 'First name'}"
-                        >
+                        <select name="incomes[${incomeIndex}][source_of_income]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            <option value="">Select source</option>
+                            <option value="full_time_employment">Full-time Employment</option>
+                            <option value="part_time_employment">Part-time Employment</option>
+                            <option value="casual_employment">Casual Employment</option>
+                            <option value="self_employed">Self-Employed</option>
+                            <option value="centrelink">Centrelink</option>
+                            <option value="pension">Pension</option>
+                            <option value="investment">Investment Income</option>
+                            <option value="savings">Savings</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
                     
                     <div>
                         <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                            Last Name <span class="text-plyform-orange">*</span>
+                            Net Weekly Amount <span class="text-plyform-orange">*</span>
                         </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][last_name]" 
-                            value="${getOldValue('occupants_details.' + i + '.last_name', isPrimary ? '{{ auth()->user()->profile->last_name ?? "" }}' : '')}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                            placeholder="${isPrimary ? 'Your last name' : 'Last name'}"
-                        >
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-500 font-semibold">$</span>
+                            <input type="number" name="incomes[${incomeIndex}][net_weekly_amount]" step="0.01" min="0" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0.00" onchange="calculateTotal()">
+                        </div>
                     </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                            Relationship <span class="text-plyform-orange">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="occupants_details[${i}][relationship]" 
-                            value="${isPrimary ? 'Primary Applicant' : getOldValue('occupants_details.' + i + '.relationship')}"
-                            ${isPrimary ? 'readonly' : 'required'}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all ${isPrimary ? 'bg-gray-100' : ''}"
-                            placeholder="${isPrimary ? 'Primary Applicant' : 'e.g., Partner, Child, Roommate'}"
-                        >
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                            Age ${isPrimary ? '<span class="text-plyform-orange">*</span>' : '(Optional)'}
-                        </label>
-                        <input 
-                            type="number" 
-                            name="occupants_details[${i}][age]" 
-                            value="${getOldValue('occupants_details.' + i + '.age')}"
-                            min="${isPrimary ? '18' : '0'}"
-                            max="120"
-                            ${isPrimary ? 'required' : ''}
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                            placeholder="${isPrimary ? 'Your age (must be 18+)' : 'Age'}"
-                        >
-                        ${isPrimary ? '<p class="text-xs text-gray-500 mt-1">Primary applicant must be 18 or older</p>' : ''}
-                    </div>
-                    
-                    ${isPrimary ? `
-                    <div class="md:col-span-2">
-                        <label class="text-sm font-medium text-plyform-dark mb-2 block">
-                            Email <span class="text-plyform-orange">*</span>
-                        </label>
-                        <input 
-                            type="email" 
-                            name="occupants_details[${i}][email]" 
-                            value="{{ auth()->user()->email }}"
-                            readonly
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                        >
-                        <p class="text-xs text-gray-500 mt-1">From your account</p>
-                    </div>
-                    ` : ''}
+                </div>
+                
+                <div class="mt-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
+                    <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
+                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
                 </div>
             </div>
         `;
         
-        container.insertAdjacentHTML('beforeend', occupantFields);
+        container.insertAdjacentHTML('beforeend', newIncome);
+        incomeIndex++;
+        calculateTotal();
     }
-}
 
-// Helper function to get old values (for form repopulation after validation errors)
-function getOldValue(key, defaultValue = '') {
-    // This is a simple implementation - you may need to enhance it based on your needs
-    return defaultValue;
-}
-
-// Initialize occupants fields on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const occupantsInput = document.querySelector('input[name="number_of_occupants"]');
-    if (occupantsInput && occupantsInput.value) {
-        updateOccupantsFields(occupantsInput.value);
+    function removeIncome(index) {
+        const item = document.querySelector(`.income-item[data-index="${index}"]`);
+        if (item) {
+            item.remove();
+            calculateTotal();
+            // Renumber remaining items
+            document.querySelectorAll('.income-item').forEach((el, idx) => {
+                el.querySelector('h4').textContent = `Income Source ${idx + 1}`;
+            });
+        }
     }
-});
 
-// Utility Connection functions
-function updateUtilitySummary() {
-    const electricity = document.querySelector('input[name="utility_electricity"]');
-    const gas = document.querySelector('input[name="utility_gas"]');
-    const internet = document.querySelector('input[name="utility_internet"]');
-    const summary = document.getElementById('utility-summary');
-    
-    if (!summary) return;
-    
-    const selected = [];
-    if (electricity && electricity.checked) selected.push('Electricity');
-    if (gas && gas.checked) selected.push('Gas');
-    if (internet && internet.checked) selected.push('Internet');
-    
-    if (selected.length === 0) {
-        summary.textContent = 'Optional free service';
-    } else {
-        summary.textContent = selected.join(', ') + ' selected';
+    function calculateTotal() {
+        const inputs = document.querySelectorAll('input[name^="incomes"][name$="[net_weekly_amount]"]');
+        let total = 0;
+        inputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            total += value;
+        });
+        const totalElement = document.getElementById('total-income');
+        if (totalElement) {
+            totalElement.textContent = '$' + total.toFixed(2);
+        }
     }
-}
 
-// Initialize utility summary on page load
-document.addEventListener('DOMContentLoaded', function() {
-    updateUtilitySummary();
-});
+    // Calculate total income on page load and when sections are opened
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate total when page loads
+        setTimeout(() => {
+            calculateTotal();
+        }, 100);
+    });
 
-// Terms and Conditions functions
-function updateTermsStatus() {
-    const acceptTerms = document.getElementById('accept_terms');
-    const declareAccuracy = document.getElementById('declare_accuracy');
-    const consentPrivacy = document.getElementById('consent_privacy');
-    const statusIcon = document.querySelector('#status_terms_conditions');
-    const summary = document.getElementById('terms-summary');
-    const submitBtn = document.getElementById('submit-btn');
-    
-    // Check if all checkboxes are checked
-    const allChecked = acceptTerms?.checked && declareAccuracy?.checked && consentPrivacy?.checked;
-    
-    // Update status icon
-    if (statusIcon) {
-        if (allChecked) {
-            statusIcon.innerHTML = `
-                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
+    // Identity Documents functions
+    var idIndex = {{ count($identifications ?? []) }};
+
+    // Add new identification
+    function addIdentificationItem() {
+        const container = document.getElementById('identification-container');
+        
+        if (!container) return;
+        
+        const today = new Date().toISOString().split('T')[0];
+        
+        const newIdHtml = `
+            <div class="identification-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-green/50 transition-colors bg-white" data-index="${idIndex}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-plyform-dark">Document ${idIndex + 1}</h4>
+                    <button type="button" onclick="removeIdentificationItem(${idIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Type <span class="text-plyform-orange">*</span></label>
+                    <select name="identifications[${idIndex}][identification_type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                        <option value="">Select document type</option>
+                        <option value="australian_drivers_licence">Australian Driver's Licence</option>
+                        <option value="passport">Passport</option>
+                        <option value="birth_certificate">Birth Certificate</option>
+                        <option value="medicare">Medicare Card</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Number (Optional)</label>
+                    <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., ABC123456">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
+                    <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
+                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
+                </div>
+                
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Expiry Date (if applicable)</label>
+                    <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', newIdHtml);
+        idIndex++;
+    }
+
+    // Remove identification
+    function removeIdentificationItem(index) {
+        const item = document.querySelector(`.identification-item[data-index="${index}"]`);
+        
+        if (item) {
+            item.remove();
+            // Renumber remaining documents
+            document.querySelectorAll('.identification-item').forEach((el, idx) => {
+                el.querySelector('h4').textContent = `Document ${idx + 1}`;
+            });
+        }
+    }
+
+    // Emergency Contact toggle function
+    function toggleEmergencyContact() {
+        const checkbox = document.getElementById('has_emergency_contact');
+        const fields = document.getElementById('emergency-contact-fields');
+        
+        if (checkbox && fields) {
+            if (checkbox.checked) {
+                fields.style.display = 'block';
+            } else {
+                fields.style.display = 'none';
+            }
+        }
+    }
+
+    // Pets functions
+    var petIndex = {{ count($pets ?? []) }};
+
+    // Toggle pets section visibility
+    function togglePetsSection() {
+        const checkbox = document.getElementById('has-pets');
+        const section = document.getElementById('pets-section');
+        
+        if (checkbox && section) {
+            if (checkbox.checked) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+    }
+
+    // Add new pet
+    function addAnotherPet() {
+        const container = document.getElementById('pets-container');
+        
+        if (!container) {
+            console.error('Container not found!');
+            return;
+        }
+        
+        const newPetHtml = `
+            <div class="pet-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-orange/30 transition-colors bg-white" data-index="${petIndex}">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-semibold text-plyform-dark">Pet ${petIndex + 1}</h4>
+                    <button type="button" onclick="removePetItem(${petIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                        Remove
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Type <span class="text-plyform-orange">*</span></label>
+                        <select name="pets[${petIndex}][type]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            <option value="">Select type</option>
+                            <option value="dog">Dog</option>
+                            <option value="cat">Cat</option>
+                            <option value="bird">Bird</option>
+                            <option value="fish">Fish</option>
+                            <option value="rabbit">Rabbit</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Breed <span class="text-plyform-orange">*</span></label>
+                        <input type="text" name="pets[${petIndex}][breed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., Golden Retriever">
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Desexed <span class="text-plyform-orange">*</span></label>
+                        <select name="pets[${petIndex}][desexed]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Size <span class="text-plyform-orange">*</span></label>
+                        <select name="pets[${petIndex}][size]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                            <option value="">Select size</option>
+                            <option value="small">Small (under 10kg)</option>
+                            <option value="medium">Medium (10-25kg)</option>
+                            <option value="large">Large (over 25kg)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Registration Number (Optional)</label>
+                    <input type="text" name="pets[${petIndex}][registration_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., 123456">
+                    <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
+                    <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
+                    <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', newPetHtml);
+        petIndex++;
+    }
+
+    // Remove pet
+    function removePetItem(index) {
+        const item = document.querySelector(`.pet-item[data-index="${index}"]`);
+        if (item) {
+            item.remove();
+            // Renumber remaining pets
+            document.querySelectorAll('.pet-item').forEach((el, idx) => {
+                el.querySelector('h4').textContent = `Pet ${idx + 1}`;
+            });
+        }
+    }
+
+    // Household/Occupants functions
+    // Validate and update occupants input
+    function validateOccupantsInput(input) {
+        let value = parseInt(input.value);
+        
+        // Prevent negative numbers and 0
+        if (value < 1 || isNaN(value)) {
+            input.value = 1;
+            value = 1;
+        }
+        
+        // Prevent more than 10
+        if (value > 10) {
+            input.value = 10;
+            value = 10;
+        }
+        
+        // Update the occupants fields
+        updateOccupantsFields(value);
+    }
+
+    // Update occupants fields function (keep existing, just update the call)
+    function updateOccupantsFields(count) {
+        const container = document.getElementById('occupants-container');
+        const section = document.getElementById('occupants-section');
+        const summary = document.getElementById('household-summary');
+        
+        // Convert to number and validate
+        count = parseInt(count) || 1; // Default to 1 instead of 0
+        
+        // Ensure minimum of 1
+        if (count < 1) {
+            count = 1;
+        }
+        
+        // Ensure maximum of 10
+        if (count > 10) {
+            count = 10;
+        }
+        
+        // Update summary
+        if (summary) {
+            if (count === 1) {
+                summary.textContent = '1 person (you)';
+            } else {
+                summary.textContent = `${count} people (including you)`;
+            }
+        }
+        
+        // Always show section (since minimum is 1)
+        section.classList.remove('hidden');
+        
+        // Clear existing
+        container.innerHTML = '';
+        
+        // Create fields for ALL occupants (including yourself as Occupant 1)
+        for (let i = 0; i < count; i++) {
+            const occupantNumber = i + 1;
+            const isPrimary = i === 0;
+            
+            const occupantFields = `
+                <div class="p-4 border-2 ${isPrimary ? 'border-plyform-mint bg-plyform-mint/10' : 'border-gray-200 bg-white'} rounded-lg mb-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <h4 class="font-semibold text-plyform-dark">
+                            ${isPrimary ? '👤 Primary Applicant (You)' : `Occupant ${occupantNumber}`}
+                        </h4>
+                        ${isPrimary ? '<span class="text-xs bg-plyform-green text-plyform-dark px-2 py-1 rounded-full font-semibold">Primary</span>' : ''}
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                First Name <span class="text-plyform-orange">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                name="occupants_details[${i}][first_name]" 
+                                value="${getOldValue('occupants_details.' + i + '.first_name', isPrimary ? '{{ auth()->user()->profile->first_name ?? "" }}' : '')}"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                placeholder="${isPrimary ? 'Your first name' : 'First name'}"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                Last Name <span class="text-plyform-orange">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                name="occupants_details[${i}][last_name]" 
+                                value="${getOldValue('occupants_details.' + i + '.last_name', isPrimary ? '{{ auth()->user()->profile->last_name ?? "" }}' : '')}"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                placeholder="${isPrimary ? 'Your last name' : 'Last name'}"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                Relationship <span class="text-plyform-orange">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                name="occupants_details[${i}][relationship]" 
+                                value="${isPrimary ? 'Primary Applicant' : getOldValue('occupants_details.' + i + '.relationship')}"
+                                ${isPrimary ? 'readonly' : 'required'}
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all ${isPrimary ? 'bg-gray-100' : ''}"
+                                placeholder="${isPrimary ? 'Primary Applicant' : 'e.g., Partner, Child, Roommate'}"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                Age ${isPrimary ? '<span class="text-plyform-orange">*</span>' : '(Optional)'}
+                            </label>
+                            <input 
+                                type="number" 
+                                name="occupants_details[${i}][age]" 
+                                value="${getOldValue('occupants_details.' + i + '.age')}"
+                                min="${isPrimary ? '18' : '0'}"
+                                max="120"
+                                ${isPrimary ? 'required' : ''}
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                placeholder="${isPrimary ? 'Your age (must be 18+)' : 'Age'}"
+                            >
+                            ${isPrimary ? '<p class="text-xs text-gray-500 mt-1">Primary applicant must be 18 or older</p>' : ''}
+                        </div>
+                        
+                        ${isPrimary ? `
+                        <div class="md:col-span-2">
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                Email <span class="text-plyform-orange">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                name="occupants_details[${i}][email]" 
+                                value="{{ auth()->user()->email }}"
+                                readonly
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
+                            >
+                            <p class="text-xs text-gray-500 mt-1">From your account</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
             `;
-            statusIcon.classList.remove('bg-gray-100');
-            statusIcon.classList.add('bg-teal-100');
-        } else {
-            statusIcon.innerHTML = `
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            `;
-            statusIcon.classList.remove('bg-teal-100');
-            statusIcon.classList.add('bg-gray-100');
+            
+            container.insertAdjacentHTML('beforeend', occupantFields);
         }
     }
-    
-    // Update summary
-    if (summary) {
-        if (allChecked) {
-            summary.textContent = 'All terms accepted';
-            summary.classList.remove('text-gray-500');
-            summary.classList.add('text-teal-600');
-        } else {
-            summary.textContent = 'Must be accepted to submit';
-            summary.classList.remove('text-teal-600');
-            summary.classList.add('text-gray-500');
-        }
-    }
-    
-    // Enable/disable submit button
-    if (submitBtn) {
-        if (allChecked) {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-    }
-}
 
-// Initialize terms status on page load
-document.addEventListener('DOMContentLoaded', function() {
-    updateTermsStatus();
-});
+    // Helper function to get old values (for form repopulation after validation errors)
+    function getOldValue(key, defaultValue = '') {
+        // This is a simple implementation - you may need to enhance it based on your needs
+        return defaultValue;
+    }
+
+    // Initialize occupants fields on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const occupantsInput = document.querySelector('input[name="number_of_occupants"]');
+        if (occupantsInput && occupantsInput.value) {
+            updateOccupantsFields(occupantsInput.value);
+        }
+    });
+
+    // Utility Connection functions
+    function updateUtilitySummary() {
+        const electricity = document.querySelector('input[name="utility_electricity"]');
+        const gas = document.querySelector('input[name="utility_gas"]');
+        const internet = document.querySelector('input[name="utility_internet"]');
+        const summary = document.getElementById('utility-summary');
+        
+        if (!summary) return;
+        
+        const selected = [];
+        if (electricity && electricity.checked) selected.push('Electricity');
+        if (gas && gas.checked) selected.push('Gas');
+        if (internet && internet.checked) selected.push('Internet');
+        
+        if (selected.length === 0) {
+            summary.textContent = 'Optional free service';
+        } else {
+            summary.textContent = selected.join(', ') + ' selected';
+        }
+    }
+
+    // Initialize utility summary on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateUtilitySummary();
+    });
+
+    // Terms and Conditions functions
+    function updateTermsStatus() {
+        const acceptTerms = document.getElementById('accept_terms');
+        const declareAccuracy = document.getElementById('declare_accuracy');
+        const consentPrivacy = document.getElementById('consent_privacy');
+        const statusIcon = document.querySelector('#status_terms_conditions');
+        const summary = document.getElementById('terms-summary');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        // Check if all checkboxes are checked
+        const allChecked = acceptTerms?.checked && declareAccuracy?.checked && consentPrivacy?.checked;
+        
+        // Update status icon
+        if (statusIcon) {
+            if (allChecked) {
+                statusIcon.innerHTML = `
+                    <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                `;
+                statusIcon.classList.remove('bg-gray-100');
+                statusIcon.classList.add('bg-teal-100');
+            } else {
+                statusIcon.innerHTML = `
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                `;
+                statusIcon.classList.remove('bg-teal-100');
+                statusIcon.classList.add('bg-gray-100');
+            }
+        }
+        
+        // Update summary
+        if (summary) {
+            if (allChecked) {
+                summary.textContent = 'All terms accepted';
+                summary.classList.remove('text-gray-500');
+                summary.classList.add('text-teal-600');
+            } else {
+                summary.textContent = 'Must be accepted to submit';
+                summary.classList.remove('text-teal-600');
+                summary.classList.add('text-gray-500');
+            }
+        }
+        
+        // Enable/disable submit button
+        if (submitBtn) {
+            if (allChecked) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+
+    // Initialize terms status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTermsStatus();
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========================================
+        // MOBILE NUMBER - intl-tel-input
+        // ========================================
+        const phoneInput = document.querySelector("#mobile_number");
+        if (phoneInput) {
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            // Set initial value if exists
+            const existingCountryCode = document.getElementById('mobile_country_code').value;
+            const existingNumber = document.getElementById('mobile_number_clean').value;
+            
+            if (existingCountryCode && existingNumber) {
+                const countryCode = existingCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of iti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    iti.setCountry(countryData.iso2);
+                }
+                phoneInput.value = existingNumber;
+            }
+
+            phoneInput.addEventListener('blur', function() {
+                updatePhoneFields();
+            });
+
+            phoneInput.addEventListener('countrychange', function() {
+                updatePhoneFields();
+            });
+
+            function updatePhoneFields() {
+                const countryData = iti.getSelectedCountryData();
+                document.getElementById('mobile_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = iti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('mobile_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate on form submit
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    updatePhoneFields();
+                    
+                    // Validate phone number
+                    if (phoneInput.value && !iti.isValidNumber()) {
+                        e.preventDefault();
+                        phoneInput.classList.add('border-red-500');
+                        
+                        let errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.className = 'phone-error mt-1 text-sm text-red-600';
+                            phoneInput.parentElement.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'Please enter a valid phone number for the selected country.';
+                        
+                        phoneInput.focus();
+                        return false;
+                    } else {
+                        phoneInput.classList.remove('border-red-500');
+                        const errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (errorMsg) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // EMERGENCY CONTACT PHONE - intl-tel-input
+        // ========================================
+        const emergencyPhoneInput = document.querySelector("#emergency_contact_phone");
+        if (emergencyPhoneInput) {
+            const emergencyIti = window.intlTelInput(emergencyPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingEmergencyCountryCode = document.getElementById('emergency_contact_country_code').value;
+            const existingEmergencyNumber = document.getElementById('emergency_contact_number_clean').value;
+            
+            if (existingEmergencyCountryCode && existingEmergencyNumber) {
+                const countryCode = existingEmergencyCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of emergencyIti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    emergencyIti.setCountry(countryData.iso2);
+                }
+                emergencyPhoneInput.value = existingEmergencyNumber;
+            }
+
+            emergencyPhoneInput.addEventListener('blur', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            emergencyPhoneInput.addEventListener('countrychange', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            function updateEmergencyPhoneFields() {
+                const countryData = emergencyIti.getSelectedCountryData();
+                document.getElementById('emergency_contact_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = emergencyIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('emergency_contact_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate emergency contact phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasEmergencyContact = document.getElementById('has_emergency_contact');
+                    
+                    if (hasEmergencyContact && hasEmergencyContact.checked) {
+                        updateEmergencyPhoneFields();
+                        
+                        if (emergencyPhoneInput.value && !emergencyIti.isValidNumber()) {
+                            e.preventDefault();
+                            emergencyPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'emergency-phone-error mt-1 text-sm text-red-600';
+                                emergencyPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid emergency contact phone number.';
+                            
+                            emergencyPhoneInput.focus();
+                            return false;
+                        } else {
+                            emergencyPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // GUARANTOR PHONE - intl-tel-input
+        // ========================================
+        const guarantorPhoneInput = document.querySelector("#guarantor_phone");
+        if (guarantorPhoneInput) {
+            const guarantorIti = window.intlTelInput(guarantorPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingGuarantorCountryCode = document.getElementById('guarantor_country_code').value;
+            const existingGuarantorNumber = document.getElementById('guarantor_number_clean').value;
+            
+            if (existingGuarantorCountryCode && existingGuarantorNumber) {
+                const countryCode = existingGuarantorCountryCode.replace('+', '');
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    guarantorIti.setCountry(countryData.iso2);
+                }
+                guarantorPhoneInput.value = existingGuarantorNumber;
+            }
+
+            guarantorPhoneInput.addEventListener('blur', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            guarantorPhoneInput.addEventListener('countrychange', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            function updateGuarantorPhoneFields() {
+                const countryData = guarantorIti.getSelectedCountryData();
+                document.getElementById('guarantor_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = guarantorIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('guarantor_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate guarantor phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasGuarantor = document.getElementById('has_guarantor');
+                    
+                    if (hasGuarantor && hasGuarantor.checked) {
+                        updateGuarantorPhoneFields();
+                        
+                        if (guarantorPhoneInput.value && !guarantorIti.isValidNumber()) {
+                            e.preventDefault();
+                            guarantorPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'guarantor-phone-error mt-1 text-sm text-red-600';
+                                guarantorPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid guarantor phone number.';
+                            
+                            guarantorPhoneInput.focus();
+                            return false;
+                        } else {
+                            guarantorPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
 </script>
 
 @endsection
 
 @push('styles')
+
+<style>
+    /* intl-tel-input custom styling */
+    .iti {
+        display: block;
+        width: 100%;
+    }
+
+    .iti__flag-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: auto;
+        left: 0;
+        padding: 0;
+    }
+
+    .iti__selected-flag {
+        padding: 0 12px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid #d1d5db;
+        background-color: #f9fafb;
+        border-radius: 0.5rem 0 0 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .iti__selected-flag:hover {
+        background-color: #f3f4f6;
+    }
+
+    .iti__country-list {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        max-height: 300px;
+        margin-top: 4px;
+    }
+
+    .iti__country {
+        padding: 10px 16px;
+        transition: background-color 0.2s;
+    }
+
+    .iti__country:hover {
+        background-color: #E6FF4B;
+    }
+
+    .iti__country.iti__highlight {
+        background-color: #DDEECD;
+    }
+
+    .iti__country-name {
+        margin-right: 8px;
+        font-weight: 500;
+    }
+
+    .iti__dial-code {
+        color: #6b7280;
+    }
+
+    .iti__selected-dial-code {
+        font-weight: 600;
+        color: #374151;
+        margin-left: 4px;
+    }
+
+    .iti input[type="tel"] {
+        padding-left: 70px !important;
+        padding-right: 1rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    /* Search box in dropdown */
+    .iti__search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        margin: 8px;
+        width: calc(100% - 16px);
+    }
+
+    .iti__search-input:focus {
+        outline: none;
+        border-color: #5E17EB;
+        box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1);
+    }
+
+    /* Divider */
+    .iti__divider {
+        border-bottom: 1px solid #e5e7eb;
+        margin: 4px 0;
+    }
+
+    /* Arrow */
+    .iti__arrow {
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #6b7280;
+        margin-left: 6px;
+    }
+
+    .iti__arrow--up {
+        border-top: none;
+        border-bottom: 4px solid #6b7280;
+    }
+</style>
 <style>
 /* Flatpickr Custom Styling */
 .flatpickr-calendar {

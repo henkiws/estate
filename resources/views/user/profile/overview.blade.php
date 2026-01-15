@@ -138,6 +138,116 @@
     </div>
 </div>
 
+<style>
+    /* intl-tel-input custom styling */
+    .iti {
+        display: block;
+        width: 100%;
+    }
+
+    .iti__flag-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: auto;
+        left: 0;
+        padding: 0;
+    }
+
+    .iti__selected-flag {
+        padding: 0 12px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid #d1d5db;
+        background-color: #f9fafb;
+        border-radius: 0.5rem 0 0 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .iti__selected-flag:hover {
+        background-color: #f3f4f6;
+    }
+
+    .iti__country-list {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        max-height: 300px;
+        margin-top: 4px;
+    }
+
+    .iti__country {
+        padding: 10px 16px;
+        transition: background-color 0.2s;
+    }
+
+    .iti__country:hover {
+        background-color: #E6FF4B;
+    }
+
+    .iti__country.iti__highlight {
+        background-color: #DDEECD;
+    }
+
+    .iti__country-name {
+        margin-right: 8px;
+        font-weight: 500;
+    }
+
+    .iti__dial-code {
+        color: #6b7280;
+    }
+
+    .iti__selected-dial-code {
+        font-weight: 600;
+        color: #374151;
+        margin-left: 4px;
+    }
+
+    .iti input[type="tel"] {
+        padding-left: 70px !important;
+        padding-right: 1rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    /* Search box in dropdown */
+    .iti__search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        margin: 8px;
+        width: calc(100% - 16px);
+    }
+
+    .iti__search-input:focus {
+        outline: none;
+        border-color: #5E17EB;
+        box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1);
+    }
+
+    /* Divider */
+    .iti__divider {
+        border-bottom: 1px solid #e5e7eb;
+        margin: 4px 0;
+    }
+
+    /* Arrow */
+    .iti__arrow {
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #6b7280;
+        margin-left: 6px;
+    }
+
+    .iti__arrow--up {
+        border-top: none;
+        border-bottom: 4px solid #6b7280;
+    }
+</style>
+
 @push('scripts')
 <script>
 // Calculate overall completion percentage
@@ -191,6 +301,258 @@ function scrollToCard(cardId) {
         }, 100);
     }
 }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========================================
+        // MOBILE NUMBER - intl-tel-input
+        // ========================================
+        const phoneInput = document.querySelector("#mobile_number");
+        if (phoneInput) {
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            // Set initial value if exists
+            const existingCountryCode = document.getElementById('mobile_country_code').value;
+            const existingNumber = document.getElementById('mobile_number_clean').value;
+            
+            if (existingCountryCode && existingNumber) {
+                const countryCode = existingCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of iti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    iti.setCountry(countryData.iso2);
+                }
+                phoneInput.value = existingNumber;
+            }
+
+            phoneInput.addEventListener('blur', function() {
+                updatePhoneFields();
+            });
+
+            phoneInput.addEventListener('countrychange', function() {
+                updatePhoneFields();
+            });
+
+            function updatePhoneFields() {
+                const countryData = iti.getSelectedCountryData();
+                document.getElementById('mobile_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = iti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('mobile_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate on form submit
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    updatePhoneFields();
+                    
+                    // Validate phone number
+                    if (phoneInput.value && !iti.isValidNumber()) {
+                        e.preventDefault();
+                        phoneInput.classList.add('border-red-500');
+                        
+                        let errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.className = 'phone-error mt-1 text-sm text-red-600';
+                            phoneInput.parentElement.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'Please enter a valid phone number for the selected country.';
+                        
+                        phoneInput.focus();
+                        return false;
+                    } else {
+                        phoneInput.classList.remove('border-red-500');
+                        const errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (errorMsg) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // EMERGENCY CONTACT PHONE - intl-tel-input
+        // ========================================
+        const emergencyPhoneInput = document.querySelector("#emergency_contact_phone");
+        if (emergencyPhoneInput) {
+            const emergencyIti = window.intlTelInput(emergencyPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingEmergencyCountryCode = document.getElementById('emergency_contact_country_code').value;
+            const existingEmergencyNumber = document.getElementById('emergency_contact_number_clean').value;
+            
+            if (existingEmergencyCountryCode && existingEmergencyNumber) {
+                const countryCode = existingEmergencyCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of emergencyIti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    emergencyIti.setCountry(countryData.iso2);
+                }
+                emergencyPhoneInput.value = existingEmergencyNumber;
+            }
+
+            emergencyPhoneInput.addEventListener('blur', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            emergencyPhoneInput.addEventListener('countrychange', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            function updateEmergencyPhoneFields() {
+                const countryData = emergencyIti.getSelectedCountryData();
+                document.getElementById('emergency_contact_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = emergencyIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('emergency_contact_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate emergency contact phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasEmergencyContact = document.getElementById('has_emergency_contact');
+                    
+                    if (hasEmergencyContact && hasEmergencyContact.checked) {
+                        updateEmergencyPhoneFields();
+                        
+                        if (emergencyPhoneInput.value && !emergencyIti.isValidNumber()) {
+                            e.preventDefault();
+                            emergencyPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'emergency-phone-error mt-1 text-sm text-red-600';
+                                emergencyPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid emergency contact phone number.';
+                            
+                            emergencyPhoneInput.focus();
+                            return false;
+                        } else {
+                            emergencyPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // GUARANTOR PHONE - intl-tel-input
+        // ========================================
+        const guarantorPhoneInput = document.querySelector("#guarantor_phone");
+        if (guarantorPhoneInput) {
+            const guarantorIti = window.intlTelInput(guarantorPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingGuarantorCountryCode = document.getElementById('guarantor_country_code').value;
+            const existingGuarantorNumber = document.getElementById('guarantor_number_clean').value;
+            
+            if (existingGuarantorCountryCode && existingGuarantorNumber) {
+                const countryCode = existingGuarantorCountryCode.replace('+', '');
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    guarantorIti.setCountry(countryData.iso2);
+                }
+                guarantorPhoneInput.value = existingGuarantorNumber;
+            }
+
+            guarantorPhoneInput.addEventListener('blur', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            guarantorPhoneInput.addEventListener('countrychange', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            function updateGuarantorPhoneFields() {
+                const countryData = guarantorIti.getSelectedCountryData();
+                document.getElementById('guarantor_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = guarantorIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('guarantor_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate guarantor phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasGuarantor = document.getElementById('has_guarantor');
+                    
+                    if (hasGuarantor && hasGuarantor.checked) {
+                        updateGuarantorPhoneFields();
+                        
+                        if (guarantorPhoneInput.value && !guarantorIti.isValidNumber()) {
+                            e.preventDefault();
+                            guarantorPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'guarantor-phone-error mt-1 text-sm text-red-600';
+                                guarantorPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid guarantor phone number.';
+                            
+                            guarantorPhoneInput.focus();
+                            return false;
+                        } else {
+                            guarantorPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+    });
 </script>
 @endpush
 @endsection

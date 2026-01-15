@@ -170,7 +170,7 @@
                 <div class="grid md:grid-cols-2 gap-4">
                     
                     <!-- Surname -->
-                    <div>
+                    <div class="hidden">
                         <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                             Surname
                         </label>
@@ -243,43 +243,28 @@
                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                         Mobile Number <span class="text-plyform-orange">*</span>
                     </label>
-                    <div class="flex gap-2">
-                        <!-- Country Code Dropdown -->
-                        <select 
-                            name="mobile_country_code" 
-                            required
-                            class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_country_code') border-red-500 @enderror"
-                        >
-                            <option value="+61" {{ old('mobile_country_code', $profile->mobile_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
-                            <option value="+1" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
-                            <option value="+44" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
-                            <option value="+64" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
-                            <option value="+86" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86</option>
-                            <option value="+81" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+81' ? 'selected' : '' }}>🇯🇵 +81</option>
-                            <option value="+82" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+82' ? 'selected' : '' }}>🇰🇷 +82</option>
-                            <option value="+65" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+65' ? 'selected' : '' }}>🇸🇬 +65</option>
-                            <option value="+60" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+60' ? 'selected' : '' }}>🇲🇾 +60</option>
-                            <option value="+62" {{ old('mobile_country_code', $profile->mobile_country_code ?? '') == '+62' ? 'selected' : '' }}>🇮🇩 +62</option>
-                        </select>
-                        
-                        <!-- Mobile Number Input -->
-                        <input 
-                            type="tel" 
-                            name="mobile_number" 
-                            value="{{ old('mobile_number', $profile->mobile_number ?? '') }}"
-                            required
-                            pattern="[0-9]{8,15}"
-                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_number') border-red-500 @enderror"
-                            placeholder="412345678"
-                        >
-                    </div>
+                    
+                    <input 
+                        type="tel" 
+                        id="mobile_number" 
+                        name="mobile_number_display"
+                        value="{{ old('mobile_number', $profile->mobile_number ?? '') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_number') border-red-500 @enderror"
+                        placeholder="Enter phone number"
+                    >
+                    
+                    <!-- Hidden fields for country code and number -->
+                    <input type="hidden" id="mobile_country_code" name="mobile_country_code" value="{{ old('mobile_country_code', $profile->mobile_country_code ?? '+61') }}">
+                    <input type="hidden" id="mobile_number_clean" name="mobile_number" value="{{ old('mobile_number', $profile->mobile_number ?? '') }}">
+                    
                     @error('mobile_country_code')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     @error('mobile_number')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-500">Enter your mobile number without spaces or leading zero (e.g., 412345678)</p>
+                    <p class="mt-1 text-xs text-gray-500">Select your country and enter your mobile number</p>
                 </div>
                 
             </div>
@@ -361,31 +346,27 @@
                             <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                 Phone Number <span class="text-plyform-orange">*</span>
                             </label>
-                            <div class="flex gap-2">
-                                <select 
-                                    name="emergency_contact_country_code" 
-                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_country_code') border-red-500 @enderror"
-                                >
-                                    <option value="+61" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
-                                    <option value="+1" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
-                                    <option value="+44" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
-                                    <option value="+64" {{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
-                                </select>
-                                <input 
-                                    type="tel" 
-                                    name="emergency_contact_number" 
-                                    value="{{ old('emergency_contact_number', $profile->emergency_contact_number ?? '') }}"
-                                    pattern="[0-9]{8,15}"
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_number') border-red-500 @enderror"
-                                    placeholder="412345678"
-                                >
-                            </div>
+                            
+                            <input 
+                                type="tel" 
+                                id="emergency_contact_phone" 
+                                name="emergency_contact_number_display"
+                                value="{{ old('emergency_contact_number', $profile->emergency_contact_number ?? '') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('emergency_contact_number') border-red-500 @enderror"
+                                placeholder="Enter phone number"
+                            >
+                            
+                            <!-- Hidden fields for country code and number -->
+                            <input type="hidden" id="emergency_contact_country_code" name="emergency_contact_country_code" value="{{ old('emergency_contact_country_code', $profile->emergency_contact_country_code ?? '+61') }}">
+                            <input type="hidden" id="emergency_contact_number_clean" name="emergency_contact_number" value="{{ old('emergency_contact_number', $profile->emergency_contact_number ?? '') }}">
+                            
                             @error('emergency_contact_country_code')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             @error('emergency_contact_number')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Select country and enter emergency contact number</p>
                         </div>
                         
                         <!-- Emergency Contact Email -->
@@ -464,31 +445,27 @@
                             <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                 Phone Number <span class="text-plyform-orange">*</span>
                             </label>
-                            <div class="flex gap-2">
-                                <select 
-                                    name="guarantor_country_code" 
-                                    class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_country_code') border-red-500 @enderror"
-                                >
-                                    <option value="+61" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
-                                    <option value="+1" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
-                                    <option value="+44" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
-                                    <option value="+64" {{ old('guarantor_country_code', $profile->guarantor_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
-                                </select>
-                                <input 
-                                    type="tel" 
-                                    name="guarantor_number" 
-                                    value="{{ old('guarantor_number', $profile->guarantor_number ?? '') }}"
-                                    pattern="[0-9]{8,15}"
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_number') border-red-500 @enderror"
-                                    placeholder="412345678"
-                                >
-                            </div>
+                            
+                            <input 
+                                type="tel" 
+                                id="guarantor_phone" 
+                                name="guarantor_number_display"
+                                value="{{ old('guarantor_number', $profile->guarantor_number ?? '') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('guarantor_number') border-red-500 @enderror"
+                                placeholder="Enter phone number"
+                            >
+                            
+                            <!-- Hidden fields for country code and number -->
+                            <input type="hidden" id="guarantor_country_code" name="guarantor_country_code" value="{{ old('guarantor_country_code', $profile->guarantor_country_code ?? '+61') }}">
+                            <input type="hidden" id="guarantor_number_clean" name="guarantor_number" value="{{ old('guarantor_number', $profile->guarantor_number ?? '') }}">
+                            
                             @error('guarantor_country_code')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             @error('guarantor_number')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Select country and enter guarantor phone number</p>
                         </div>
                         
                     </div>

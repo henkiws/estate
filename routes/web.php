@@ -462,15 +462,6 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         // List favorites (alternative to saved-properties)
         Route::get('/favorites', [App\Http\Controllers\User\FavoriteController::class, 'index'])->name('favorites');
         // ------------------------------------------
-        // Enquiries
-        // ------------------------------------------
-        Route::prefix('enquiries')->name('enquiries.')->group(function () {
-            // List all enquiries
-            Route::get('/', [App\Http\Controllers\User\EnquiryController::class, 'index'])->name('index');
-            // View specific enquiry (optional)
-            Route::get('/{enquiry}', [App\Http\Controllers\User\EnquiryController::class, 'show'])->name('show');
-        });
-        // ------------------------------------------
         // Groups (Placeholder for future)
         // ------------------------------------------
         Route::prefix('groups')->name('groups.')->group(function () { 
@@ -502,18 +493,6 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
         Route::post('/{ticket}/reply', 'reply')->name('reply');     // Reply to ticket
         Route::patch('/{ticket}/close', 'close')->name('close');    // Close ticket
     });
-
-    // Application Drafts
-    Route::prefix('drafts')->name('drafts.')->group(function () {
-        Route::get('/', [ApplicationDraftController::class, 'index'])->name('index');
-        Route::get('/create', [ApplicationDraftController::class, 'create'])->name('create');
-        Route::post('/', [ApplicationDraftController::class, 'store'])->name('store');
-        Route::get('/{draft}', [ApplicationDraftController::class, 'show'])->name('show');
-        Route::put('/{draft}', [ApplicationDraftController::class, 'update'])->name('update');
-        Route::delete('/{draft}', [ApplicationDraftController::class, 'destroy'])->name('destroy');
-        Route::get('/{draft}/continue', [ApplicationDraftController::class, 'continue'])->name('continue');
-    });
-
    
 });
 
