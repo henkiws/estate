@@ -224,6 +224,7 @@ class ApplicationController extends Controller
                 'pets.*.desexed' => 'required_with:pets|boolean',
                 'pets.*.size' => 'required_with:pets|string|in:small,medium,large',
                 'pets.*.registration_number' => 'nullable|string|max:100',
+                'pets.*.photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
                 'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 
                 // Step 9: Utility Connections (optional)
@@ -454,8 +455,8 @@ class ApplicationController extends Controller
                     });
                 }
                 
+                // Inside the pets foreach loop
                 foreach ($validated['pets'] as $index => $petData) {
-                    // Get existing pet or create new
                     $pet = $existingPets->get($index) ?: new UserPet();
                     $pet->user_id = $user->id;
                     $pet->type = $petData['type'];
@@ -464,18 +465,25 @@ class ApplicationController extends Controller
                     $pet->size = $petData['size'];
                     $pet->registration_number = $petData['registration_number'] ?? null;
                     
-                    // Only update file if new file is uploaded
+                    // Handle pet photo upload
+                    if ($request->hasFile("pets.$index.photo")) {
+                        // Delete old photo if exists
+                        if ($pet->photo_path) {
+                            Storage::disk('public')->delete($pet->photo_path);
+                        }
+                        // Upload new photo
+                        $path = $request->file("pets.$index.photo")->store('pet-photos', 'public');
+                        $pet->photo_path = $path;
+                    }
+                    
+                    // Handle document upload (existing code)
                     if ($request->hasFile("pets.$index.document")) {
-                        // Delete old file if exists
                         if ($pet->document_path) {
                             Storage::disk('public')->delete($pet->document_path);
                         }
-                        // Upload new file
-                        $path = $request->file("pets.$index.document")
-                            ->store('pet-documents', 'public');
+                        $path = $request->file("pets.$index.document")->store('pet-documents', 'public');
                         $pet->document_path = $path;
                     }
-                    // If no new file uploaded, keep existing document_path (don't modify)
                     
                     $pet->save();
                 }

@@ -18,6 +18,7 @@ class UserPet extends Model
         'size',
         'registration_number',
         'document_path',
+        'photo_path'
     ];
 
     public function user(): BelongsTo

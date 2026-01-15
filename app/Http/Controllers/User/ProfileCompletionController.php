@@ -416,6 +416,9 @@ class ProfileCompletionController extends Controller
         if (!$hasPets) {
             // Delete all pets if user says they have no pets
             foreach ($user->pets as $pet) {
+                if ($pet->photo_path) {
+                    Storage::disk('public')->delete($pet->photo_path);
+                }
                 if ($pet->document_path) {
                     Storage::disk('public')->delete($pet->document_path);
                 }
@@ -428,7 +431,8 @@ class ProfileCompletionController extends Controller
             return ['success' => true];
         }
 
-        $validated = $request->validate([
+        // Conditional validation for photos
+        $rules = [
             'pets' => 'required|array|min:1',
             'pets.*.type' => 'required|string|in:dog,cat,bird,fish,rabbit,other',
             'pets.*.breed' => 'required|string|max:255',
@@ -436,34 +440,77 @@ class ProfileCompletionController extends Controller
             'pets.*.size' => 'required|string|in:small,medium,large',
             'pets.*.registration_number' => 'nullable|string|max:100',
             'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-        ]);
+            'pets.*.existing_photo' => 'nullable|string',
+        ];
 
-        // Delete existing pets and their files
-        foreach ($user->pets as $pet) {
-            if ($pet->document_path) {
-                Storage::disk('public')->delete($pet->document_path);
+        // Make photo required only if no existing photo
+        foreach ($request->input('pets', []) as $index => $petData) {
+            if (empty($petData['existing_photo'])) {
+                $rules["pets.$index.photo"] = 'required|image|mimes:jpeg,png,jpg,gif|max:10240';
+            } else {
+                $rules["pets.$index.photo"] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240';
             }
         }
-        $user->pets()->delete();
 
-        // Create new pet records
+        $validated = $request->validate($rules);
+
+        // Get existing pets
+        $existingPets = $user->pets()->get()->keyBy(function($pet, $key) {
+            return $key;
+        });
+
+        // Track which pets to keep
+        $processedPetIds = [];
+
+        // Process each pet
         foreach ($validated['pets'] as $index => $petData) {
-            $pet = new UserPet();
+            // Update existing pet or create new one
+            $pet = $existingPets->get($index) ?: new UserPet();
             $pet->user_id = $user->id;
             $pet->type = $petData['type'];
             $pet->breed = $petData['breed'];
             $pet->desexed = $petData['desexed'];
             $pet->size = $petData['size'];
             $pet->registration_number = $petData['registration_number'] ?? null;
+        
+            // Handle pet photo upload
+            if ($request->hasFile("pets.$index.photo")) {
+                // Delete old photo if exists
+                if ($pet->photo_path && Storage::disk('public')->exists($pet->photo_path)) {
+                    Storage::disk('public')->delete($pet->photo_path);
+                }
+                // Upload new photo
+                $path = $request->file("pets.$index.photo")->store('pet-photos', 'public');
+                $pet->photo_path = $path;
+            } elseif (isset($petData['existing_photo'])) {
+                // Keep existing photo if no new file uploaded
+                $pet->photo_path = $petData['existing_photo'];
+            }
             
-            // Handle file upload
+            // Handle document upload
             if ($request->hasFile("pets.$index.document")) {
-                $path = $request->file("pets.$index.document")
-                    ->store('pet-documents', 'public');
+                // Delete old document if exists
+                if ($pet->document_path && Storage::disk('public')->exists($pet->document_path)) {
+                    Storage::disk('public')->delete($pet->document_path);
+                }
+                $path = $request->file("pets.$index.document")->store('pet-documents', 'public');
                 $pet->document_path = $path;
             }
             
             $pet->save();
+            $processedPetIds[] = $pet->id;
+        }
+
+        // Delete pets that were removed (not in the submitted form)
+        $petsToDelete = $user->pets()->whereNotIn('id', array_filter($processedPetIds))->get();
+        foreach ($petsToDelete as $pet) {
+            if ($pet->photo_path && Storage::disk('public')->exists($pet->photo_path)) {
+                Storage::disk('public')->delete($pet->photo_path);
+            }
+            if ($pet->document_path && Storage::disk('public')->exists($pet->document_path)) {
+                Storage::disk('public')->delete($pet->document_path);
+            }
+            $pet->delete();
         }
 
         $user->profile_current_step = max($user->profile_current_step ?? 1, 5);
