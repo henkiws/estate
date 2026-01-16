@@ -170,35 +170,49 @@ class ProfileCompletionController extends Controller
             DB::beginTransaction();
             
             switch ($step) {
+                case 0:
+                    $result = $this->saveStep0($request, $user);
+                    $nextSection = 'personal-details-card';
+                    break;
                 case 1:
                     $result = $this->saveStep1($request, $user);
+                    $nextSection = 'introduction-card';
                     break;
                 case 2:
                     $result = $this->saveStep2($request, $user);
+                    $nextSection = 'income-card';
                     break;
                 case 3:
                     $result = $this->saveStep3($request, $user);
+                    $nextSection = 'employment-card';
                     break;
                 case 4:
                     $result = $this->saveStep4($request, $user);
+                    $nextSection = 'pets-card';
                     break;
                 case 5:
                     $result = $this->saveStep5($request, $user);
+                    $nextSection = 'vehicles-card';
                     break;
                 case 6:
                     $result = $this->saveStep6($request, $user);
+                    $nextSection = 'address-history-card';
                     break;
                 case 7:
                     $result = $this->saveStep7($request, $user);
+                    $nextSection = 'references-card';
                     break;
                 case 8:
                     $result = $this->saveStep8($request, $user);
+                    $nextSection = 'identification-card';
                     break;
                 case 9:
                     $result = $this->saveStep9($request, $user);
+                    $nextSection = 'terms-card';
                     break;
                 case 10:
                     $result = $this->saveStep10($request, $user);
+                    $nextSection = null; // No next section for final step
                     break;
                 default:
                     throw new \Exception('Invalid step');
@@ -212,9 +226,10 @@ class ProfileCompletionController extends Controller
                     ->with('success', $result['message'] ?? 'Profile completed successfully!');
             }
             
-            // For all other steps, redirect back to overview
+            // For all other steps, redirect back with next section to scroll to
             return redirect()->route('user.profile.overview')
-                ->with('success', 'Section saved successfully!');
+                ->with('success', 'Section saved successfully!')
+                ->with('scroll_to', $nextSection);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -303,31 +318,51 @@ class ProfileCompletionController extends Controller
             'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employment,centrelink,pension,investment_income,savings,other',
             'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
             'incomes.*.bank_statement' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'incomes.*.existing_statement' => 'nullable|string',
         ]);
 
-        // Delete existing incomes and their files
-        foreach ($user->incomes as $income) {
-            if ($income->bank_statement_path) {
-                Storage::disk('public')->delete($income->bank_statement_path);
-            }
-        }
-        $user->incomes()->delete();
+        // Get existing incomes
+        $existingIncomes = $user->incomes()->get()->keyBy(function($income, $key) {
+            return $key;
+        });
+
+        // Track which incomes to keep
+        $processedIncomeIds = [];
 
         // Create new income records
         foreach ($validated['incomes'] as $index => $incomeData) {
-            $income = new UserIncome();
+            // Update existing or create new
+            $income = $existingIncomes->get($index) ?: new UserIncome();
             $income->user_id = $user->id;
             $income->source_of_income = $incomeData['source_of_income'];
             $income->net_weekly_amount = $incomeData['net_weekly_amount'];
             
             // Handle file upload
             if ($request->hasFile("incomes.$index.bank_statement")) {
+                // Delete old file if exists
+                if ($income->bank_statement_path && Storage::disk('public')->exists($income->bank_statement_path)) {
+                    Storage::disk('public')->delete($income->bank_statement_path);
+                }
+                // Upload new file
                 $path = $request->file("incomes.$index.bank_statement")
                     ->store('bank-statements', 'public');
                 $income->bank_statement_path = $path;
+            } elseif (isset($incomeData['existing_statement'])) {
+                // Keep existing file if no new file uploaded
+                $income->bank_statement_path = $incomeData['existing_statement'];
             }
             
             $income->save();
+            $processedIncomeIds[] = $income->id;
+        }
+
+        // Delete incomes that were removed (not in the submitted form)
+        $incomesToDelete = $user->incomes()->whereNotIn('id', array_filter($processedIncomeIds))->get();
+        foreach ($incomesToDelete as $income) {
+            if ($income->bank_statement_path && Storage::disk('public')->exists($income->bank_statement_path)) {
+                Storage::disk('public')->delete($income->bank_statement_path);
+            }
+            $income->delete();
         }
 
         $user->profile_current_step = max($user->profile_current_step ?? 1, 3);
@@ -368,19 +403,21 @@ class ProfileCompletionController extends Controller
             'employments.*.still_employed' => 'nullable|boolean',
             'employments.*.end_date' => 'nullable|date|before_or_equal:today|after:employments.*.start_date',
             'employments.*.employment_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'employments.*.existing_letter' => 'nullable|string',
         ]);
 
-        // Delete existing employments and their files
-        foreach ($user->employments as $employment) {
-            if ($employment->employment_letter_path) {
-                Storage::disk('public')->delete($employment->employment_letter_path);
-            }
-        }
-        $user->employments()->delete();
+        // Get existing employments
+        $existingEmployments = $user->employments()->get()->keyBy(function($employment, $key) {
+            return $key;
+        });
+
+        // Track which employments to keep
+        $processedEmploymentIds = [];
 
         // Create new employment records
         foreach ($validated['employments'] as $index => $employmentData) {
-            $employment = new UserEmployment();
+            // Update existing or create new
+            $employment = $existingEmployments->get($index) ?: new UserEmployment();
             $employment->user_id = $user->id;
             $employment->company_name = $employmentData['company_name'];
             $employment->address = $employmentData['address'];
@@ -395,12 +432,30 @@ class ProfileCompletionController extends Controller
             
             // Handle file upload
             if ($request->hasFile("employments.$index.employment_letter")) {
+                // Delete old file if exists
+                if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
+                    Storage::disk('public')->delete($employment->employment_letter_path);
+                }
+                // Upload new file
                 $path = $request->file("employments.$index.employment_letter")
                     ->store('employment-letters', 'public');
                 $employment->employment_letter_path = $path;
+            } elseif (isset($employmentData['existing_letter'])) {
+                // Keep existing file if no new file uploaded
+                $employment->employment_letter_path = $employmentData['existing_letter'];
             }
             
             $employment->save();
+            $processedEmploymentIds[] = $employment->id;
+        }
+
+        // Delete employments that were removed (not in the submitted form)
+        $employmentsToDelete = $user->employments()->whereNotIn('id', array_filter($processedEmploymentIds))->get();
+        foreach ($employmentsToDelete as $employment) {
+            if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
+                Storage::disk('public')->delete($employment->employment_letter_path);
+            }
+            $employment->delete();
         }
 
         $user->profile_current_step = max($user->profile_current_step ?? 1, 4);
@@ -644,22 +699,23 @@ class ProfileCompletionController extends Controller
             'identifications.*.identification_type' => 'required|string|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
             'identifications.*.document_number' => 'nullable|string|max:100',
             'identifications.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'identifications.*.existing_document' => 'nullable|string',
             'identifications.*.expiry_date' => 'nullable|date|after:today',
         ]);
 
-        // Delete existing identifications and their files
-        foreach ($user->identifications as $identification) {
-            if ($identification->document_path) {
-                Storage::disk('public')->delete($identification->document_path);
-            }
-        }
-        $user->identifications()->delete();
+        // Get existing identifications
+        $existingIdentifications = $user->identifications()->get()->keyBy(function($identification, $key) {
+            return $key;
+        });
 
+        // Track which identifications to keep
+        $processedIdentificationIds = [];
         $totalPoints = 0;
 
         // Create new identification records
         foreach ($validated['identifications'] as $index => $idData) {
-            $identification = new UserIdentification();
+            // Update existing or create new
+            $identification = $existingIdentifications->get($index) ?: new UserIdentification();
             $identification->user_id = $user->id;
             $identification->identification_type = $idData['identification_type'];
             
@@ -678,13 +734,31 @@ class ProfileCompletionController extends Controller
             
             // Handle file upload
             if ($request->hasFile("identifications.$index.document")) {
+                // Delete old file if exists
+                if ($identification->document_path && Storage::disk('public')->exists($identification->document_path)) {
+                    Storage::disk('public')->delete($identification->document_path);
+                }
+                // Upload new file
                 $path = $request->file("identifications.$index.document")
                     ->store('identification-documents', 'public');
                 $identification->document_path = $path;
+            } elseif (isset($idData['existing_document'])) {
+                // Keep existing file if no new file uploaded
+                $identification->document_path = $idData['existing_document'];
             }
             
             $identification->save();
+            $processedIdentificationIds[] = $identification->id;
             $totalPoints += $identification->points;
+        }
+
+        // Delete identifications that were removed (not in the submitted form)
+        $identificationsToDelete = $user->identifications()->whereNotIn('id', array_filter($processedIdentificationIds))->get();
+        foreach ($identificationsToDelete as $identification) {
+            if ($identification->document_path && Storage::disk('public')->exists($identification->document_path)) {
+                Storage::disk('public')->delete($identification->document_path);
+            }
+            $identification->delete();
         }
 
         // Validate total points

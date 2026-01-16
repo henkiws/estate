@@ -286,12 +286,96 @@
                                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                         Employment Letter (Optional)
                                     </label>
-                                    <input 
-                                        type="file" 
-                                        name="employments[{{ $index }}][employment_letter]"
-                                        accept=".pdf,.jpg,.jpeg,.png"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all"
-                                    >
+                                    <div class="space-y-3">
+                                        <!-- File Input (Hidden) -->
+                                        <input 
+                                            type="file" 
+                                            name="employments[{{ $index }}][employment_letter]"
+                                            id="employment_letter_{{ $index }}"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            onchange="previewEmploymentLetter({{ $index }})"
+                                            class="hidden"
+                                        >
+                                        
+                                        <!-- Upload Button/Preview Container -->
+                                        <div id="employment_letter_preview_{{ $index }}" class="space-y-2">
+                                            @if(!empty($employment['employment_letter_path']) && Storage::disk('public')->exists($employment['employment_letter_path']))
+                                                <!-- EXISTING FILE PREVIEW -->
+                                                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <!-- File Icon/Thumbnail -->
+                                                        @if(in_array(pathinfo($employment['employment_letter_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                            <img src="{{ Storage::url($employment['employment_letter_path']) }}" alt="Employment Letter" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                        @else
+                                                            <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                                                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        <!-- File Info -->
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-sm font-medium text-gray-900 truncate">{{ basename($employment['employment_letter_path']) }}</p>
+                                                            <p class="text-xs text-gray-500">Uploaded document</p>
+                                                        </div>
+                                                        
+                                                        <!-- View Button -->
+                                                        <a 
+                                                            href="{{ Storage::url($employment['employment_letter_path']) }}" 
+                                                            target="_blank"
+                                                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                            title="View document"
+                                                        >
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                            </svg>
+                                                        </a>
+                                                        
+                                                        <!-- Remove Button -->
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="removeEmploymentLetter({{ $index }})"
+                                                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                            title="Remove document"
+                                                        >
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                            </svg>
+                                                        </button>
+                                                        
+                                                        <!-- Re-upload Button -->
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                            title="Change document"
+                                                        >
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <!-- Hidden input to track existing file -->
+                                                <input type="hidden" name="employments[{{ $index }}][existing_letter]" value="{{ $employment['employment_letter_path'] }}">
+                                            @else
+                                                <!-- NO FILE YET - UPLOAD BUTTON -->
+                                                <button 
+                                                    type="button" 
+                                                    onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                    class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-purple transition-colors text-center cursor-pointer"
+                                                >
+                                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                    </svg>
+                                                    <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                                                    <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                     <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
                                 </div>
                             </div>
@@ -330,7 +414,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Save Changes
+                    Save And Next
                 </button>
             </div>
             
@@ -464,9 +548,33 @@ function addEmployment() {
                 </div>
             </div>
             
+            <!-- Employment Letter Upload -->
             <div>
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Employment Letter (Optional)</label>
-                <input type="file" name="employments[${employmentIndex}][employment_letter]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
+                <div class="space-y-3">
+                    <input 
+                        type="file" 
+                        name="employments[${employmentIndex}][employment_letter]"
+                        id="employment_letter_${employmentIndex}"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onchange="previewEmploymentLetter(${employmentIndex})"
+                        class="hidden"
+                    >
+                    
+                    <div id="employment_letter_preview_${employmentIndex}" class="space-y-2">
+                        <button 
+                            type="button" 
+                            onclick="document.getElementById('employment_letter_${employmentIndex}').click()"
+                            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-purple transition-colors text-center cursor-pointer"
+                        >
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                        </button>
+                    </div>
+                </div>
                 <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
             </div>
         </div>
@@ -497,4 +605,196 @@ document.addEventListener('DOMContentLoaded', function() {
         if (checkbox.checked) toggleEndDate(index);
     });
 });
+
+// Preview employment letter
+function previewEmploymentLetter(index) {
+    const input = document.getElementById(`employment_letter_${index}`);
+    const previewContainer = document.getElementById(`employment_letter_preview_${index}`);
+    
+    if (!input || !input.files || input.files.length === 0) {
+        return;
+    }
+    
+    const file = input.files[0];
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please select a valid file (PDF, JPG, PNG)');
+        input.value = '';
+        return;
+    }
+    
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
+    
+    if (isImage) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Store the preview URL for viewing
+            window[`employment_letter_preview_url_${index}`] = e.target.result;
+            
+            previewContainer.innerHTML = `
+                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                    <div class="flex items-center gap-3">
+                        <!-- Image Preview -->
+                        <img src="${e.target.result}" alt="Employment Letter" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                        
+                        <!-- File Info -->
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        
+                        <!-- View Button -->
+                        <button 
+                            type="button" 
+                            onclick="viewEmploymentLetter(${index})"
+                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                            title="View document"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Remove Button -->
+                        <button 
+                            type="button" 
+                            onclick="removeEmploymentLetter(${index})"
+                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                            title="Remove document"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Re-upload Button -->
+                        <button 
+                            type="button" 
+                            onclick="document.getElementById('employment_letter_${index}').click()"
+                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                            title="Change document"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        // PDF preview - store blob URL for viewing
+        const blobUrl = URL.createObjectURL(file);
+        window[`employment_letter_preview_url_${index}`] = blobUrl;
+        
+        previewContainer.innerHTML = `
+            <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                    <!-- PDF Icon -->
+                    <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- File Info -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                    
+                    <!-- View Button -->
+                    <button 
+                        type="button" 
+                        onclick="viewEmploymentLetter(${index})"
+                        class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                        title="View document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Remove Button -->
+                    <button 
+                        type="button" 
+                        onclick="removeEmploymentLetter(${index})"
+                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                        title="Remove document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Re-upload Button -->
+                    <button 
+                        type="button" 
+                        onclick="document.getElementById('employment_letter_${index}').click()"
+                        class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                        title="Change document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// View employment letter in new tab
+function viewEmploymentLetter(index) {
+    const previewUrl = window[`employment_letter_preview_url_${index}`];
+    if (previewUrl) {
+        window.open(previewUrl, '_blank');
+    }
+}
+
+// Remove employment letter
+function removeEmploymentLetter(index) {
+    const input = document.getElementById(`employment_letter_${index}`);
+    const previewContainer = document.getElementById(`employment_letter_preview_${index}`);
+    
+    // Clean up blob URL if exists
+    const previewUrl = window[`employment_letter_preview_url_${index}`];
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+    }
+    delete window[`employment_letter_preview_url_${index}`];
+    
+    if (input) {
+        input.value = '';
+    }
+    
+    if (previewContainer) {
+        previewContainer.innerHTML = `
+            <button 
+                type="button" 
+                onclick="document.getElementById('employment_letter_${index}').click()"
+                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-purple transition-colors text-center cursor-pointer"
+            >
+                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+            </button>
+        `;
+    }
+}
 </script>

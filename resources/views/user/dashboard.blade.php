@@ -39,11 +39,6 @@
                 @include('user.partials.quick-start-checklist', [
                     'quickStartItems' => [
                         [
-                            'title' => 'Create your first draft application',
-                            'completed' => false,
-                            'link' => '#'
-                        ],
-                        [
                             'title' => 'Complete profile',
                             'completed' => $profileCompletion >= 100,
                             'link' => route('user.profile.complete')
@@ -51,7 +46,7 @@
                         [
                             'title' => 'Submit your first application',
                             'completed' => false,
-                            'link' => '#'
+                            'link' => route('user.applications.browse')
                         ]
                     ]
                 ])
