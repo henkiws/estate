@@ -205,18 +205,27 @@
                                 
                                 <!-- Contact Details -->
                                 <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <!-- Contact Number with intl-tel-input -->
                                     <div>
                                         <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                             Contact Number <span class="text-plyform-orange">*</span>
                                         </label>
+                                        
                                         <input 
                                             type="tel" 
-                                            name="employments[{{ $index }}][contact_number]" 
+                                            id="employment_contact_{{ $index }}" 
+                                            name="employments[{{ $index }}][contact_number_display]"
                                             value="{{ $employment['contact_number'] ?? '' }}"
                                             required
                                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                            placeholder="0400 000 000"
+                                            placeholder="Enter phone number"
                                         >
+                                        
+                                        <!-- Hidden fields for country code and number -->
+                                        <input type="hidden" id="employment_contact_country_code_{{ $index }}" name="employments[{{ $index }}][contact_country_code]" value="{{ $employment['contact_country_code'] ?? '+61' }}">
+                                        <input type="hidden" id="employment_contact_number_clean_{{ $index }}" name="employments[{{ $index }}][contact_number]" value="{{ $employment['contact_number'] ?? '' }}">
+                                        
+                                        <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
                                     </div>
                                     
                                     <div>
@@ -520,9 +529,25 @@ function addEmployment() {
             </div>
             
             <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
-                    <input type="tel" name="employments[${employmentIndex}][contact_number]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0400 000 000">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
+                        <input 
+                            type="tel" 
+                            id="employment_contact_${employmentIndex}" 
+                            name="employments[${employmentIndex}][contact_number_display]" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" 
+                            placeholder="Enter phone number"
+                        >
+                        <input type="hidden" id="employment_contact_country_code_${employmentIndex}" name="employments[${employmentIndex}][contact_country_code]" value="+61">
+                        <input type="hidden" id="employment_contact_number_clean_${employmentIndex}" name="employments[${employmentIndex}][contact_number]" value="">
+                        <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
+                        <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="manager@company.com">
+                    </div>
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
@@ -591,6 +616,12 @@ function addEmployment() {
 function removeEmployment(index) {
     const item = document.querySelector(`.employment-item[data-index="${index}"]`);
     if (item) {
+        // Destroy intl-tel-input instance
+        if (employmentContactPhoneInstances[index]) {
+            employmentContactPhoneInstances[index].destroy();
+            delete employmentContactPhoneInstances[index];
+        }
+        
         item.remove();
         // Renumber remaining items
         document.querySelectorAll('.employment-item').forEach((el, idx) => {
@@ -797,4 +828,80 @@ function removeEmploymentLetter(index) {
         `;
     }
 }
+
+// Store intl-tel-input instances for employment contacts
+var employmentContactPhoneInstances = {};
+
+// Initialize employment contact phone number input
+function initializeEmploymentContactPhone(index) {
+    const phoneInput = document.querySelector(`#employment_contact_${index}`);
+    
+    if (!phoneInput) return;
+    
+    const iti = window.intlTelInput(phoneInput, {
+        initialCountry: "au",
+        preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+        separateDialCode: true,
+        nationalMode: false,
+        autoPlaceholder: "polite",
+        formatOnDisplay: true,
+        customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+            return "e.g. " + selectedCountryPlaceholder;
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+    });
+    
+    // Store instance
+    employmentContactPhoneInstances[index] = iti;
+    
+    // Set initial value if exists
+    const existingCountryCode = document.getElementById(`employment_contact_country_code_${index}`).value;
+    const existingNumber = document.getElementById(`employment_contact_number_clean_${index}`).value;
+    
+    if (existingCountryCode && existingNumber) {
+        const countryCode = existingCountryCode.replace('+', '');
+        const allCountries = window.intlTelInputGlobals.getCountryData();
+        const countryData = allCountries.find(country => country.dialCode === countryCode);
+        if (countryData) {
+            iti.setCountry(countryData.iso2);
+        }
+        phoneInput.value = existingNumber;
+    }
+    
+    // Update hidden fields on blur
+    phoneInput.addEventListener('blur', function() {
+        updateEmploymentContactPhoneFields(index);
+    });
+    
+    // Update hidden fields on country change
+    phoneInput.addEventListener('countrychange', function() {
+        updateEmploymentContactPhoneFields(index);
+    });
+}
+
+// Update hidden phone fields for employment contact
+function updateEmploymentContactPhoneFields(index) {
+    const iti = employmentContactPhoneInstances[index];
+    if (!iti) return;
+    
+    const countryData = iti.getSelectedCountryData();
+    document.getElementById(`employment_contact_country_code_${index}`).value = '+' + countryData.dialCode;
+    
+    const fullNumber = iti.getNumber();
+    const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+    document.getElementById(`employment_contact_number_clean_${index}`).value = numberWithoutCode;
+}
+
+// Initialize all employment contact phones on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize existing employment contact phones
+    @foreach($employments as $index => $employment)
+        initializeEmploymentContactPhone({{ $index }});
+    @endforeach
+    
+    // Keep existing DOMContentLoaded code
+    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox, index) => {
+        if (checkbox.checked) toggleEndDate(index);
+    });
+});
 </script>

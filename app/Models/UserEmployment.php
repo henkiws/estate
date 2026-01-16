@@ -17,6 +17,7 @@ class UserEmployment extends Model
         'position',
         'gross_annual_salary',
         'manager_full_name',
+        'contact_country_code',
         'contact_number',
         'email',
         'employment_letter_path',

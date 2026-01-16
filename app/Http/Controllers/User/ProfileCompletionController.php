@@ -397,6 +397,7 @@ class ProfileCompletionController extends Controller
             'employments.*.position' => 'required|string|max:255',
             'employments.*.gross_annual_salary' => 'required|numeric|min:0|max:9999999.99',
             'employments.*.manager_full_name' => 'required|string|max:255',
+            'employments.*.contact_country_code' => 'required|string',
             'employments.*.contact_number' => 'required|string|max:20',
             'employments.*.email' => 'required|email|max:255',
             'employments.*.start_date' => 'required|date|before_or_equal:today',
@@ -424,6 +425,7 @@ class ProfileCompletionController extends Controller
             $employment->position = $employmentData['position'];
             $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
             $employment->manager_full_name = $employmentData['manager_full_name'];
+            $employment->contact_country_code = $employmentData['contact_country_code'];
             $employment->contact_number = $employmentData['contact_number'];
             $employment->email = $employmentData['email'];
             $employment->start_date = $employmentData['start_date'];

@@ -162,41 +162,27 @@
                                 </div>
                             </div>
                             
-                            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                                <!-- Mobile Country Code -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                        Country Code <span class="text-plyform-orange">*</span>
-                                    </label>
-                                    <select 
-                                        name="references[{{ $index }}][mobile_country_code]" 
-                                        required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                    >
-                                        <option value="+61" {{ ($reference['mobile_country_code'] ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61 (Australia)</option>
-                                        <option value="+1" {{ ($reference['mobile_country_code'] ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1 (USA/Canada)</option>
-                                        <option value="+44" {{ ($reference['mobile_country_code'] ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44 (UK)</option>
-                                        <option value="+64" {{ ($reference['mobile_country_code'] ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64 (New Zealand)</option>
-                                        <option value="+86" {{ ($reference['mobile_country_code'] ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86 (China)</option>
-                                        <option value="+91" {{ ($reference['mobile_country_code'] ?? '') == '+91' ? 'selected' : '' }}>🇮🇳 +91 (India)</option>
-                                    </select>
-                                </div>
+                            <!-- Mobile Number with intl-tel-input -->
+                            <div class="mb-4">
+                                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                    Mobile Number <span class="text-plyform-orange">*</span>
+                                </label>
                                 
-                                <!-- Mobile Number -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                        Mobile Number <span class="text-plyform-orange">*</span>
-                                    </label>
-                                    <input 
-                                        type="tel" 
-                                        name="references[{{ $index }}][mobile_number]" 
-                                        value="{{ $reference['mobile_number'] ?? '' }}"
-                                        required
-                                        pattern="[0-9\s]+"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                        placeholder="400 000 000"
-                                    >
-                                </div>
+                                <input 
+                                    type="tel" 
+                                    id="reference_mobile_{{ $index }}" 
+                                    name="references[{{ $index }}][mobile_number_display]"
+                                    value="{{ $reference['mobile_number'] ?? '' }}"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                    placeholder="Enter phone number"
+                                >
+                                
+                                <!-- Hidden fields for country code and number -->
+                                <input type="hidden" id="reference_mobile_country_code_{{ $index }}" name="references[{{ $index }}][mobile_country_code]" value="{{ $reference['mobile_country_code'] ?? '+61' }}">
+                                <input type="hidden" id="reference_mobile_number_clean_{{ $index }}" name="references[{{ $index }}][mobile_number]" value="{{ $reference['mobile_number'] ?? '' }}">
+                                
+                                <p class="mt-1 text-xs text-gray-500">Select country and enter mobile number</p>
                             </div>
                             
                             <!-- Email -->
@@ -276,6 +262,9 @@
 // Initialize reference index
 var referenceIndex = {{ count($references ?? []) }};
 
+// Store intl-tel-input instances
+var referencePhoneInstances = {};
+
 function toggleReferences() {
     const formDiv = document.getElementById('references-form');
     const chevron = document.getElementById('references-chevron');
@@ -300,6 +289,66 @@ function toggleReferences() {
         chevron.style.transform = 'rotate(0deg)';
         editBtn.querySelector('span').textContent = 'Edit';
     }
+}
+
+// Initialize phone number input
+function initializeReferencePhone(index) {
+    const phoneInput = document.querySelector(`#reference_mobile_${index}`);
+    
+    if (!phoneInput) return;
+    
+    const iti = window.intlTelInput(phoneInput, {
+        initialCountry: "au",
+        preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+        separateDialCode: true,
+        nationalMode: false,
+        autoPlaceholder: "polite",
+        formatOnDisplay: true,
+        customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+            return "e.g. " + selectedCountryPlaceholder;
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+    });
+    
+    // Store instance
+    referencePhoneInstances[index] = iti;
+    
+    // Set initial value if exists
+    const existingCountryCode = document.getElementById(`reference_mobile_country_code_${index}`).value;
+    const existingNumber = document.getElementById(`reference_mobile_number_clean_${index}`).value;
+    
+    if (existingCountryCode && existingNumber) {
+        const countryCode = existingCountryCode.replace('+', '');
+        const allCountries = window.intlTelInputGlobals.getCountryData();
+        const countryData = allCountries.find(country => country.dialCode === countryCode);
+        if (countryData) {
+            iti.setCountry(countryData.iso2);
+        }
+        phoneInput.value = existingNumber;
+    }
+    
+    // Update hidden fields on blur
+    phoneInput.addEventListener('blur', function() {
+        updateReferencePhoneFields(index);
+    });
+    
+    // Update hidden fields on country change
+    phoneInput.addEventListener('countrychange', function() {
+        updateReferencePhoneFields(index);
+    });
+}
+
+// Update hidden phone fields
+function updateReferencePhoneFields(index) {
+    const iti = referencePhoneInstances[index];
+    if (!iti) return;
+    
+    const countryData = iti.getSelectedCountryData();
+    document.getElementById(`reference_mobile_country_code_${index}`).value = '+' + countryData.dialCode;
+    
+    const fullNumber = iti.getNumber();
+    const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+    document.getElementById(`reference_mobile_number_clean_${index}`).value = numberWithoutCode;
 }
 
 // Update reference count display
@@ -357,22 +406,12 @@ function addReferenceItem() {
                 </div>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Country Code <span class="text-plyform-orange">*</span></label>
-                    <select name="references[${referenceIndex}][mobile_country_code]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="+61" selected>🇦🇺 +61 (Australia)</option>
-                        <option value="+1">🇺🇸 +1 (USA/Canada)</option>
-                        <option value="+44">🇬🇧 +44 (UK)</option>
-                        <option value="+64">🇳🇿 +64 (New Zealand)</option>
-                        <option value="+86">🇨🇳 +86 (China)</option>
-                        <option value="+91">🇮🇳 +91 (India)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Mobile Number <span class="text-plyform-orange">*</span></label>
-                    <input type="tel" name="references[${referenceIndex}][mobile_number]" required pattern="[0-9\s]+" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="400 000 000">
-                </div>
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Mobile Number <span class="text-plyform-orange">*</span></label>
+                <input type="tel" id="reference_mobile_${referenceIndex}" name="references[${referenceIndex}][mobile_number_display]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Enter phone number">
+                <input type="hidden" id="reference_mobile_country_code_${referenceIndex}" name="references[${referenceIndex}][mobile_country_code]" value="+61">
+                <input type="hidden" id="reference_mobile_number_clean_${referenceIndex}" name="references[${referenceIndex}][mobile_number]" value="">
+                <p class="mt-1 text-xs text-gray-500">Select country and enter mobile number</p>
             </div>
             
             <div>
@@ -383,13 +422,16 @@ function addReferenceItem() {
     `;
     
     container.insertAdjacentHTML('beforeend', newReferenceHtml);
-    referenceIndex++;
-
+    
+    // Initialize phone input for new reference
+    initializeReferencePhone(referenceIndex);
+    
     const newElement = container.lastElementChild;
     if (typeof reinitializePlugins === 'function') {
         reinitializePlugins(newElement);
     }
     
+    referenceIndex++;
     updateReferenceCount();
 }
 
@@ -406,8 +448,15 @@ function removeReferenceItem(index) {
     const item = document.querySelector(`.reference-item[data-index="${index}"]`);
     
     if (item) {
+        // Destroy intl-tel-input instance
+        if (referencePhoneInstances[index]) {
+            referencePhoneInstances[index].destroy();
+            delete referencePhoneInstances[index];
+        }
+        
         item.remove();
         updateReferenceCount();
+        
         // Renumber remaining references
         document.querySelectorAll('.reference-item').forEach((el, idx) => {
             const heading = el.querySelector('h4');
@@ -420,8 +469,13 @@ function removeReferenceItem(index) {
     }
 }
 
-// Initialize count on page load
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all existing phone inputs
+    @foreach($references as $index => $reference)
+        initializeReferencePhone({{ $index }});
+    @endforeach
+    
     updateReferenceCount();
 });
 </script>
