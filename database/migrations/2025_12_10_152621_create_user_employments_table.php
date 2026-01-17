@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('position');
             $table->decimal('gross_annual_salary', 12, 2);
             $table->string('manager_full_name');
-            $table->string('contact_country_code');
+            $table->string('contact_country_code')->nullable();
             $table->string('contact_number');
             $table->string('email');
             $table->string('employment_letter_path')->nullable();
