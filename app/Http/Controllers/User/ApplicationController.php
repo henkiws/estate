@@ -14,6 +14,7 @@ use App\Models\UserEmployment;
 use App\Models\UserIncome;
 use App\Models\UserIdentification;
 use App\Models\UserPet;
+use App\Models\UserIncomeBankStatement;
 use App\Models\InspectionBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -179,23 +180,29 @@ class ApplicationController extends Controller
                 'employments.*.gross_annual_salary' => 'required_if:has_employment,true|nullable|numeric|min:0|max:9999999.99',
                 'employments.*.manager_full_name' => 'required_if:has_employment,true|nullable|string|max:255',
                 'employments.*.contact_number' => 'required_if:has_employment,true|nullable|string|max:20',
+                'employments.*.contact_country_code' => 'nullable|string',
                 'employments.*.email' => 'required_if:has_employment,true|nullable|email|max:255',
                 'employments.*.start_date' => 'required_if:has_employment,true|nullable|date|before_or_equal:today',
                 'employments.*.still_employed' => 'nullable|boolean',
                 'employments.*.end_date' => 'nullable|date|before_or_equal:today',
                 'employments.*.employment_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'employments.*.existing_letter' => 'nullable|string',
                 
-                // Step 4: Income/Finances
+                // Step 4: Income/Finances - FIXED VALIDATION FOR MULTIPLE FILES
                 'incomes' => 'required|array|min:1',
                 'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employed,centrelink,pension,investment,savings,other',
                 'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
-                'incomes.*.bank_statement' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'incomes.*.bank_statements_new' => 'nullable|array',
+                'incomes.*.bank_statements_new.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'incomes.*.existing_statements' => 'nullable|array',
+                'incomes.*.existing_statements.*' => 'string',
                 
                 // Step 5: Identity Documents
                 'identifications' => 'required|array|min:1',
                 'identifications.*.identification_type' => 'required|string|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
                 'identifications.*.document_number' => 'nullable|string|max:100',
                 'identifications.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'identifications.*.existing_document' => 'nullable|string',
                 'identifications.*.expiry_date' => 'nullable|date|after:today',
                 
                 // Step 6: Emergency Contact (optional)
@@ -216,7 +223,7 @@ class ApplicationController extends Controller
                 'occupants_details.0.age' => 'required|integer|min:18|max:120',
                 'occupants_details.*.email' => 'nullable|email|max:255',
                 
-                // Step 8: Pets (optional)
+                // Step 8: Pets (optional) - FIXED
                 'has_pets' => 'nullable|boolean',
                 'pets' => 'nullable|array',
                 'pets.*.type' => 'required_with:pets|string|in:dog,cat,bird,fish,rabbit,other',
@@ -224,8 +231,10 @@ class ApplicationController extends Controller
                 'pets.*.desexed' => 'required_with:pets|boolean',
                 'pets.*.size' => 'required_with:pets|string|in:small,medium,large',
                 'pets.*.registration_number' => 'nullable|string|max:100',
-                'pets.*.photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+                'pets.*.photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+                'pets.*.existing_photo' => 'nullable|string',
                 'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'pets.*.existing_document' => 'nullable|string',
                 
                 // Step 9: Utility Connections (optional)
                 'utility_electricity' => 'nullable|boolean',
@@ -236,7 +245,7 @@ class ApplicationController extends Controller
                 'special_requests' => 'nullable|string|max:1000',
                 'notes' => 'nullable|string|max:1000',
                 
-                // Step 11: Terms & Conditions (required) - just validate, don't store
+                // Step 11: Terms & Conditions (required)
                 'accept_terms' => 'required|accepted',
                 'declare_accuracy' => 'required|accepted',
                 'consent_privacy' => 'required|accepted',
@@ -292,14 +301,11 @@ class ApplicationController extends Controller
             }
             
             // 3. Update Employment
-            // DON'T delete existing employments, update or create instead
             if ($validated['has_employment'] && isset($validated['employments'])) {
-                // Get existing employments
                 $existingEmployments = $user->employments->keyBy(function($item, $key) {
                     return $key;
                 });
                 
-                // Delete employments that are no longer in the form
                 if (count($validated['employments']) < $existingEmployments->count()) {
                     $user->employments()->skip(count($validated['employments']))->take(PHP_INT_MAX)->each(function($employment) {
                         if ($employment->employment_letter_path) {
@@ -310,7 +316,6 @@ class ApplicationController extends Controller
                 }
                 
                 foreach ($validated['employments'] as $index => $employmentData) {
-                    // Get existing employment or create new
                     $employment = $existingEmployments->get($index) ?: new UserEmployment();
                     $employment->user_id = $user->id;
                     $employment->company_name = $employmentData['company_name'];
@@ -324,23 +329,18 @@ class ApplicationController extends Controller
                     $employment->still_employed = $employmentData['still_employed'] ?? false;
                     $employment->end_date = $employmentData['end_date'] ?? null;
                     
-                    // Only update file if new file is uploaded
                     if ($request->hasFile("employments.$index.employment_letter")) {
-                        // Delete old file if exists
                         if ($employment->employment_letter_path) {
                             Storage::disk('public')->delete($employment->employment_letter_path);
                         }
-                        // Upload new file
                         $path = $request->file("employments.$index.employment_letter")
                             ->store('employment-letters', 'public');
                         $employment->employment_letter_path = $path;
                     }
-                    // If no new file uploaded, keep existing employment_letter_path (don't modify)
                     
                     $employment->save();
                 }
             } else {
-                // User unchecked employment, delete all
                 foreach ($user->employments as $employment) {
                     if ($employment->employment_letter_path) {
                         Storage::disk('public')->delete($employment->employment_letter_path);
@@ -349,8 +349,7 @@ class ApplicationController extends Controller
                 $user->employments()->delete();
             }
 
-            // 4. Update Income
-            // DON'T delete existing incomes, update or create instead
+            // 4. Update Income - WITH MULTIPLE BANK STATEMENTS SUPPORT
             $existingIncomes = $user->incomes->keyBy(function($item, $key) {
                 return $key;
             });
@@ -358,6 +357,13 @@ class ApplicationController extends Controller
             // Delete incomes that are no longer in the form
             if (count($validated['incomes']) < $existingIncomes->count()) {
                 $user->incomes()->skip(count($validated['incomes']))->take(PHP_INT_MAX)->each(function($income) {
+                    // Delete all bank statements for this income
+                    foreach ($income->bankStatements as $statement) {
+                        Storage::disk('public')->delete($statement->file_path);
+                    }
+                    $income->bankStatements()->delete();
+                    
+                    // Delete old single bank_statement_path if exists
                     if ($income->bank_statement_path) {
                         Storage::disk('public')->delete($income->bank_statement_path);
                     }
@@ -371,30 +377,61 @@ class ApplicationController extends Controller
                 $income->user_id = $user->id;
                 $income->source_of_income = $incomeData['source_of_income'];
                 $income->net_weekly_amount = $incomeData['net_weekly_amount'];
-                
-                // Only update file if new file is uploaded
-                if ($request->hasFile("incomes.$index.bank_statement")) {
-                    // Delete old file if exists
-                    if ($income->bank_statement_path) {
-                        Storage::disk('public')->delete($income->bank_statement_path);
-                    }
-                    // Upload new file
-                    $path = $request->file("incomes.$index.bank_statement")
-                        ->store('bank-statements', 'public');
-                    $income->bank_statement_path = $path;
-                }
-                // If no new file uploaded, keep existing bank_statement_path (don't modify)
-                
                 $income->save();
+
+                // Handle existing statements that user wants to keep
+                if ($request->has("incomes.$index.existing_statements")) {
+                    $existingStatements = $request->input("incomes.$index.existing_statements");
+                    
+                    // Get current statement paths
+                    $currentStatementPaths = $income->bankStatements->pluck('file_path')->toArray();
+                    
+                    // Delete statements that are no longer in the existing_statements array
+                    foreach ($currentStatementPaths as $currentPath) {
+                        if (!in_array($currentPath, $existingStatements)) {
+                            // Find and delete the statement
+                            $statement = $income->bankStatements()->where('file_path', $currentPath)->first();
+                            if ($statement) {
+                                Storage::disk('public')->delete($statement->file_path);
+                                $statement->delete();
+                            }
+                        }
+                    }
+                } else {
+                    // If no existing_statements sent, delete all existing statements
+                    foreach ($income->bankStatements as $statement) {
+                        Storage::disk('public')->delete($statement->file_path);
+                    }
+                    $income->bankStatements()->delete();
+                }
+                
+                // Handle MULTIPLE bank statements
+                if ($request->hasFile("incomes.$index.bank_statements")) {
+                    $files = $request->file("incomes.$index.bank_statements");
+                    
+                    foreach ($files as $file) {
+                        // Upload file
+                        $path = $file->store('bank-statements', 'public');
+                        
+                        // Create bank statement record
+                        UserIncomeBankStatement::create([
+                            'user_income_id' => $income->id,
+                            'file_path' => $path,
+                            'original_filename' => $file->getClientOriginalName(),
+                            'file_size' => $file->getSize(),
+                            'mime_type' => $file->getMimeType(),
+                        ]);
+                    }
+                }
+                
+               
             }
 
             // 5. Update Identifications
-            // DON'T delete existing identifications, update or create instead
             $existingIds = $user->identifications->keyBy(function($item, $key) {
                 return $key;
             });
 
-            // Delete identifications that are no longer in the form
             if (count($validated['identifications']) < $existingIds->count()) {
                 $user->identifications()->skip(count($validated['identifications']))->take(PHP_INT_MAX)->each(function($identification) {
                     if ($identification->document_path) {
@@ -405,7 +442,6 @@ class ApplicationController extends Controller
             }
 
             foreach ($validated['identifications'] as $index => $idData) {
-                // Get existing identification or create new
                 $identification = $existingIds->get($index) ?: new UserIdentification();
                 $identification->user_id = $user->id;
                 $identification->identification_type = $idData['identification_type'];
@@ -421,33 +457,30 @@ class ApplicationController extends Controller
                 $identification->document_number = $idData['document_number'] ?? null;
                 $identification->expiry_date = $idData['expiry_date'] ?? null;
                 
-                // Only update file if new file is uploaded
                 if ($request->hasFile("identifications.$index.document")) {
-                    // Delete old file if exists
                     if ($identification->document_path) {
                         Storage::disk('public')->delete($identification->document_path);
                     }
-                    // Upload new file
                     $path = $request->file("identifications.$index.document")
                         ->store('identification-documents', 'public');
                     $identification->document_path = $path;
                 }
-                // If no new file uploaded, keep existing document_path (don't modify)
                 
                 $identification->save();
             }
 
             // 6. Update Pets
-            // DON'T delete existing pets, update or create instead
             $hasPets = $validated['has_pets'] ?? false;
             if ($hasPets && isset($validated['pets'])) {
                 $existingPets = $user->pets->keyBy(function($item, $key) {
                     return $key;
                 });
                 
-                // Delete pets that are no longer in the form
                 if (count($validated['pets']) < $existingPets->count()) {
                     $user->pets()->skip(count($validated['pets']))->take(PHP_INT_MAX)->each(function($pet) {
+                        if ($pet->photo_path) {
+                            Storage::disk('public')->delete($pet->photo_path);
+                        }
                         if ($pet->document_path) {
                             Storage::disk('public')->delete($pet->document_path);
                         }
@@ -455,7 +488,6 @@ class ApplicationController extends Controller
                     });
                 }
                 
-                // Inside the pets foreach loop
                 foreach ($validated['pets'] as $index => $petData) {
                     $pet = $existingPets->get($index) ?: new UserPet();
                     $pet->user_id = $user->id;
@@ -465,7 +497,7 @@ class ApplicationController extends Controller
                     $pet->size = $petData['size'];
                     $pet->registration_number = $petData['registration_number'] ?? null;
                     
-                    // Handle pet photo upload
+                    // Handle pet photo upload - FIXED
                     if ($request->hasFile("pets.$index.photo")) {
                         // Delete old photo if exists
                         if ($pet->photo_path) {
@@ -474,22 +506,30 @@ class ApplicationController extends Controller
                         // Upload new photo
                         $path = $request->file("pets.$index.photo")->store('pet-photos', 'public');
                         $pet->photo_path = $path;
+                    } elseif ($request->has("pets.$index.existing_photo")) {
+                        // Keep existing photo
+                        $pet->photo_path = $request->input("pets.$index.existing_photo");
                     }
                     
-                    // Handle document upload (existing code)
+                    // Handle document upload - FIXED
                     if ($request->hasFile("pets.$index.document")) {
                         if ($pet->document_path) {
                             Storage::disk('public')->delete($pet->document_path);
                         }
                         $path = $request->file("pets.$index.document")->store('pet-documents', 'public');
                         $pet->document_path = $path;
+                    } elseif ($request->has("pets.$index.existing_document")) {
+                        // Keep existing document
+                        $pet->document_path = $request->input("pets.$index.existing_document");
                     }
                     
                     $pet->save();
                 }
             } else {
-                // User unchecked pets, delete all
                 foreach ($user->pets as $pet) {
+                    if ($pet->photo_path) {
+                        Storage::disk('public')->delete($pet->photo_path);
+                    }
                     if ($pet->document_path) {
                         Storage::disk('public')->delete($pet->document_path);
                     }
@@ -498,9 +538,6 @@ class ApplicationController extends Controller
             }
             
             // ============ CREATE APPLICATION ============
-            // Store only application-specific data, reference user profile for personal data
-
-            // Refresh user profile to get latest data
             $user->load('profile');
             
             $application = PropertyApplication::create([
@@ -509,7 +546,7 @@ class ApplicationController extends Controller
                 'agency_id' => $property->agency_id,
                 'status' => 'pending',
                 
-                // Basic user info (from profile for quick access)
+                // Basic user info
                 'first_name' => $user->profile->first_name ?? $validated['first_name'],
                 'last_name' => $user->profile->last_name ?? $validated['last_name'],
                 'email' => $user->email,
@@ -517,7 +554,6 @@ class ApplicationController extends Controller
                 'date_of_birth' => $user->profile->date_of_birth,
                 'current_address' => $validated['addresses'][0]['address'] ?? '',
                 
-                // Calculate annual income from weekly incomes
                 'annual_income' => collect($validated['incomes'])->sum('net_weekly_amount') * 52,
                 'rent_per_week' => $validated['rent_per_week'],
                 
@@ -536,7 +572,6 @@ class ApplicationController extends Controller
                 'utility_gas' => $request->boolean('utility_gas'),
                 'utility_internet' => $request->boolean('utility_internet'),
                 
-                // Timestamps
                 'submitted_at' => now(),
             ]);
 
@@ -546,15 +581,12 @@ class ApplicationController extends Controller
                     'property_id' => $property->id,
                     'user_id' => $user->id,
                     'inspection_date' => $validated['inspection_date'],
-                    'status' => 'completed', // Since they already inspected
+                    'status' => 'completed',
                     'notes' => 'Property inspected before application submission',
                 ]);
             }
             
             DB::commit();
-            
-            // TODO: Send notification to agency
-            // TODO: Send confirmation email to user
             
             return redirect()->route('user.applications.show', $application->id)
                 ->with('success', 'Application submitted successfully! The property manager will review your application shortly.');
@@ -568,7 +600,6 @@ class ApplicationController extends Controller
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            
             Log::error('Application submission failed', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),

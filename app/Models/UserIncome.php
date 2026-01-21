@@ -30,4 +30,12 @@ class UserIncome extends Model
     {
         return $this->net_weekly_amount * 52;
     }
+
+    /**
+     * Get the bank statements for this income
+     */
+    public function bankStatements()
+    {
+        return $this->hasMany(UserIncomeBankStatement::class, 'user_income_id');
+    }
 }

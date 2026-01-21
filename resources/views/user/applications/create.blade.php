@@ -139,7 +139,7 @@
                             >
                         </div>
                         
-                        <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div id="inspection-info-sidebar" class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <div class="flex items-start gap-2">
                                 <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -435,7 +435,7 @@
                                 </div>
                                 
                                 <!-- Contact Information Section -->
-                                <div class="bg-gray-50 rounded-lg p-6 space-y-4 mt-4">
+                                <div class="bg-white rounded-lg p-6 space-y-4" style="overflow: visible;">
                                     <div class="flex items-center justify-between mb-4">
                                         <div>
                                             <h4 class="text-base font-semibold text-plyform-dark">Contact Information</h4>
@@ -465,43 +465,28 @@
                                         <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                             Mobile Number <span class="text-plyform-orange">*</span>
                                         </label>
-                                        <div class="flex gap-2">
-                                            <!-- Country Code Dropdown -->
-                                            <select 
-                                                name="mobile_country_code" 
-                                                required
-                                                class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_country_code') border-red-500 @enderror"
-                                            >
-                                                <option value="+61" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
-                                                <option value="+1" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
-                                                <option value="+44" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
-                                                <option value="+64" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
-                                                <option value="+86" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86</option>
-                                                <option value="+81" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+81' ? 'selected' : '' }}>🇯🇵 +81</option>
-                                                <option value="+82" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+82' ? 'selected' : '' }}>🇰🇷 +82</option>
-                                                <option value="+65" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+65' ? 'selected' : '' }}>🇸🇬 +65</option>
-                                                <option value="+60" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+60' ? 'selected' : '' }}>🇲🇾 +60</option>
-                                                <option value="+62" {{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '') == '+62' ? 'selected' : '' }}>🇮🇩 +62</option>
-                                            </select>
-                                            
-                                            <!-- Mobile Number Input -->
-                                            <input 
-                                                type="tel" 
-                                                name="mobile_number" 
-                                                value="{{ old('mobile_number', auth()->user()->profile->mobile_number ?? '') }}"
-                                                required
-                                                pattern="[0-9]{8,15}"
-                                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_number') border-red-500 @enderror"
-                                                placeholder="412345678"
-                                            >
-                                        </div>
+                                        
+                                        <input 
+                                            type="tel" 
+                                            id="app_mobile_number" 
+                                            name="mobile_number_display"
+                                            value="{{ old('mobile_number', auth()->user()->profile->mobile_number ?? '') }}"
+                                            required
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all @error('mobile_number') border-red-500 @enderror"
+                                            placeholder="Enter phone number"
+                                        >
+                                        
+                                        <!-- Hidden fields for country code and number -->
+                                        <input type="hidden" id="app_mobile_country_code" name="mobile_country_code" value="{{ old('mobile_country_code', auth()->user()->profile->mobile_country_code ?? '+61') }}">
+                                        <input type="hidden" id="app_mobile_number_clean" name="mobile_number" value="{{ old('mobile_number', auth()->user()->profile->mobile_number ?? '') }}">
+                                        
                                         @error('mobile_country_code')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                         @error('mobile_number')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
-                                        <p class="mt-1 text-xs text-gray-500">Enter your mobile number without spaces or leading zero (e.g., 412345678)</p>
+                                        <p class="mt-1 text-xs text-gray-500">Select your country and enter your mobile number</p>
                                     </div>
                                     
                                 </div>
@@ -610,7 +595,7 @@
                                                 <!-- Full Address -->
                                                 <div class="mb-4">
                                                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                                        Full Address <span class="text-plyform-orange">*</span>
+                                                        Address <span class="text-plyform-orange">*</span>
                                                     </label>
                                                     <input 
                                                         type="text" 
@@ -889,14 +874,22 @@
                                                             <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                                                 Contact Number <span class="text-plyform-orange">*</span>
                                                             </label>
+                                                            
                                                             <input 
                                                                 type="tel" 
-                                                                name="employments[{{ $index }}][contact_number]" 
+                                                                id="employment_contact_{{ $index }}" 
+                                                                name="employments[{{ $index }}][contact_number_display]"
                                                                 value="{{ $employment['contact_number'] ?? '' }}"
                                                                 required
                                                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                                                placeholder="0400 000 000"
+                                                                placeholder="Enter phone number"
                                                             >
+                                                            
+                                                            <!-- Hidden fields for country code and number -->
+                                                            <input type="hidden" id="employment_country_code_{{ $index }}" name="employments[{{ $index }}][contact_country_code]" value="{{ $employment['contact_country_code'] ?? '+61' }}">
+                                                            <input type="hidden" id="employment_contact_clean_{{ $index }}" name="employments[{{ $index }}][contact_number]" value="{{ $employment['contact_number'] ?? '' }}">
+                                                            
+                                                            <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
                                                         </div>
                                                         
                                                         <div>
@@ -967,12 +960,96 @@
                                                         <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                                             Employment Letter (Optional)
                                                         </label>
-                                                        <input 
-                                                            type="file" 
-                                                            name="employments[{{ $index }}][employment_letter]"
-                                                            accept=".pdf,.jpg,.jpeg,.png"
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all"
-                                                        >
+                                                        <div class="space-y-3">
+                                                            <!-- File Input (Hidden) -->
+                                                            <input 
+                                                                type="file" 
+                                                                name="employments[{{ $index }}][employment_letter]"
+                                                                id="employment_letter_{{ $index }}"
+                                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                                onchange="previewEmploymentLetter({{ $index }})"
+                                                                class="hidden"
+                                                            >
+                                                            
+                                                            <!-- Upload Button/Preview Container -->
+                                                            <div id="employment_letter_preview_{{ $index }}" class="space-y-2">
+                                                                @if(!empty($employment['employment_letter_path']) && Storage::disk('public')->exists($employment['employment_letter_path']))
+                                                                    <!-- EXISTING FILE PREVIEW -->
+                                                                    <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                                                        <div class="flex items-center gap-3">
+                                                                            <!-- File Icon/Thumbnail -->
+                                                                            @if(in_array(pathinfo($employment['employment_letter_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                                <img src="{{ Storage::url($employment['employment_letter_path']) }}" alt="Letter" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                                            @else
+                                                                                <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                                                                                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                                    </svg>
+                                                                                </div>
+                                                                            @endif
+                                                                            
+                                                                            <!-- File Info -->
+                                                                            <div class="flex-1 min-w-0">
+                                                                                <p class="text-sm font-medium text-gray-900 truncate">{{ basename($employment['employment_letter_path']) }}</p>
+                                                                                <p class="text-xs text-gray-500">Uploaded document</p>
+                                                                            </div>
+                                                                            
+                                                                            <!-- View Button -->
+                                                                            <a 
+                                                                                href="{{ Storage::url($employment['employment_letter_path']) }}" 
+                                                                                target="_blank"
+                                                                                class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                                title="View document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                                </svg>
+                                                                            </a>
+                                                                            
+                                                                            <!-- Remove Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="removeEmploymentLetter({{ $index }})"
+                                                                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                                title="Remove document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                            
+                                                                            <!-- Re-upload Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                                                class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                                                title="Change document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- Hidden input to track existing file -->
+                                                                    <input type="hidden" name="employments[{{ $index }}][existing_letter]" value="{{ $employment['employment_letter_path'] }}">
+                                                                @else
+                                                                    <!-- NO FILE YET - UPLOAD BUTTON -->
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                                                                    >
+                                                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                                        </svg>
+                                                                        <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                                                                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
                                                         <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
                                                     </div>
                                                 </div>
@@ -1108,18 +1185,96 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <!-- Bank Statement Upload -->
+                                                <!-- Bank Statement Upload (Multiple) -->
                                                 <div class="mt-4">
                                                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                                        Bank Statement (Optional)
+                                                        Bank Statements (Optional)
+                                                        <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                                                     </label>
-                                                    <input 
-                                                        type="file" 
-                                                        name="incomes[{{ $index }}][bank_statement]"
-                                                        accept=".pdf,.jpg,.jpeg,.png"
-                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30"
-                                                    >
-                                                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+                                                    <div class="space-y-3">
+                                                        <!-- File Input (Hidden, Multiple) -->
+                                                        <input 
+                                                            type="file" 
+                                                            name="incomes[{{ $index }}][bank_statements][]"
+                                                            id="income_statement_{{ $index }}"
+                                                            accept=".pdf,.jpg,.jpeg,.png"
+                                                            onchange="previewIncomeStatements({{ $index }})"
+                                                            multiple
+                                                            class="hidden"
+                                                        >
+                                                        
+                                                        <!-- Preview Container for Multiple Files -->
+                                                        <div id="income_statement_preview_{{ $index }}" class="space-y-2">
+                                                            @if(!empty($income['bank_statements']) && is_array($income['bank_statements']))
+                                                                <!-- EXISTING FILES PREVIEW -->
+                                                                @foreach($income['bank_statements'] as $statementIndex => $statementPath)
+                                                                    @if(Storage::disk('public')->exists($statementPath))
+                                                                        <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3" data-existing-file="{{ $statementIndex }}">
+                                                                            <div class="flex items-center gap-3">
+                                                                                <!-- File Icon/Thumbnail -->
+                                                                                @if(in_array(pathinfo($statementPath, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                                    <img src="{{ Storage::url($statementPath) }}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                                                @else
+                                                                                    <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                                                                                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                                        </svg>
+                                                                                    </div>
+                                                                                @endif
+                                                                                
+                                                                                <!-- File Info -->
+                                                                                <div class="flex-1 min-w-0">
+                                                                                    <p class="text-sm font-medium text-gray-900 truncate">{{ basename($statementPath) }}</p>
+                                                                                    <p class="text-xs text-gray-500">Uploaded document</p>
+                                                                                </div>
+                                                                                
+                                                                                <!-- View Button -->
+                                                                                <a 
+                                                                                    href="{{ Storage::url($statementPath) }}" 
+                                                                                    target="_blank"
+                                                                                    class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                                    title="View document"
+                                                                                >
+                                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                                    </svg>
+                                                                                </a>
+                                                                                
+                                                                                <!-- Remove Button -->
+                                                                                <button 
+                                                                                    type="button" 
+                                                                                    onclick="removeExistingIncomeStatement({{ $index }}, {{ $statementIndex }})"
+                                                                                    class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                                    title="Remove document"
+                                                                                >
+                                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- Hidden input to track existing file -->
+                                                                        <input type="hidden" name="incomes[{{ $index }}][existing_statements][]" value="{{ $statementPath }}" id="existing_statement_{{ $index }}_{{ $statementIndex }}">
+                                                                    @endif
+                                                                @endforeach
+                                                            @endif
+                                                        </div>
+                                                        
+                                                        <!-- Upload Button -->
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="document.getElementById('income_statement_{{ $index }}').click()"
+                                                            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                                                        >
+                                                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                            </svg>
+                                                            <span class="text-sm text-gray-600">Click to upload bank statements</span>
+                                                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB per file)</span>
+                                                        </button>
+                                                    </div>
+                                                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB per file. Formats: PDF, JPG, PNG. You can upload multiple files.</p>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -1273,22 +1428,103 @@
                                                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                                         Upload Document <span class="text-plyform-orange">*</span>
                                                     </label>
-                                                    <input 
-                                                        type="file" 
-                                                        name="identifications[{{ $index }}][document]"
-                                                        accept=".pdf,.jpg,.jpeg,.png"
-                                                        {{ isset($id['document_path']) ? '' : 'required' }}
-                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all"
-                                                    >
+                                                    <div class="space-y-3">
+                                                        <!-- File Input (Hidden) -->
+                                                        <input 
+                                                            type="file" 
+                                                            name="identifications[{{ $index }}][document]"
+                                                            id="identification_document_{{ $index }}"
+                                                            accept=".pdf,.jpg,.jpeg,.png"
+                                                            {{ isset($id['document_path']) ? '' : 'required' }}
+                                                            onchange="previewIdentificationDocument({{ $index }})"
+                                                            class="hidden"
+                                                        >
+                                                        
+                                                        <!-- Upload Button/Preview Container -->
+                                                        <div id="identification_document_preview_{{ $index }}" class="space-y-2">
+                                                            @if(!empty($id['document_path']) && Storage::disk('public')->exists($id['document_path']))
+                                                                <!-- EXISTING FILE PREVIEW -->
+                                                                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                                                    <div class="flex items-center gap-3">
+                                                                        <!-- File Icon/Thumbnail -->
+                                                                        @if(in_array(pathinfo($id['document_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                            <img src="{{ Storage::url($id['document_path']) }}" alt="Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                                        @else
+                                                                            <div class="w-16 h-16 bg-blue-100 rounded-lg border-2 border-blue-300 flex items-center justify-center">
+                                                                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                                                </svg>
+                                                                            </div>
+                                                                        @endif
+                                                                        
+                                                                        <!-- File Info -->
+                                                                        <div class="flex-1 min-w-0">
+                                                                            <p class="text-sm font-medium text-gray-900 truncate">{{ basename($id['document_path']) }}</p>
+                                                                            <p class="text-xs text-green-600 flex items-center gap-1">
+                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                                                                </svg>
+                                                                                Document uploaded
+                                                                            </p>
+                                                                        </div>
+                                                                        
+                                                                        <!-- View Button -->
+                                                                        <a 
+                                                                            href="{{ Storage::url($id['document_path']) }}" 
+                                                                            target="_blank"
+                                                                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                            title="View document"
+                                                                        >
+                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                            </svg>
+                                                                        </a>
+                                                                        
+                                                                        <!-- Remove Button -->
+                                                                        <button 
+                                                                            type="button" 
+                                                                            onclick="removeIdentificationDocument({{ $index }})"
+                                                                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                            title="Remove document"
+                                                                        >
+                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                            </svg>
+                                                                        </button>
+                                                                        
+                                                                        <!-- Re-upload Button -->
+                                                                        <button 
+                                                                            type="button" 
+                                                                            onclick="document.getElementById('identification_document_{{ $index }}').click()"
+                                                                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                                            title="Change document"
+                                                                        >
+                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Hidden input to track existing file -->
+                                                                <input type="hidden" name="identifications[{{ $index }}][existing_document]" value="{{ $id['document_path'] }}">
+                                                            @else
+                                                                <!-- NO FILE YET - UPLOAD BUTTON -->
+                                                                <button 
+                                                                    type="button" 
+                                                                    onclick="document.getElementById('identification_document_{{ $index }}').click()"
+                                                                    class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                                                                >
+                                                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                                    </svg>
+                                                                    <span class="text-sm text-gray-600">Click to upload identification document</span>
+                                                                    <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    </div>
                                                     <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
-                                                    @if(isset($id['document_path']))
-                                                        <p class="mt-1 text-xs text-green-600 flex items-center gap-1">
-                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                                            </svg>
-                                                            Document already uploaded
-                                                        </p>
-                                                    @endif
                                                 </div>
                                                 
                                                 <!-- Expiry Date (Optional) -->
@@ -1473,29 +1709,20 @@
                                                         </svg>
                                                         Phone Number <span class="text-plyform-orange">*</span>
                                                     </label>
-                                                    <div class="flex gap-2">
-                                                        <select 
-                                                            name="emergency_contact_country_code" 
-                                                            class="w-32 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all hover:border-gray-400 @error('emergency_contact_country_code') border-red-500 @enderror"
-                                                        >
-                                                            <option value="+61" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '+61') == '+61' ? 'selected' : '' }}>🇦🇺 +61</option>
-                                                            <option value="+1" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+1' ? 'selected' : '' }}>🇺🇸 +1</option>
-                                                            <option value="+44" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+44' ? 'selected' : '' }}>🇬🇧 +44</option>
-                                                            <option value="+64" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+64' ? 'selected' : '' }}>🇳🇿 +64</option>
-                                                            <option value="+86" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+86' ? 'selected' : '' }}>🇨🇳 +86</option>
-                                                            <option value="+81" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+81' ? 'selected' : '' }}>🇯🇵 +81</option>
-                                                            <option value="+82" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+82' ? 'selected' : '' }}>🇰🇷 +82</option>
-                                                            <option value="+65" {{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '') == '+65' ? 'selected' : '' }}>🇸🇬 +65</option>
-                                                        </select>
-                                                        <input 
-                                                            type="tel" 
-                                                            name="emergency_contact_number" 
-                                                            value="{{ old('emergency_contact_number', auth()->user()->profile->emergency_contact_number ?? '') }}"
-                                                            pattern="[0-9]{8,15}"
-                                                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all hover:border-gray-400 @error('emergency_contact_number') border-red-500 @enderror"
-                                                            placeholder="412 345 678"
-                                                        >
-                                                    </div>
+                                                    
+                                                    <input 
+                                                        type="tel" 
+                                                        id="app_emergency_contact_phone" 
+                                                        name="emergency_contact_number_display"
+                                                        value="{{ old('emergency_contact_number', auth()->user()->profile->emergency_contact_number ?? '') }}"
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-yellow/20 focus:border-plyform-yellow outline-none transition-all hover:border-gray-400 @error('emergency_contact_number') border-red-500 @enderror"
+                                                        placeholder="Enter phone number"
+                                                    >
+                                                    
+                                                    <!-- Hidden fields for country code and number -->
+                                                    <input type="hidden" id="app_emergency_contact_country_code" name="emergency_contact_country_code" value="{{ old('emergency_contact_country_code', auth()->user()->profile->emergency_contact_country_code ?? '+61') }}">
+                                                    <input type="hidden" id="app_emergency_contact_number_clean" name="emergency_contact_number" value="{{ old('emergency_contact_number', auth()->user()->profile->emergency_contact_number ?? '') }}">
+                                                    
                                                     @error('emergency_contact_country_code')
                                                         <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
                                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1512,6 +1739,7 @@
                                                             {{ $message }}
                                                         </p>
                                                     @enderror
+                                                    <p class="mt-1 text-xs text-gray-500">Select country and enter emergency contact number</p>
                                                 </div>
                                                 
                                                 <!-- Emergency Contact Email -->
@@ -1742,10 +1970,194 @@
                                                         <input type="text" name="pets[{{ $index }}][registration_number]" value="{{ $pet['registration_number'] ?? '' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., 123456">
                                                         <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
                                                     </div>
-                                                    
+
+                                                    <!-- Pet Photo Upload -->
+                                                    <div class="mt-4">
+                                                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Photo <span class="text-plyform-orange">*</span></label>
+                                                        <div class="space-y-3">
+                                                            <!-- File Input (Hidden) -->
+                                                            <input 
+                                                                type="file" 
+                                                                name="pets[{{ $index }}][photo]"
+                                                                id="pet_photo_{{ $index }}"
+                                                                accept="image/jpeg,image/jpg,image/png"
+                                                                {{ isset($pet['photo_path']) ? '' : 'required' }}
+                                                                onchange="previewPetPhoto({{ $index }})"
+                                                                class="hidden"
+                                                            >
+                                                            
+                                                            <!-- Upload Button/Preview Container -->
+                                                            <div id="pet_photo_preview_{{ $index }}" class="space-y-2">
+                                                                @if(!empty($pet['photo_path']) && Storage::disk('public')->exists($pet['photo_path']))
+                                                                    <!-- EXISTING PHOTO PREVIEW -->
+                                                                    <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                                                        <div class="flex items-center gap-3">
+                                                                            <!-- Photo Thumbnail -->
+                                                                            <img src="{{ Storage::url($pet['photo_path']) }}" alt="Pet Photo" class="w-20 h-20 object-cover rounded-lg border-2 border-plyform-orange/50">
+                                                                            
+                                                                            <!-- File Info -->
+                                                                            <div class="flex-1 min-w-0">
+                                                                                <p class="text-sm font-medium text-gray-900 truncate">{{ basename($pet['photo_path']) }}</p>
+                                                                                <p class="text-xs text-green-600 flex items-center gap-1">
+                                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                                                                    </svg>
+                                                                                    Photo uploaded
+                                                                                </p>
+                                                                            </div>
+                                                                            
+                                                                            <!-- View Button -->
+                                                                            <a 
+                                                                                href="{{ Storage::url($pet['photo_path']) }}" 
+                                                                                target="_blank"
+                                                                                class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                                title="View photo"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                                </svg>
+                                                                            </a>
+                                                                            
+                                                                            <!-- Remove Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="removePetPhoto({{ $index }})"
+                                                                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                                title="Remove photo"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                            
+                                                                            <!-- Re-upload Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="document.getElementById('pet_photo_{{ $index }}').click()"
+                                                                                class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                                                title="Change photo"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- Hidden input to track existing file -->
+                                                                    <input type="hidden" name="pets[{{ $index }}][existing_photo]" value="{{ $pet['photo_path'] }}">
+                                                                @else
+                                                                    <!-- NO PHOTO YET - UPLOAD BUTTON -->
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onclick="document.getElementById('pet_photo_{{ $index }}').click()"
+                                                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer"
+                                                                    >
+                                                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                                        </svg>
+                                                                        <span class="text-sm text-gray-600">Click to upload pet photo</span>
+                                                                        <span class="text-xs text-gray-500 block mt-1">JPG, PNG (Max 5MB)</span>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <p class="mt-1 text-xs text-gray-500">Upload a clear photo of your pet (JPG, PNG - Max 5MB)</p>
+                                                    </div>
+
+                                                    <!-- Pet Registration Document Upload -->
                                                     <div class="mt-4">
                                                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
-                                                        <input type="file" name="pets[{{ $index }}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
+                                                        <div class="space-y-3">
+                                                            <!-- File Input (Hidden) -->
+                                                            <input 
+                                                                type="file" 
+                                                                name="pets[{{ $index }}][document]"
+                                                                id="pet_document_{{ $index }}"
+                                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                                onchange="previewPetDocument({{ $index }})"
+                                                                class="hidden"
+                                                            >
+                                                            
+                                                            <!-- Upload Button/Preview Container -->
+                                                            <div id="pet_document_preview_{{ $index }}" class="space-y-2">
+                                                                @if(!empty($pet['document_path']) && Storage::disk('public')->exists($pet['document_path']))
+                                                                    <!-- EXISTING DOCUMENT PREVIEW -->
+                                                                    <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+                                                                        <div class="flex items-center gap-3">
+                                                                            <!-- File Icon/Thumbnail -->
+                                                                            @if(in_array(pathinfo($pet['document_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                                <img src="{{ Storage::url($pet['document_path']) }}" alt="Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                                            @else
+                                                                                <div class="w-16 h-16 bg-orange-100 rounded-lg border-2 border-plyform-orange/50 flex items-center justify-center">
+                                                                                    <svg class="w-8 h-8 text-plyform-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                                                    </svg>
+                                                                                </div>
+                                                                            @endif
+                                                                            
+                                                                            <!-- File Info -->
+                                                                            <div class="flex-1 min-w-0">
+                                                                                <p class="text-sm font-medium text-gray-900 truncate">{{ basename($pet['document_path']) }}</p>
+                                                                                <p class="text-xs text-gray-500">Registration certificate</p>
+                                                                            </div>
+                                                                            
+                                                                            <!-- View Button -->
+                                                                            <a 
+                                                                                href="{{ Storage::url($pet['document_path']) }}" 
+                                                                                target="_blank"
+                                                                                class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                                title="View document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                                </svg>
+                                                                            </a>
+                                                                            
+                                                                            <!-- Remove Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="removePetDocument({{ $index }})"
+                                                                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                                title="Remove document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                            
+                                                                            <!-- Re-upload Button -->
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onclick="document.getElementById('pet_document_{{ $index }}').click()"
+                                                                                class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                                                title="Change document"
+                                                                            >
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- Hidden input to track existing file -->
+                                                                    <input type="hidden" name="pets[{{ $index }}][existing_document]" value="{{ $pet['document_path'] }}">
+                                                                @else
+                                                                    <!-- NO DOCUMENT YET - UPLOAD BUTTON -->
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onclick="document.getElementById('pet_document_{{ $index }}').click()"
+                                                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer"
+                                                                    >
+                                                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                                        </svg>
+                                                                        <span class="text-sm text-gray-600">Click to upload registration certificate</span>
+                                                                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
                                                         <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
                                                     </div>
                                                 </div>
@@ -2324,8 +2736,10 @@
         const inspectionDateSidebar = document.getElementById('inspection-date-sidebar');
         if (value === 'yes') {
             inspectionDateSidebar.classList.remove('hidden');
+            document.getElementById('inspection-info-sidebar').classList.add('hidden');
         } else {
             inspectionDateSidebar.classList.add('hidden');
+            document.getElementById('inspection-info-sidebar').classList.remove('hidden');
             document.getElementById('sidebar_inspection_date').value = '';
             document.getElementById('inspection_date_hidden').value = '';
         }
@@ -2339,6 +2753,7 @@
     // Sync move-in date
     function syncMoveInDate(value) {
         document.getElementById('move_in_date_hidden').value = value;
+        console.log('Move-in date synced:', value); // Debug log
     }
 
     // Set lease term
@@ -2374,8 +2789,15 @@
         // Disable HTML5 validation to handle it ourselves
         form.setAttribute('novalidate', 'novalidate');
         
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault(); // Prevent default first, we'll submit manually if valid
+
+            // ENSURE move-in date is synced FIRST
+            const sidebarMoveIn = document.getElementById('sidebar_move_in_date');
+            const hiddenMoveIn = document.getElementById('move_in_date_hidden');
+            if (sidebarMoveIn && sidebarMoveIn.value && hiddenMoveIn) {
+                hiddenMoveIn.value = sidebarMoveIn.value;
+            }
 
             // Copy sidebar values to hidden fields
             const rentInput = document.getElementById('rent_per_week_input');
@@ -2565,7 +2987,7 @@
             const moveInDate = document.getElementById('move_in_date_hidden');
             if (!moveInDate?.value) {
                 // Show error in sidebar
-                const moveInDateDisplay = document.getElementById('move_in_date_display');
+                const moveInDateDisplay = document.getElementById('sidebar_move_in_date');
                 if (moveInDateDisplay) {
                     moveInDateDisplay.classList.add('border-2', 'border-red-500');
                     
@@ -2638,27 +3060,33 @@
                 return false;
             }
             
-            // All validation passed - disable button and submit
-            // Remove pet fields if "has_pets" is not checked
+            // ============================================
+            // All validation passed - PREPARE FOR SUBMIT
+            // ============================================
+            
+            // DON'T remove fields - just disable them if unchecked
+            // This preserves file inputs
+            
             if (!hasPets?.checked) {
+                // Disable pet fields instead of removing them
                 document.querySelectorAll('[name^="pets["]').forEach(field => {
-                    field.remove();
+                    field.disabled = true;
                 });
             }
 
-            // Remove employment fields if "has_employment" is not checked
             if (!hasEmployment?.checked) {
+                // Disable employment fields instead of removing them
                 document.querySelectorAll('[name^="employments["]').forEach(field => {
-                    field.remove();
+                    field.disabled = true;
                 });
             }
 
-            // Remove emergency contact fields if not filled
             const hasEmergencyContact = document.getElementById('has_emergency_contact');
             if (!hasEmergencyContact?.checked) {
+                // Disable emergency contact fields instead of removing them
                 document.querySelectorAll('[name^="emergency_contact_"]').forEach(field => {
                     if (field.name !== 'has_emergency_contact') {
-                        field.remove();
+                        field.disabled = true;
                     }
                 });
             }
@@ -2667,8 +3095,36 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Submitting...</span>';
 
-            // Submit the form
-            form.submit();
+            // Use HTMLFormElement.submit() method which preserves all data including files
+            // DO NOT use form.submit() - use requestSubmit() instead to trigger native form submission
+            // form.requestSubmit();
+            // form.submit();
+
+            try {
+                const response = await fetch('{{ route("user.applications.store") }}', {
+                    method: 'POST',
+                    body: new FormData(form), // ✅ includes ALL fields + files
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit');
+                }
+
+                const result = await response.json();
+
+                // ✅ success
+                alert('Submitted successfully!');
+                form.reset();
+
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit';
+            }
         });
     });
 
@@ -2939,7 +3395,17 @@
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
-                        <input type="tel" name="employments[${employmentIndex}][contact_number]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="0400 000 000">
+                        <input 
+                            type="tel" 
+                            id="employment_contact_${employmentIndex}" 
+                            name="employments[${employmentIndex}][contact_number_display]"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                            placeholder="Enter phone number"
+                        >
+                        <input type="hidden" id="employment_country_code_${employmentIndex}" name="employments[${employmentIndex}][contact_country_code]" value="+61">
+                        <input type="hidden" id="employment_contact_clean_${employmentIndex}" name="employments[${employmentIndex}][contact_number]">
+                        <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
                     </div>
                     <div>
                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
@@ -2967,17 +3433,31 @@
                 
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Employment Letter (Optional)</label>
-                    <input type="file" name="employments[${employmentIndex}][employment_letter]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
+                    <input type="file" name="employments[${employmentIndex}][employment_letter]" id="employment_letter_${employmentIndex}" accept=".pdf,.jpg,.jpeg,.png" onchange="previewEmploymentLetter(${employmentIndex})" class="hidden">
+                    <div id="employment_letter_preview_${employmentIndex}">
+                        <button type="button" onclick="document.getElementById('employment_letter_${employmentIndex}').click()" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer">
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                        </button>
+                    </div>
                     <p class="mt-1 text-xs text-gray-500">Recommended for verification (PDF, JPG, PNG - Max 10MB)</p>
                 </div>
             </div>
         `;
         
         container.insertAdjacentHTML('beforeend', newEmployment);
-        
-        // Initialize flatpickr for the new date fields
+    
+        // Initialize date pickers and phone for new employment
         const newElement = container.lastElementChild;
         initializeDatePickers(newElement);
+        
+        // Initialize phone input for the new employment
+        setTimeout(() => {
+            initializeEmploymentPhones();
+        }, 100);
         
         employmentIndex++;
     }
@@ -3062,7 +3542,11 @@
             <div class="income-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="${incomeIndex}">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="font-semibold text-plyform-dark">Income Source ${incomeIndex + 1}</h4>
-                    <button type="button" onclick="removeIncome(${incomeIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                    <button 
+                        type="button" 
+                        onclick="removeIncome(${incomeIndex})"
+                        class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                    >
                         Remove
                     </button>
                 </div>
@@ -3097,10 +3581,41 @@
                     </div>
                 </div>
                 
+                <!-- Bank Statement Upload -->
                 <div class="mt-4">
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
-                    <input type="file" name="incomes[${incomeIndex}][bank_statement]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
-                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                        Bank Statements (Optional)
+                        <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
+                    </label>
+                    <div class="space-y-3">
+                        <!-- File Input (Hidden, Multiple) -->
+                        <input 
+                            type="file" 
+                            name="incomes[${incomeIndex}][bank_statements][]"
+                            id="income_statement_${incomeIndex}"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onchange="previewIncomeStatements(${incomeIndex})"
+                            multiple
+                            class="hidden"
+                        >
+                        
+                        <!-- Preview Container -->
+                        <div id="income_statement_preview_${incomeIndex}" class="space-y-2"></div>
+                        
+                        <!-- Upload Button -->
+                        <button 
+                            type="button" 
+                            onclick="document.getElementById('income_statement_${incomeIndex}').click()"
+                            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                        >
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload bank statements</span>
+                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB per file)</span>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Max size: 10MB per file. Formats: PDF, JPG, PNG. You can upload multiple files.</p>
                 </div>
             </div>
         `;
@@ -3180,7 +3695,16 @@
                 
                 <div class="mb-4">
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
-                    <input type="file" name="identifications[${idIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30 transition-all">
+                    <input type="file" name="identifications[${idIndex}][document]" id="identification_document_${idIndex}" accept=".pdf,.jpg,.jpeg,.png" required onchange="previewIdentificationDocument(${idIndex})" class="hidden">
+                    <div id="identification_document_preview_${idIndex}">
+                        <button type="button" onclick="document.getElementById('identification_document_${idIndex}').click()" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer">
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload identification document</span>
+                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                        </button>
+                    </div>
                     <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
                 </div>
                 
@@ -3252,9 +3776,7 @@
             <div class="pet-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-orange/30 transition-colors bg-white" data-index="${petIndex}">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="font-semibold text-plyform-dark">Pet ${petIndex + 1}</h4>
-                    <button type="button" onclick="removePetItem(${petIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
-                        Remove
-                    </button>
+                    <button type="button" onclick="removePetItem(${petIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-4">
@@ -3302,9 +3824,35 @@
                     <p class="mt-1 text-xs text-gray-500">Council registration number if applicable</p>
                 </div>
                 
+                <!-- Pet Photo Upload -->
+                <div class="mt-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Photo <span class="text-plyform-orange">*</span></label>
+                    <input type="file" name="pets[${petIndex}][photo]" id="pet_photo_${petIndex}" accept="image/jpeg,image/jpg,image/png" required onchange="previewPetPhoto(${petIndex})" class="hidden">
+                    <div id="pet_photo_preview_${petIndex}">
+                        <button type="button" onclick="document.getElementById('pet_photo_${petIndex}').click()" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer">
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload pet photo</span>
+                            <span class="text-xs text-gray-500 block mt-1">JPG, PNG (Max 5MB)</span>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Upload a clear photo of your pet (JPG, PNG - Max 5MB)</p>
+                </div>
+                
+                <!-- Pet Registration Document -->
                 <div class="mt-4">
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Pet Registration Document (Optional)</label>
-                    <input type="file" name="pets[${petIndex}][document]" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-plyform-green/20 file:text-plyform-dark hover:file:bg-plyform-green/30">
+                    <input type="file" name="pets[${petIndex}][document]" id="pet_document_${petIndex}" accept=".pdf,.jpg,.jpeg,.png" onchange="previewPetDocument(${petIndex})" class="hidden">
+                    <div id="pet_document_preview_${petIndex}">
+                        <button type="button" onclick="document.getElementById('pet_document_${petIndex}').click()" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer">
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span class="text-sm text-gray-600">Click to upload registration certificate</span>
+                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                        </button>
+                    </div>
                     <p class="mt-1 text-xs text-gray-500">Upload registration certificate if available (PDF, JPG, PNG - Max 10MB)</p>
                 </div>
             </div>
@@ -3947,169 +4495,852 @@
     }
 </style>
 <style>
-/* Flatpickr Custom Styling */
-.flatpickr-calendar {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    font-family: inherit;
-}
+    /* Flatpickr Custom Styling */
+    .flatpickr-calendar {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        font-family: inherit;
+    }
 
-.flatpickr-months {
-    padding: 10px;
-    background: linear-gradient(135deg, #5E17EB 0%, #8B5CF6 100%);
-    border-radius: 12px 12px 0 0;
-}
+    .flatpickr-months {
+        padding: 10px;
+        background: linear-gradient(135deg, #5E17EB 0%, #8B5CF6 100%);
+        border-radius: 12px 12px 0 0;
+    }
 
-.flatpickr-month {
-    height: auto;
-    color: white;
-}
+    .flatpickr-month {
+        height: auto;
+        color: white;
+    }
 
-.flatpickr-current-month {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    padding: 5px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
+    .flatpickr-current-month {
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
 
-.flatpickr-current-month .flatpickr-monthDropdown-months {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 16px;
-    padding-right: 32px;
-}
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-weight: 600;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 20 20'%3E%3Cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+        padding-right: 32px;
+    }
 
-.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
 
-.flatpickr-current-month .numInputWrapper {
-    width: 80px;
-}
+    .flatpickr-current-month .numInputWrapper {
+        width: 80px;
+    }
 
-.flatpickr-current-month input.cur-year {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-weight: 600;
-    text-align: center;
-}
+    .flatpickr-current-month input.cur-year {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-weight: 600;
+        text-align: center;
+    }
 
-.flatpickr-current-month input.cur-year:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
+    .flatpickr-current-month input.cur-year:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
 
-/* Navigation Arrows */
-.flatpickr-prev-month,
-.flatpickr-next-month {
-    fill: white !important;
-    padding: 8px;
-    position: static;
-    height: auto;
-    width: auto;
-}
+    /* Navigation Arrows */
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+        fill: white !important;
+        padding: 8px;
+        position: static;
+        height: auto;
+        width: auto;
+    }
 
-.flatpickr-prev-month:hover,
-.flatpickr-next-month:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-}
+    .flatpickr-prev-month:hover,
+    .flatpickr-next-month:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+    }
 
-.flatpickr-prev-month svg,
-.flatpickr-next-month svg {
-    width: 14px;
-    height: 14px;
-}
+    .flatpickr-prev-month svg,
+    .flatpickr-next-month svg {
+        width: 14px;
+        height: 14px;
+    }
 
-/* Weekdays */
-.flatpickr-weekdays {
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-}
+    /* Weekdays */
+    .flatpickr-weekdays {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
 
-span.flatpickr-weekday {
-    color: #6b7280;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-}
+    span.flatpickr-weekday {
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
 
-/* Days */
-.flatpickr-days {
-    border: none;
-}
+    /* Days */
+    .flatpickr-days {
+        border: none;
+    }
 
-.flatpickr-day {
-    border-radius: 8px;
-    color: #374151;
-    font-weight: 500;
-    border: none;
-    margin: 2px;
-}
+    .flatpickr-day {
+        border-radius: 8px;
+        color: #374151;
+        font-weight: 500;
+        border: none;
+        margin: 2px;
+    }
 
-.flatpickr-day.today {
-    border: 2px solid #5E17EB;
-    background: transparent;
-    color: #5E17EB;
-    font-weight: 700;
-}
+    .flatpickr-day.today {
+        border: 2px solid #5E17EB;
+        background: transparent;
+        color: #5E17EB;
+        font-weight: 700;
+    }
 
-.flatpickr-day.today:hover {
-    background: #5E17EB;
-    color: white;
-}
+    .flatpickr-day.today:hover {
+        background: #5E17EB;
+        color: white;
+    }
 
-.flatpickr-day.selected {
-    background: #5E17EB;
-    color: white;
-    border: none;
-    font-weight: 700;
-}
+    .flatpickr-day.selected {
+        background: #5E17EB;
+        color: white;
+        border: none;
+        font-weight: 700;
+    }
 
-.flatpickr-day.selected:hover {
-    background: #7C3AED;
-}
+    .flatpickr-day.selected:hover {
+        background: #7C3AED;
+    }
 
-.flatpickr-day:hover {
-    background: #E6FF4B;
-    color: #374151;
-    border: none;
-}
+    .flatpickr-day:hover {
+        background: #E6FF4B;
+        color: #374151;
+        border: none;
+    }
 
-.flatpickr-day.disabled,
-.flatpickr-day.disabled:hover {
-    color: #d1d5db;
-    background: transparent;
-    cursor: not-allowed;
-}
+    .flatpickr-day.disabled,
+    .flatpickr-day.disabled:hover {
+        color: #d1d5db;
+        background: transparent;
+        cursor: not-allowed;
+    }
 
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-    color: #9ca3af;
-}
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+        color: #9ca3af;
+    }
 
-/* Input styling when calendar is open */
-.flatpickr-input.active {
-    border-color: #5E17EB !important;
-    box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1) !important;
-}
+    /* Input styling when calendar is open */
+    .flatpickr-input.active {
+        border-color: #5E17EB !important;
+        box-shadow: 0 0 0 3px rgba(94, 23, 235, 0.1) !important;
+    }
 </style>
+<style>
+    /* Fix intl-tel-input dropdown appearing behind other elements */
+    .iti {
+        display: block;
+        position: relative;
+        z-index: 10;
+    }
+
+    .iti__country-list {
+        z-index: 999 !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* Ensure parent containers don't create new stacking contexts */
+    .iti--separate-dial-code .iti__selected-flag {
+        z-index: 1;
+    }
+
+    /* Make sure the dropdown appears above cards */
+    .iti--container {
+        z-index: 999 !important;
+    }
+    /* If the form section or card has overflow hidden, adjust it */
+    
+
+    /* Or specifically target the contact information section */
+    
+    .overflow-hidden {
+        overflow: visible !important;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+// Initialize intl-tel-input for application mobile number
+document.addEventListener('DOMContentLoaded', function() {
+    const appMobileInput = document.querySelector("#app_mobile_number");
+    
+    if (appMobileInput) {
+        const appMobileIti = window.intlTelInput(appMobileInput, {
+            initialCountry: "au",
+            preferredCountries: ["au", "nz", "us", "gb"],
+            separateDialCode: true,
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/utils.js"
+        });
+        
+        // Pre-populate if values exist
+        const savedCountryCode = document.getElementById('app_mobile_country_code').value;
+        const savedNumber = document.getElementById('app_mobile_number_clean').value;
+        
+        if (savedCountryCode && savedNumber) {
+            appMobileIti.setNumber(savedCountryCode + savedNumber);
+        }
+        
+        // Update hidden fields on change
+        appMobileInput.addEventListener('blur', function() {
+            const countryData = appMobileIti.getSelectedCountryData();
+            const number = appMobileIti.getNumber(intlTelInputUtils.numberFormat.E164);
+            const nationalNumber = appMobileIti.getNumber(intlTelInputUtils.numberFormat.NATIONAL).replace(/\s/g, '');
+            
+            document.getElementById('app_mobile_country_code').value = '+' + countryData.dialCode;
+            document.getElementById('app_mobile_number_clean').value = nationalNumber;
+        });
+        
+        // Also update on country change
+        appMobileInput.addEventListener('countrychange', function() {
+            const countryData = appMobileIti.getSelectedCountryData();
+            document.getElementById('app_mobile_country_code').value = '+' + countryData.dialCode;
+        });
+    }
+});
+
+// ========================================
+// EMPLOYMENT CONTACT PHONE - intl-tel-input
+// ========================================
+function initializeEmploymentPhones() {
+    // Initialize all existing employment contact phones
+    document.querySelectorAll('[id^="employment_contact_"]').forEach(function(phoneInput) {
+        if (phoneInput._iti) return; // Skip if already initialized
+        
+        const match = phoneInput.id.match(/employment_contact_(\d+)/);
+        if (!match) return;
+        
+        const index = match[1];
+        
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "au",
+            preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+            separateDialCode: true,
+            nationalMode: false,
+            autoPlaceholder: "polite",
+            formatOnDisplay: true,
+            customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                return "e.g. " + selectedCountryPlaceholder;
+            },
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+        });
+        
+        // Store the instance
+        phoneInput._iti = iti;
+        
+        // Set initial value if exists
+        const existingCountryCode = document.getElementById('employment_country_code_' + index).value;
+        const existingNumber = document.getElementById('employment_contact_clean_' + index).value;
+        
+        if (existingCountryCode && existingNumber) {
+            const countryCode = existingCountryCode.replace('+', '');
+            const allCountries = window.intlTelInputGlobals.getCountryData();
+            const countryData = allCountries.find(country => country.dialCode === countryCode);
+            if (countryData) {
+                iti.setCountry(countryData.iso2);
+            }
+            phoneInput.value = existingNumber;
+        }
+        
+        phoneInput.addEventListener('blur', function() {
+            updateEmploymentPhoneFields(index);
+        });
+        
+        phoneInput.addEventListener('countrychange', function() {
+            updateEmploymentPhoneFields(index);
+        });
+    });
+}
+
+function updateEmploymentPhoneFields(index) {
+    const phoneInput = document.getElementById('employment_contact_' + index);
+    if (!phoneInput || !phoneInput._iti) return;
+    
+    const iti = phoneInput._iti;
+    const countryData = iti.getSelectedCountryData();
+    document.getElementById('employment_country_code_' + index).value = '+' + countryData.dialCode;
+    const fullNumber = iti.getNumber();
+    const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+    document.getElementById('employment_contact_clean_' + index).value = numberWithoutCode;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEmploymentPhones();
+});
+
+// ========================================
+// EMPLOYMENT LETTER FILE PREVIEW
+// ========================================
+function previewEmploymentLetter(index) {
+    const input = document.getElementById('employment_letter_' + index);
+    const preview = document.getElementById('employment_letter_preview_' + index);
+    const file = input.files[0];
+    
+    if (!file) return;
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please upload a PDF, JPG, or PNG file');
+        input.value = '';
+        return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let thumbnail = '';
+        
+        if (file.type.startsWith('image/')) {
+            thumbnail = `<img src="${e.target.result}" alt="Letter" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">`;
+        } else {
+            thumbnail = `
+                <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            `;
+        }
+        
+        preview.innerHTML = `
+            <div class="relative bg-gray-50 border-2 border-plyform-green rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                    ${thumbnail}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        onclick="removeEmploymentLetter(${index})"
+                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                        title="Remove document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeEmploymentLetter(index) {
+    const input = document.getElementById('employment_letter_' + index);
+    const preview = document.getElementById('employment_letter_preview_' + index);
+    
+    input.value = '';
+    
+    preview.innerHTML = `
+        <button 
+            type="button" 
+            onclick="document.getElementById('employment_letter_${index}').click()"
+            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+        >
+            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <span class="text-sm text-gray-600">Click to upload employment letter</span>
+            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+        </button>
+    `;
+}
+
+// ========================================
+// INCOME BANK STATEMENT FILE PREVIEW (MULTIPLE)
+// ========================================
+// Preview multiple income statements - FIXED VERSION
+function previewIncomeStatements(incomeIndex) {
+    const input = document.getElementById('income_statement_' + incomeIndex);
+    const previewContainer = document.getElementById('income_statement_preview_' + incomeIndex);
+    
+    if (input.files && input.files.length > 0) {
+        // Clear ONLY the new file previews (not the input itself)
+        const newFilePreviews = previewContainer.querySelectorAll('[data-new-file]');
+        newFilePreviews.forEach(preview => preview.remove());
+        
+        // Create previews for newly selected files
+        Array.from(input.files).forEach((file, fileIndex) => {
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+                return;
+            }
+            
+            // Validate file type
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                alert(`File "${file.name}" has invalid format. Please upload PDF, JPG, or PNG.`);
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'relative bg-gray-50 border-2 border-plyform-green rounded-lg p-3';
+                previewDiv.setAttribute('data-new-file', fileIndex);
+                
+                const isPDF = file.type === 'application/pdf';
+                const isImage = file.type.startsWith('image/');
+                
+                let thumbnail = '';
+                if (isImage) {
+                    thumbnail = `<img src="${e.target.result}" alt="Preview" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">`;
+                } else {
+                    thumbnail = `
+                        <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+                
+                previewDiv.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${thumbnail}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB - New upload</p>
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick="removeNewIncomeStatementPreview(${incomeIndex}, ${fileIndex})"
+                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                            title="Remove from preview"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                previewContainer.appendChild(previewDiv);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+// Remove new income statement PREVIEW ONLY (don't clear the input)
+function removeNewIncomeStatementPreview(incomeIndex, fileIndex) {
+    const previewDiv = document.querySelector(`#income_statement_preview_${incomeIndex} [data-new-file="${fileIndex}"]`);
+    if (previewDiv) {
+        previewDiv.remove();
+    }
+    // NOTE: We're NOT clearing the file input here because you can't selectively remove files
+    // If user wants to change files, they need to re-select all files
+}
+
+// Remove existing income statement
+function removeExistingIncomeStatement(incomeIndex, statementIndex) {
+    if (confirm('Are you sure you want to remove this document?')) {
+        // Hide the preview div
+        const previewDiv = document.querySelector(`#income_statement_preview_${incomeIndex} [data-existing-file="${statementIndex}"]`);
+        if (previewDiv) {
+            previewDiv.style.display = 'none';
+        }
+        
+        // Remove the hidden input that tracks this file
+        const hiddenInput = document.getElementById(`existing_statement_${incomeIndex}_${statementIndex}`);
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+    }
+}
+
+// ========================================
+// IDENTIFICATION DOCUMENT FILE PREVIEW
+// ========================================
+function previewIdentificationDocument(index) {
+    const input = document.getElementById('identification_document_' + index);
+    const preview = document.getElementById('identification_document_preview_' + index);
+    const file = input.files[0];
+    
+    if (!file) return;
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please upload a PDF, JPG, or PNG file');
+        input.value = '';
+        return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let thumbnail = '';
+        
+        if (file.type.startsWith('image/')) {
+            thumbnail = `<img src="${e.target.result}" alt="Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">`;
+        } else {
+            thumbnail = `
+                <div class="w-16 h-16 bg-blue-100 rounded-lg border-2 border-blue-300 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+            `;
+        }
+        
+        preview.innerHTML = `
+            <div class="relative bg-gray-50 border-2 border-plyform-green rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                    ${thumbnail}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        onclick="removeIdentificationDocument(${index})"
+                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                        title="Remove document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeIdentificationDocument(index) {
+    const input = document.getElementById('identification_document_' + index);
+    const preview = document.getElementById('identification_document_preview_' + index);
+    
+    input.value = '';
+    
+    // Mark as required again
+    input.required = true;
+    
+    preview.innerHTML = `
+        <button 
+            type="button" 
+            onclick="document.getElementById('identification_document_${index}').click()"
+            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+        >
+            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <span class="text-sm text-gray-600">Click to upload identification document</span>
+            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+        </button>
+    `;
+}
+
+// ========================================
+// EMERGENCY CONTACT PHONE - intl-tel-input (Application Form)
+// ========================================
+const appEmergencyPhoneInput = document.querySelector("#app_emergency_contact_phone");
+if (appEmergencyPhoneInput) {
+    const appEmergencyIti = window.intlTelInput(appEmergencyPhoneInput, {
+        initialCountry: "au",
+        preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+        separateDialCode: true,
+        nationalMode: false,
+        autoPlaceholder: "polite",
+        formatOnDisplay: true,
+        customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+            return "e.g. " + selectedCountryPlaceholder;
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+    });
+
+    const existingEmergencyCountryCode = document.getElementById('app_emergency_contact_country_code').value;
+    const existingEmergencyNumber = document.getElementById('app_emergency_contact_number_clean').value;
+    
+    if (existingEmergencyCountryCode && existingEmergencyNumber) {
+        const countryCode = existingEmergencyCountryCode.replace('+', '');
+        const allCountries = window.intlTelInputGlobals.getCountryData();
+        const countryData = allCountries.find(country => country.dialCode === countryCode);
+        if (countryData) {
+            appEmergencyIti.setCountry(countryData.iso2);
+        }
+        appEmergencyPhoneInput.value = existingEmergencyNumber;
+    }
+
+    appEmergencyPhoneInput.addEventListener('blur', function() {
+        updateAppEmergencyPhoneFields();
+    });
+
+    appEmergencyPhoneInput.addEventListener('countrychange', function() {
+        updateAppEmergencyPhoneFields();
+    });
+
+    function updateAppEmergencyPhoneFields() {
+        const countryData = appEmergencyIti.getSelectedCountryData();
+        document.getElementById('app_emergency_contact_country_code').value = '+' + countryData.dialCode;
+        const fullNumber = appEmergencyIti.getNumber();
+        const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+        document.getElementById('app_emergency_contact_number_clean').value = numberWithoutCode;
+    }
+
+    // Validate emergency contact phone on form submission (if checkbox is checked)
+    const form = document.getElementById('application-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const hasEmergencyContact = document.getElementById('has_emergency_contact');
+            
+            if (hasEmergencyContact && hasEmergencyContact.checked) {
+                updateAppEmergencyPhoneFields();
+                
+                if (appEmergencyPhoneInput.value && !appEmergencyIti.isValidNumber()) {
+                    e.preventDefault();
+                    appEmergencyPhoneInput.classList.add('border-red-500');
+                    
+                    let errorMsg = appEmergencyPhoneInput.parentElement.querySelector('.app-emergency-phone-error');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('p');
+                        errorMsg.className = 'app-emergency-phone-error mt-1 text-sm text-red-600 flex items-center gap-1';
+                        errorMsg.innerHTML = `
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Please enter a valid emergency contact phone number.
+                        `;
+                        appEmergencyPhoneInput.parentElement.appendChild(errorMsg);
+                    }
+                    
+                    // Scroll to the error
+                    appEmergencyPhoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    appEmergencyPhoneInput.focus();
+                    
+                    return false;
+                } else {
+                    appEmergencyPhoneInput.classList.remove('border-red-500');
+                    const errorMsg = appEmergencyPhoneInput.parentElement.querySelector('.app-emergency-phone-error');
+                    if (errorMsg) {
+                        errorMsg.remove();
+                    }
+                }
+            }
+        });
+    }
+}
+
+// ========================================
+// PET PHOTO FILE PREVIEW
+// ========================================
+function previewPetPhoto(index) {
+    const input = document.getElementById('pet_photo_' + index);
+    const preview = document.getElementById('pet_photo_preview_' + index);
+    const file = input.files[0];
+    
+    if (!file) return;
+    
+    // Validate file size (5MB for photos)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Photo size must be less than 5MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type (images only)
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please upload a JPG or PNG image');
+        input.value = '';
+        return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        preview.innerHTML = `
+            <div class="relative bg-gray-50 border-2 border-plyform-orange rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                    <img src="${e.target.result}" alt="Pet Photo" class="w-20 h-20 object-cover rounded-lg border-2 border-plyform-orange/50">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        onclick="removePetPhoto(${index})"
+                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                        title="Remove photo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removePetPhoto(index) {
+    const input = document.getElementById('pet_photo_' + index);
+    const preview = document.getElementById('pet_photo_preview_' + index);
+    
+    input.value = '';
+    input.required = true;
+    
+    preview.innerHTML = `
+        <button 
+            type="button" 
+            onclick="document.getElementById('pet_photo_${index}').click()"
+            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer"
+        >
+            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm text-gray-600">Click to upload pet photo</span>
+            <span class="text-xs text-gray-500 block mt-1">JPG, PNG (Max 5MB)</span>
+        </button>
+    `;
+}
+
+// ========================================
+// PET DOCUMENT FILE PREVIEW
+// ========================================
+function previewPetDocument(index) {
+    const input = document.getElementById('pet_document_' + index);
+    const preview = document.getElementById('pet_document_preview_' + index);
+    const file = input.files[0];
+    
+    if (!file) return;
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        alert('Please upload a PDF, JPG, or PNG file');
+        input.value = '';
+        return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let thumbnail = '';
+        
+        if (file.type.startsWith('image/')) {
+            thumbnail = `<img src="${e.target.result}" alt="Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">`;
+        } else {
+            thumbnail = `
+                <div class="w-16 h-16 bg-orange-100 rounded-lg border-2 border-plyform-orange/50 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-plyform-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+            `;
+        }
+        
+        preview.innerHTML = `
+            <div class="relative bg-gray-50 border-2 border-plyform-orange rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                    ${thumbnail}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        onclick="removePetDocument(${index})"
+                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                        title="Remove document"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removePetDocument(index) {
+    const input = document.getElementById('pet_document_' + index);
+    const preview = document.getElementById('pet_document_preview_' + index);
+    
+    input.value = '';
+    
+    preview.innerHTML = `
+        <button 
+            type="button" 
+            onclick="document.getElementById('pet_document_${index}').click()"
+            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-orange transition-colors text-center cursor-pointer"
+        >
+            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <span class="text-sm text-gray-600">Click to upload registration certificate</span>
+            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+        </button>
+    `;
+}
+</script>
 @endpush
