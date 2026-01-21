@@ -516,4 +516,8 @@ Route::get('/properties/{publicUrlCode}', [App\Http\Controllers\PropertyBrowseCo
 
 Route::post('/api/favorites/{property}', [App\Http\Controllers\User\SavedPropertyController::class, 'toggle'])->name('api.favorites.toggle')->middleware('auth');
 
+// Reference submission routes - MUST be public (no auth)
+Route::get('/reference/{token}', [App\Http\Controllers\ReferenceController::class, 'show'])->name('reference.form');
+Route::post('/reference/{token}', [App\Http\Controllers\ReferenceController::class, 'submit'])->name('reference.submit');
+
 require __DIR__.'/auth.php';

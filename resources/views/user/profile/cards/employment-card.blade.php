@@ -170,7 +170,7 @@
                                 
                                 <!-- Salary & Manager -->
                                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                                    <div>
+                                    <div class="hidden">
                                         <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                             Gross Annual Salary <span class="text-plyform-orange">*</span>
                                         </label>
@@ -515,7 +515,7 @@ function addEmployment() {
             </div>
             
             <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
+                <div class="hidden">
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
                     <div class="relative">
                         <span class="absolute left-4 top-3.5 text-gray-500">$</span>

@@ -90,7 +90,7 @@
                 
                 <div id="income-container">
                     @php
-                        $incomes = old('incomes', $user->incomes->toArray() ?: [['source_of_income' => '', 'net_weekly_amount' => '']]);
+                        $incomes = old('incomes', $user->incomes->toArray() ?: [['source_of_income' => '', 'net_weekly_amount' => '', 'bank_statements' => []]]);
                     @endphp
                     
                     @foreach($incomes as $index => $income)
@@ -154,103 +154,104 @@
                                 </div>
                             </div>
                             
-                            <!-- Bank Statement Upload -->
+                            <!-- Bank Statement Upload (Multiple) -->
                             <div class="mt-4">
                                 <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                    Bank Statement (Optional)
+                                    Proof you can pay rent
+                                    <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                                 </label>
+                                <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
+                                
                                 <div class="space-y-3">
-                                    <!-- File Input (Hidden) -->
+                                    <!-- File Input (Hidden) - Multiple -->
                                     <input 
                                         type="file" 
-                                        name="incomes[{{ $index }}][bank_statement]"
-                                        id="income_statement_{{ $index }}"
+                                        name="incomes[{{ $index }}][bank_statements][]"
+                                        id="income_statements_{{ $index }}"
                                         accept=".pdf,.jpg,.jpeg,.png"
-                                        onchange="previewIncomeStatement({{ $index }})"
+                                        multiple
+                                        onchange="previewIncomeStatements({{ $index }})"
                                         class="hidden"
                                     >
                                     
-                                    <!-- Upload Button/Preview Container -->
-                                    <div id="income_statement_preview_{{ $index }}" class="space-y-2">
-                                        @if(!empty($income['bank_statement_path']) && Storage::disk('public')->exists($income['bank_statement_path']))
-                                            <!-- EXISTING FILE PREVIEW -->
-                                            <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
-                                                <div class="flex items-center gap-3">
-                                                    <!-- File Icon/Thumbnail -->
-                                                    @if(in_array(pathinfo($income['bank_statement_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                                        <img src="{{ Storage::url($income['bank_statement_path']) }}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
-                                                    @else
-                                                        <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
-                                                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                                            </svg>
+                                    <!-- Upload Button -->
+                                    <button 
+                                        type="button" 
+                                        onclick="document.getElementById('income_statements_{{ $index }}').click()"
+                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                                    >
+                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">Click to upload bank statements</span>
+                                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB each) - Multiple files allowed</span>
+                                    </button>
+                                    
+                                    <!-- Preview Container -->
+                                    <div id="income_statements_preview_{{ $index }}" class="space-y-2">
+                                        @if(isset($income['id']))
+                                            @php
+                                                $existingStatements = \App\Models\UserIncomeBankStatement::where('user_income_id', $income['id'])->get();
+                                            @endphp
+                                            @foreach($existingStatements as $statement)
+                                                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3" data-statement-id="{{ $statement->id }}">
+                                                    <div class="flex items-center gap-3">
+                                                        <!-- File Icon/Thumbnail -->
+                                                        @if(in_array(pathinfo($statement->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                            <img src="{{ Storage::url($statement->file_path) }}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                        @else
+                                                            <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                                                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        <!-- File Info -->
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-sm font-medium text-gray-900 truncate">{{ basename($statement->file_path) }}</p>
+                                                            <p class="text-xs text-gray-500">Uploaded document</p>
                                                         </div>
-                                                    @endif
-                                                    
-                                                    <!-- File Info -->
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">{{ basename($income['bank_statement_path']) }}</p>
-                                                        <p class="text-xs text-gray-500">Uploaded document</p>
+                                                        
+                                                        <!-- View Button -->
+                                                        <a 
+                                                            href="{{ Storage::url($statement->file_path) }}" 
+                                                            target="_blank"
+                                                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                            title="View document"
+                                                        >
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                            </svg>
+                                                        </a>
+                                                        
+                                                        <!-- Remove Button -->
+                                                        <button 
+                                                            type="button" 
+                                                            onclick="removeExistingStatement({{ $index }}, {{ $statement->id }})"
+                                                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                            title="Remove document"
+                                                        >
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                            </svg>
+                                                        </button>
                                                     </div>
-                                                    
-                                                    <!-- View Button -->
-                                                    <a 
-                                                        href="{{ Storage::url($income['bank_statement_path']) }}" 
-                                                        target="_blank"
-                                                        class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                                                        title="View document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                        </svg>
-                                                    </a>
-                                                    
-                                                    <!-- Remove Button -->
-                                                    <button 
-                                                        type="button" 
-                                                        onclick="removeIncomeStatement({{ $index }})"
-                                                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                                                        title="Remove document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </button>
-                                                    
-                                                    <!-- Re-upload Button -->
-                                                    <button 
-                                                        type="button" 
-                                                        onclick="document.getElementById('income_statement_{{ $index }}').click()"
-                                                        class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                                                        title="Change document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                                        </svg>
-                                                    </button>
+                                                    <!-- Hidden input to track deletion -->
+                                                    <input type="hidden" name="incomes[{{ $index }}][delete_statements][]" value="" class="delete-statement-input">
                                                 </div>
-                                            </div>
-                                            <!-- Hidden input to track existing file -->
-                                            <input type="hidden" name="incomes[{{ $index }}][existing_statement]" value="{{ $income['bank_statement_path'] }}">
-                                        @else
-                                            <!-- NO FILE YET - UPLOAD BUTTON -->
-                                            <button 
-                                                type="button" 
-                                                onclick="document.getElementById('income_statement_{{ $index }}').click()"
-                                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-                                            >
-                                                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                </svg>
-                                                <span class="text-sm text-gray-600">Click to upload bank statement</span>
-                                                <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-                                            </button>
+                                            @endforeach
                                         @endif
                                     </div>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+                                <p class="mt-1 text-xs text-gray-500">Max size: 10MB per file. Formats: PDF, JPG, PNG</p>
                             </div>
+                            
+                            <!-- Hidden input for income ID if updating -->
+                            @if(isset($income['id']))
+                                <input type="hidden" name="incomes[{{ $index }}][id]" value="{{ $income['id'] }}">
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -379,43 +380,44 @@ function addIncome() {
                 </div>
             </div>
             
-            <!-- Bank Statement Upload -->
+            <!-- Bank Statements Upload (Multiple) -->
             <div class="mt-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Bank Statement (Optional)</label>
+                <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                    Proof you can pay rent
+                    <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
+                </label>
+                <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
                 <div class="space-y-3">
                     <input 
                         type="file" 
-                        name="incomes[${incomeIndex}][bank_statement]"
-                        id="income_statement_${incomeIndex}"
+                        name="incomes[${incomeIndex}][bank_statements][]"
+                        id="income_statements_${incomeIndex}"
                         accept=".pdf,.jpg,.jpeg,.png"
-                        onchange="previewIncomeStatement(${incomeIndex})"
+                        multiple
+                        onchange="previewIncomeStatements(${incomeIndex})"
                         class="hidden"
                     >
                     
-                    <div id="income_statement_preview_${incomeIndex}" class="space-y-2">
-                        <button 
-                            type="button" 
-                            onclick="document.getElementById('income_statement_${incomeIndex}').click()"
-                            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-                        >
-                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="text-sm text-gray-600">Click to upload bank statement</span>
-                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-                        </button>
-                    </div>
+                    <button 
+                        type="button" 
+                        onclick="document.getElementById('income_statements_${incomeIndex}').click()"
+                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                    >
+                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span class="text-sm text-gray-600">Click to upload bank statements</span>
+                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB each) - Multiple files allowed</span>
+                    </button>
+                    
+                    <div id="income_statements_preview_${incomeIndex}" class="space-y-2"></div>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Formats: PDF, JPG, PNG</p>
+                <p class="mt-1 text-xs text-gray-500">Max size: 10MB per file. Formats: PDF, JPG, PNG</p>
             </div>
         </div>
     `;
     
     container.insertAdjacentHTML('beforeend', newIncome);
-    if (typeof reinitializePlugins === 'function') {
-        const newElement = container.lastElementChild;
-        reinitializePlugins(newElement);
-    }
     incomeIndex++;
     calculateTotal();
 }
@@ -447,202 +449,138 @@ function calculateTotal() {
 
 // Calculate on page load when form is expanded
 document.addEventListener('DOMContentLoaded', function() {
-    // Only calculate if form is visible
     const formDiv = document.getElementById('income-form');
     if (formDiv && !formDiv.classList.contains('hidden')) {
         calculateTotal();
     }
 });
 
-// Preview income statement
-function previewIncomeStatement(index) {
-    const input = document.getElementById(`income_statement_${index}`);
-    const previewContainer = document.getElementById(`income_statement_preview_${index}`);
+// Preview multiple income statements
+function previewIncomeStatements(index) {
+    const input = document.getElementById(`income_statements_${index}`);
+    const previewContainer = document.getElementById(`income_statements_preview_${index}`);
     
     if (!input || !input.files || input.files.length === 0) {
         return;
     }
     
-    const file = input.files[0];
+    // Clear previous new file previews (keep existing ones)
+    const newPreviews = previewContainer.querySelectorAll('[data-new-file="true"]');
+    newPreviews.forEach(preview => preview.remove());
     
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
-        input.value = '';
-        return;
-    }
-    
-    // Validate file type
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-        alert('Please select a valid file (PDF, JPG, PNG)');
-        input.value = '';
-        return;
-    }
-    
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
-    
-    if (isImage) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Store the preview URL for viewing
-            window[`income_statement_preview_url_${index}`] = e.target.result;
-            
-            previewContainer.innerHTML = `
-                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
+    Array.from(input.files).forEach((file, fileIndex) => {
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+            return;
+        }
+        
+        // Validate file type
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        if (!validTypes.includes(file.type)) {
+            alert(`File "${file.name}" is not a valid type. Please select PDF, JPG, or PNG.`);
+            return;
+        }
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
+        const uniqueId = `${index}_${Date.now()}_${fileIndex}`;
+        
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewHTML = `
+                    <div class="relative bg-green-50 border-2 border-green-300 rounded-lg p-3" data-new-file="true" data-file-id="${uniqueId}">
+                        <div class="flex items-center gap-3">
+                            <img src="${e.target.result}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-green-400">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                                <p class="text-xs text-green-600 font-medium">New upload • ${(file.size / 1024).toFixed(2)} KB</p>
+                            </div>
+                            <button 
+                                type="button" 
+                                onclick="removeNewFilePreview('${uniqueId}', ${index})"
+                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                title="Remove file"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                previewContainer.insertAdjacentHTML('beforeend', previewHTML);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // PDF preview
+            const previewHTML = `
+                <div class="relative bg-green-50 border-2 border-green-300 rounded-lg p-3" data-new-file="true" data-file-id="${uniqueId}">
                     <div class="flex items-center gap-3">
-                        <!-- Image Preview -->
-                        <img src="${e.target.result}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
-                        
-                        <!-- File Info -->
+                        <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
-                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                            <p class="text-xs text-green-600 font-medium">New upload • ${(file.size / 1024).toFixed(2)} KB</p>
                         </div>
-                        
-                        <!-- View Button -->
                         <button 
                             type="button" 
-                            onclick="viewIncomeStatement(${index})"
-                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                            title="View document"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                        
-                        <!-- Remove Button -->
-                        <button 
-                            type="button" 
-                            onclick="removeIncomeStatement(${index})"
+                            onclick="removeNewFilePreview('${uniqueId}', ${index})"
                             class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                            title="Remove document"
+                            title="Remove file"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
-                        
-                        <!-- Re-upload Button -->
-                        <button 
-                            type="button" 
-                            onclick="document.getElementById('income_statement_${index}').click()"
-                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                            title="Change document"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                        </button>
                     </div>
                 </div>
             `;
-        };
-        reader.readAsDataURL(file);
-    } else {
-        // PDF preview - store blob URL for viewing
-        const blobUrl = URL.createObjectURL(file);
-        window[`income_statement_preview_url_${index}`] = blobUrl;
-        
-        previewContainer.innerHTML = `
-            <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
-                <div class="flex items-center gap-3">
-                    <!-- PDF Icon -->
-                    <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
-                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- File Info -->
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
-                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
-                    </div>
-                    
-                    <!-- View Button -->
-                    <button 
-                        type="button" 
-                        onclick="viewIncomeStatement(${index})"
-                        class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                        title="View document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                    </button>
-                    
-                    <!-- Remove Button -->
-                    <button 
-                        type="button" 
-                        onclick="removeIncomeStatement(${index})"
-                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                        title="Remove document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                    
-                    <!-- Re-upload Button -->
-                    <button 
-                        type="button" 
-                        onclick="document.getElementById('income_statement_${index}').click()"
-                        class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                        title="Change document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
+            previewContainer.insertAdjacentHTML('beforeend', previewHTML);
+        }
+    });
 }
 
-// View income statement in new tab
-function viewIncomeStatement(index) {
-    const previewUrl = window[`income_statement_preview_url_${index}`];
-    if (previewUrl) {
-        window.open(previewUrl, '_blank');
+// Remove new file preview
+function removeNewFilePreview(fileId, index) {
+    const preview = document.querySelector(`[data-file-id="${fileId}"]`);
+    if (preview) {
+        preview.remove();
     }
-}
-
-// Remove income statement
-function removeIncomeStatement(index) {
-    const input = document.getElementById(`income_statement_${index}`);
-    const previewContainer = document.getElementById(`income_statement_preview_${index}`);
     
-    // Clean up blob URL if exists
-    const previewUrl = window[`income_statement_preview_url_${index}`];
-    if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl);
-    }
-    delete window[`income_statement_preview_url_${index}`];
-    
+    // Reset the file input to remove the file
+    const input = document.getElementById(`income_statements_${index}`);
     if (input) {
         input.value = '';
     }
-    
-    if (previewContainer) {
-        previewContainer.innerHTML = `
-            <button 
-                type="button" 
-                onclick="document.getElementById('income_statement_${index}').click()"
-                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-            >
-                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                <span class="text-sm text-gray-600">Click to upload bank statement</span>
-                <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-            </button>
-        `;
+}
+
+// Remove existing statement (mark for deletion)
+function removeExistingStatement(incomeIndex, statementId) {
+    const statementDiv = document.querySelector(`[data-statement-id="${statementId}"]`);
+    if (statementDiv) {
+        // Mark for deletion by setting the hidden input value
+        const deleteInput = statementDiv.querySelector('.delete-statement-input');
+        if (deleteInput) {
+            deleteInput.value = statementId;
+        }
+        
+        // Visual feedback - fade out
+        statementDiv.style.opacity = '0.5';
+        statementDiv.style.pointerEvents = 'none';
+        
+        // Add deleted indicator
+        const fileInfo = statementDiv.querySelector('.flex-1.min-w-0 p');
+        if (fileInfo) {
+            const deletedBadge = document.createElement('p');
+            deletedBadge.className = 'text-xs text-red-600 font-medium mt-1';
+            deletedBadge.textContent = 'Will be deleted on save';
+            fileInfo.appendChild(deletedBadge);
+        }
     }
 }
 </script>

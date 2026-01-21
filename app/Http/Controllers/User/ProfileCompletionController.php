@@ -11,6 +11,7 @@ use App\Models\UserVehicle;
 use App\Models\UserAddress;
 use App\Models\UserReference;
 use App\Models\UserIdentification;
+use App\Mail\ReferenceRequestMail;
 use App\Mail\ProfileSubmittedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,12 @@ class ProfileCompletionController extends Controller
     {
         $user = Auth::user();
         $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
-        
+
+        if( $profile->status == 'pending' )
+        {
+            return redirect()->route('user.profile.view');
+        }
+
         // Load all related data for the overview with eager loading
         $user->load([
             'incomes',
@@ -315,56 +321,98 @@ class ProfileCompletionController extends Controller
     {
         $validated = $request->validate([
             'incomes' => 'required|array|min:1',
-            'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employment,centrelink,pension,investment_income,savings,other',
+            'incomes.*.id' => 'nullable|exists:user_incomes,id',
+            'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employed,centrelink,pension,investment,savings,other',
             'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
-            'incomes.*.bank_statement' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'incomes.*.existing_statement' => 'nullable|string',
+            'incomes.*.bank_statements' => 'nullable|array',
+            'incomes.*.bank_statements.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'incomes.*.delete_statements' => 'nullable|array',
+            'incomes.*.delete_statements.*' => 'nullable|exists:user_income_bank_statements,id',
         ]);
 
-        // Get existing incomes
-        $existingIncomes = $user->incomes()->get()->keyBy(function($income, $key) {
-            return $key;
-        });
-
-        // Track which incomes to keep
+        // Track which income IDs are being processed
         $processedIncomeIds = [];
 
-        // Create new income records
+        // Process each income entry
         foreach ($validated['incomes'] as $index => $incomeData) {
-            // Update existing or create new
-            $income = $existingIncomes->get($index) ?: new UserIncome();
-            $income->user_id = $user->id;
+            // Update existing or create new income
+            if (!empty($incomeData['id'])) {
+                $income = UserIncome::find($incomeData['id']);
+                if (!$income || $income->user_id !== $user->id) {
+                    continue; // Skip if not found or doesn't belong to user
+                }
+            } else {
+                $income = new UserIncome();
+                $income->user_id = $user->id;
+            }
+
+            // Update basic income data
             $income->source_of_income = $incomeData['source_of_income'];
             $income->net_weekly_amount = $incomeData['net_weekly_amount'];
-            
-            // Handle file upload
-            if ($request->hasFile("incomes.$index.bank_statement")) {
-                // Delete old file if exists
-                if ($income->bank_statement_path && Storage::disk('public')->exists($income->bank_statement_path)) {
-                    Storage::disk('public')->delete($income->bank_statement_path);
-                }
-                // Upload new file
-                $path = $request->file("incomes.$index.bank_statement")
-                    ->store('bank-statements', 'public');
-                $income->bank_statement_path = $path;
-            } elseif (isset($incomeData['existing_statement'])) {
-                // Keep existing file if no new file uploaded
-                $income->bank_statement_path = $incomeData['existing_statement'];
-            }
-            
             $income->save();
+
             $processedIncomeIds[] = $income->id;
+
+            // Handle deletion of existing bank statements
+            if (!empty($incomeData['delete_statements'])) {
+                foreach ($incomeData['delete_statements'] as $statementId) {
+                    if (!empty($statementId)) {
+                        $statement = UserIncomeBankStatement::where('id', $statementId)
+                            ->where('user_income_id', $income->id)
+                            ->first();
+                        
+                        if ($statement) {
+                            // Delete file from storage
+                            if ($statement->file_path && Storage::disk('public')->exists($statement->file_path)) {
+                                Storage::disk('public')->delete($statement->file_path);
+                            }
+                            // Delete database record
+                            $statement->delete();
+                        }
+                    }
+                }
+            }
+
+            // Handle new bank statement uploads
+            if ($request->hasFile("incomes.$index.bank_statements")) {
+                $files = $request->file("incomes.$index.bank_statements");
+                
+                foreach ($files as $file) {
+                    // Upload file
+                    $path = $file->store('bank-statements', 'public');
+                    
+                    // Create bank statement record
+                    $bankStatement = new UserIncomeBankStatement();
+                    $bankStatement->user_income_id = $income->id;
+                    $bankStatement->file_path = $path;
+                    $bankStatement->file_name = $file->getClientOriginalName();
+                    $bankStatement->file_size = $file->getSize();
+                    $bankStatement->mime_type = $file->getMimeType();
+                    $bankStatement->save();
+                }
+            }
         }
 
-        // Delete incomes that were removed (not in the submitted form)
-        $incomesToDelete = $user->incomes()->whereNotIn('id', array_filter($processedIncomeIds))->get();
+        // Delete income entries that were removed from the form
+        $incomesToDelete = $user->incomes()
+            ->whereNotIn('id', array_filter($processedIncomeIds))
+            ->get();
+        
         foreach ($incomesToDelete as $income) {
-            if ($income->bank_statement_path && Storage::disk('public')->exists($income->bank_statement_path)) {
-                Storage::disk('public')->delete($income->bank_statement_path);
+            // Delete all associated bank statements
+            $statements = UserIncomeBankStatement::where('user_income_id', $income->id)->get();
+            foreach ($statements as $statement) {
+                if ($statement->file_path && Storage::disk('public')->exists($statement->file_path)) {
+                    Storage::disk('public')->delete($statement->file_path);
+                }
+                $statement->delete();
             }
+            
+            // Delete the income record
             $income->delete();
         }
 
+        // Update user's profile step
         $user->profile_current_step = max($user->profile_current_step ?? 1, 3);
         $user->save();
 
@@ -395,7 +443,7 @@ class ProfileCompletionController extends Controller
             'employments.*.company_name' => 'required|string|max:255',
             'employments.*.address' => 'required|string|max:500',
             'employments.*.position' => 'required|string|max:255',
-            'employments.*.gross_annual_salary' => 'required|numeric|min:0|max:9999999.99',
+            // 'employments.*.gross_annual_salary' => 'required|numeric|min:0|max:9999999.99',
             'employments.*.manager_full_name' => 'required|string|max:255',
             'employments.*.contact_country_code' => 'required|string',
             'employments.*.contact_number' => 'required|string|max:20',
@@ -423,7 +471,7 @@ class ProfileCompletionController extends Controller
             $employment->company_name = $employmentData['company_name'];
             $employment->address = $employmentData['address'];
             $employment->position = $employmentData['position'];
-            $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
+            // $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
             $employment->manager_full_name = $employmentData['manager_full_name'];
             $employment->contact_country_code = $employmentData['contact_country_code'];
             $employment->contact_number = $employmentData['contact_number'];
@@ -800,11 +848,46 @@ class ProfileCompletionController extends Controller
         // Send admin email notification
         $this->sendAdminNotification($user, $profile);
 
+        // Send reference request emails
+        $this->sendReferenceRequests($user);
+
         return [
             'success' => true,
-            'message' => 'Profile submitted successfully! Your application is now pending admin approval.',
+            'message' => 'Profile submitted successfully! Your application is now pending admin approval. Reference requests have been sent.',
             'redirect' => route('user.profile.view')
         ];
+    }
+
+    /**
+     * Send reference request emails to all user references
+     */
+    private function sendReferenceRequests($user)
+    {
+        $references = $user->references()->get();
+
+        if ($references->isEmpty()) {
+            Log::info("No references found for user {$user->id}");
+            return;
+        }
+
+        foreach ($references as $reference) {
+            try {
+                // Reset reference status for resubmission
+                $reference->update([
+                    'reference_status' => 'pending',
+                    'reference_submitted_at' => null,
+                    'reference_response' => null,
+                ]);
+
+                // Send email
+                Mail::to($reference->email)->send(new ReferenceRequestMail($user, $reference));
+
+                Log::info("Reference request email sent to {$reference->email} for user {$user->id}");
+            } catch (\Exception $e) {
+                Log::error("Failed to send reference request email to {$reference->email}: " . $e->getMessage());
+                // Continue sending to other references even if one fails
+            }
+        }
     }
 
     /**

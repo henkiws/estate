@@ -177,7 +177,7 @@ class ApplicationController extends Controller
                 'employments.*.company_name' => 'required_if:has_employment,true|nullable|string|max:255',
                 'employments.*.address' => 'required_if:has_employment,true|nullable|string|max:500',
                 'employments.*.position' => 'required_if:has_employment,true|nullable|string|max:255',
-                'employments.*.gross_annual_salary' => 'required_if:has_employment,true|nullable|numeric|min:0|max:9999999.99',
+                // 'employments.*.gross_annual_salary' => 'required_if:has_employment,true|nullable|numeric|min:0|max:9999999.99',
                 'employments.*.manager_full_name' => 'required_if:has_employment,true|nullable|string|max:255',
                 'employments.*.contact_number' => 'required_if:has_employment,true|nullable|string|max:20',
                 'employments.*.contact_country_code' => 'nullable|string',
@@ -192,8 +192,8 @@ class ApplicationController extends Controller
                 'incomes' => 'required|array|min:1',
                 'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employed,centrelink,pension,investment,savings,other',
                 'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
-                'incomes.*.bank_statements_new' => 'nullable|array',
-                'incomes.*.bank_statements_new.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'incomes.*.bank_statements' => 'nullable|array',
+                'incomes.*.bank_statements.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'incomes.*.existing_statements' => 'nullable|array',
                 'incomes.*.existing_statements.*' => 'string',
                 
@@ -321,7 +321,7 @@ class ApplicationController extends Controller
                     $employment->company_name = $employmentData['company_name'];
                     $employment->address = $employmentData['address'];
                     $employment->position = $employmentData['position'];
-                    $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
+                    // $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
                     $employment->manager_full_name = $employmentData['manager_full_name'];
                     $employment->contact_number = $employmentData['contact_number'];
                     $employment->email = $employmentData['email'];
@@ -423,8 +423,6 @@ class ApplicationController extends Controller
                         ]);
                     }
                 }
-                
-               
             }
 
             // 5. Update Identifications
@@ -588,11 +586,32 @@ class ApplicationController extends Controller
             
             DB::commit();
             
+            // ✅ Return JSON response for AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Application submitted successfully! The property manager will review your application shortly.',
+                    'application_id' => $application->id,
+                    'redirect_url' => route('user.applications.show', $application->id)
+                ]);
+            }
+            
+            // Traditional redirect (fallback)
             return redirect()->route('user.applications.show', $application->id)
                 ->with('success', 'Application submitted successfully! The property manager will review your application shortly.');
                 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+            
+            // ✅ Return JSON response for validation errors
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please fix the validation errors and try again.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
             return back()
                 ->withErrors($e->errors())
                 ->withInput()
@@ -605,6 +624,14 @@ class ApplicationController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+            
+            // ✅ Return JSON response for general errors
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to submit application: ' . $e->getMessage()
+                ], 500);
+            }
             
             return back()
                 ->withInput()

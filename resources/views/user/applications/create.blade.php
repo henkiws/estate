@@ -835,7 +835,7 @@
                                                     
                                                     <!-- Salary & Manager -->
                                                     <div class="grid md:grid-cols-2 gap-4 mb-4">
-                                                        <div>
+                                                        <div class="hidden">
                                                             <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
                                                                 Gross Annual Salary <span class="text-plyform-orange">*</span>
                                                             </label>
@@ -1121,7 +1121,24 @@
                                     
                                     <div id="income-container">
                                         @php
-                                            $incomes = old('incomes', auth()->user()->incomes->toArray() ?: [['source_of_income' => '', 'net_weekly_amount' => '']]);
+                                            // Get incomes with their bank statements relationship loaded
+                                            $userIncomes = auth()->user()->incomes()->with('bankStatements')->get();
+                                            
+                                            // Prepare incomes array for old() or from database
+                                            if (old('incomes')) {
+                                                $incomes = old('incomes');
+                                            } elseif ($userIncomes->count() > 0) {
+                                                $incomes = $userIncomes->map(function($income) {
+                                                    return [
+                                                        'source_of_income' => $income->source_of_income,
+                                                        'net_weekly_amount' => $income->net_weekly_amount,
+                                                        // Map bank statements to array of file paths
+                                                        'bank_statements' => $income->bankStatements->pluck('file_path')->toArray(),
+                                                    ];
+                                                })->toArray();
+                                            } else {
+                                                $incomes = [['source_of_income' => '', 'net_weekly_amount' => '']];
+                                            }
                                         @endphp
                                         
                                         @foreach($incomes as $index => $income)
@@ -1188,9 +1205,10 @@
                                                 <!-- Bank Statement Upload (Multiple) -->
                                                 <div class="mt-4">
                                                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                                        Bank Statements (Optional)
+                                                        Proof you can pay rent
                                                         <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                                                     </label>
+                                                    <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
                                                     <div class="space-y-3">
                                                         <!-- File Input (Hidden, Multiple) -->
                                                         <input 
@@ -1212,7 +1230,12 @@
                                                                         <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3" data-existing-file="{{ $statementIndex }}">
                                                                             <div class="flex items-center gap-3">
                                                                                 <!-- File Icon/Thumbnail -->
-                                                                                @if(in_array(pathinfo($statementPath, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                                @php
+                                                                                    $extension = pathinfo($statementPath, PATHINFO_EXTENSION);
+                                                                                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png']);
+                                                                                @endphp
+                                                                                
+                                                                                @if($isImage)
                                                                                     <img src="{{ Storage::url($statementPath) }}" alt="Statement" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
                                                                                 @else
                                                                                     <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
@@ -2513,7 +2536,7 @@
                     
                     <!-- Terms and Conditions -->
                     <div class="mt-6 bg-gray-50 rounded-xl p-6">
-                        <p class="text-sm text-gray-600 mb-4">
+                        <p class="text-sm text-gray-600 mb-4 text-center">
                             By submitting an application, you accept our 
                             <a href="#" class="text-teal-600 hover:underline">Terms and conditions</a> 
                             and the 
@@ -2531,6 +2554,11 @@
                         >
                             Submit application
                         </button>
+
+                        <p class="text-sm text-gray-600 mb-4 text-center mt-4">
+                            Your application will be sent to <br>
+                            <strong>{{ $property->headline }}</strong>
+                        </p>
 
                     </div>
                     
@@ -2913,10 +2941,10 @@
                     showFieldError(position0, 'Position is required.', 'employment');
                 }
                 
-                const salary0 = document.querySelector('input[name="employments[0][gross_annual_salary]"]');
-                if (!salary0?.value) {
-                    showFieldError(salary0, 'Gross annual salary is required.', 'employment');
-                }
+                // const salary0 = document.querySelector('input[name="employments[0][gross_annual_salary]"]');
+                // if (!salary0?.value) {
+                //     showFieldError(salary0, 'Gross annual salary is required.', 'employment');
+                // }
             }
             
             // 5. Validate Income/Finances (always required)
@@ -3103,27 +3131,39 @@
             try {
                 const response = await fetch('{{ route("user.applications.store") }}', {
                     method: 'POST',
-                    body: new FormData(form), // ✅ includes ALL fields + files
+                    body: new FormData(form),
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to submit');
-                }
-
                 const result = await response.json();
 
-                // ✅ success
-                alert('Submitted successfully!');
-                form.reset();
+                if (!response.ok) {
+                    // Handle validation errors
+                    if (response.status === 422 && result.errors) {
+                        let errorMessage = 'Please fix the following errors:\n\n';
+                        Object.keys(result.errors).forEach(key => {
+                            errorMessage += `• ${result.errors[key][0]}\n`;
+                        });
+                        alert(errorMessage);
+                    } else {
+                        // Handle other errors
+                        alert(result.message || 'Failed to submit application');
+                    }
+                    throw new Error(result.message || 'Failed to submit');
+                }
+
+                // ✅ Success - redirect to application show page
+                // alert(result.message);
+                window.location.href = result.redirect_url;
 
             } catch (error) {
-                alert(error.message);
+                console.error('Submission error:', error);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit';
+                submitBtn.innerHTML = 'Submit application';
             }
         });
     });
@@ -3379,7 +3419,7 @@
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <div>
+                    <div class="hidden">
                         <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
                         <div class="relative">
                             <span class="absolute left-4 top-3.5 text-gray-500">$</span>
@@ -3584,9 +3624,10 @@
                 <!-- Bank Statement Upload -->
                 <div class="mt-4">
                     <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                        Bank Statements (Optional)
+                        Proof you can pay rent
                         <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                     </label>
+                    <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
                     <div class="space-y-3">
                         <!-- File Input (Hidden, Multiple) -->
                         <input 
