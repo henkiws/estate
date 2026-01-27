@@ -520,4 +520,10 @@ Route::post('/api/favorites/{property}', [App\Http\Controllers\User\SavedPropert
 Route::get('/reference/{token}', [App\Http\Controllers\ReferenceController::class, 'show'])->name('reference.form');
 Route::post('/reference/{token}', [App\Http\Controllers\ReferenceController::class, 'submit'])->name('reference.submit');
 
+// Address Reference Routes
+Route::get('/address-reference/{token}', [App\Http\Controllers\AddressReferenceController::class, 'show'])->name('address-reference.form');
+Route::post('/address-reference/{token}/draft', [App\Http\Controllers\AddressReferenceController::class, 'saveDraft'])->name('address-reference.draft');
+Route::post('/address-reference/{token}/submit', [App\Http\Controllers\AddressReferenceController::class, 'submit'])->name('address-reference.submit');
+Route::get('/address-reference/{token}/thank-you', [App\Http\Controllers\AddressReferenceController::class, 'thankYou'])->name('address-reference.thank-you');
+
 require __DIR__.'/auth.php';

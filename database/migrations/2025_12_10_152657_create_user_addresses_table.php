@@ -13,9 +13,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('living_arrangement', [
                 'owner',
-                'renting_agent',
-                'renting_privately',
-                'with_parents',
+                'property_manager',
+                'private_landlord',
+                'parents',
                 'sharing',
                 'other'
             ]);

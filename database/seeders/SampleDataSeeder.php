@@ -559,16 +559,76 @@ class SampleDataSeeder extends Seeder
         ]);
         
         // STEP 7: Address History
+        // Current Address (owned_property = false, so needs reference)
         UserAddress::create([
             'user_id' => $user->id,
-            'living_arrangement' => 'renting_agent',
+            'owned_property' => false, // Not owned, so reference is required
+            'living_arrangement' => 'property_manager', // Changed to match new options
             'address' => rand(1, 999) . ' Main Street, Sydney NSW 2000',
-            'years_lived' => rand(1, 5),
+            'years_lived' => rand(1, 3),
             'months_lived' => rand(0, 11),
-            'reason_for_leaving' => 'Looking for bigger property',
+            'reason_for_leaving' => null, // Current address, no reason for leaving
             'different_postal_address' => false,
             'postal_code' => null,
             'is_current' => true,
+            
+            // Reference details (required when owned_property = false)
+            'reference_full_name' => 'John Smith',
+            'reference_email' => 'john.smith@propertymanager.com',
+            'reference_country_code' => '+61',
+            'reference_phone' => '412345678',
+            'reference_token' => \Str::random(64),
+            'reference_email_sent_at' => null, // Will be set when application is submitted
+            'reference_verified' => false,
+            'reference_verified_at' => null,
+        ]);
+
+        // Previous Address 1 (owned_property = false)
+        UserAddress::create([
+            'user_id' => $user->id,
+            'owned_property' => false,
+            'living_arrangement' => 'private_landlord',
+            'address' => rand(1, 999) . ' George Street, Melbourne VIC 3000',
+            'years_lived' => rand(1, 2),
+            'months_lived' => rand(0, 11),
+            'reason_for_leaving' => 'Relocated for work',
+            'different_postal_address' => false,
+            'postal_code' => null,
+            'is_current' => false,
+            
+            // Reference details
+            'reference_full_name' => 'Sarah Johnson',
+            'reference_email' => 'sarah.j@email.com',
+            'reference_country_code' => '+61',
+            'reference_phone' => '423456789',
+            'reference_token' => \Str::random(64),
+            'reference_email_sent_at' => null,
+            'reference_verified' => false,
+            'reference_verified_at' => null,
+        ]);
+
+        // Previous Address 2 (owned_property = true, so NO reference needed)
+        UserAddress::create([
+            'user_id' => $user->id,
+            'owned_property' => true, // Owned property
+            'living_arrangement' => 'owner', // Automatically set to owner when owned_property = true
+            'address' => rand(1, 999) . ' Collins Street, Brisbane QLD 4000',
+            'years_lived' => rand(2, 5),
+            'months_lived' => rand(0, 11),
+            'reason_for_leaving' => 'Sold property',
+            'different_postal_address' => false,
+            'postal_code' => null,
+            'is_current' => false,
+            
+            // No reference details needed when owned_property = true
+            'reference_full_name' => null,
+            'reference_email' => null,
+            'reference_country_code' => null,
+            'reference_phone' => null,
+            'reference_token' => null,
+            'reference_email_sent_at' => null,
+            'reference_verified' => false,
+            'reference_verified_at' => null,
         ]);
         
         // STEP 8: References

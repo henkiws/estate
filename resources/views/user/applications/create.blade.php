@@ -272,7 +272,7 @@
                     
                     <!-- Section Cards -->
                     <div class="space-y-4">
-                        
+
                         <!-- About Me Section -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="about_me">
                             <button type="button" onclick="toggleSection('about_me')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
@@ -283,7 +283,85 @@
                                         </svg>
                                     </div>
                                     <div class="text-left">
-                                        <span class="font-semibold text-gray-900">About me</span>
+                                        <span class="font-semibold text-gray-900">About Me</span>
+                                        <p class="text-xs text-gray-500">Tell Us About Yourself</p>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-400 section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="section-content hidden px-6 pb-6">
+                                <div class="bg-white rounded-lg space-y-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 class="text-base font-semibold text-plyform-dark">Tell Us About Yourself</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Share a brief introduction to help property managers get to know you better</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Introduction Textarea -->
+                                    <div>
+                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                            Introduction
+                                        </label>
+                                        <textarea 
+                                            name="introduction" 
+                                            rows="6"
+                                            maxlength="1000"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none @error('introduction') border-red-500 @enderror"
+                                            placeholder="Tell us about yourself, your hobbies, lifestyle, work, and what kind of tenant you'd be..."
+                                        >{{ old('introduction', auth()->user()->profile->introduction ?? '') }}</textarea>
+                                        
+                                        <div class="flex items-center justify-between mt-2">
+                                            <p class="text-xs text-gray-500">Maximum 1000 characters</p>
+                                            <span class="text-xs text-gray-500 font-medium" id="intro-char-count">0 / 1000</span>
+                                        </div>
+                                        
+                                        @error('introduction')
+                                            <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+                                    </div>
+                                    
+                                    <!-- Example -->
+                                    <div class="p-4 bg-plyform-green/10 border border-plyform-green/30 rounded-lg">
+                                        <div class="flex gap-3">
+                                            <svg class="w-5 h-5 text-plyform-dark flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <h4 class="font-semibold text-plyform-dark mb-2 text-sm">Example:</h4>
+                                                <p class="text-sm text-gray-700 leading-relaxed">
+                                                    "I'm a professional working in IT, and I value a clean, peaceful living environment. 
+                                                    In my free time, I enjoy reading, cooking, and staying active. I'm a responsible tenant 
+                                                    who takes pride in maintaining my home and building positive relationships with neighbors. 
+                                                    I'm looking for a long-term rental where I can settle down."
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Detail Section -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card" data-section="personal_details">
+                            <button type="button" onclick="toggleSection('personal_details')" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_personal_details">
+                                        <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-900">Personal Detail</span>
                                         @if(auth()->user()->profile && auth()->user()->profile->first_name)
                                             <p class="text-xs text-gray-500">{{ auth()->user()->profile->first_name }} {{ auth()->user()->profile->last_name }}</p>
                                         @else
@@ -549,7 +627,7 @@
                                     
                                     <div id="addresses-container">
                                         @php
-                                            $addresses = old('addresses', auth()->user()->addresses->toArray() ?: [['living_arrangement' => '']]);
+                                            $addresses = old('addresses', auth()->user()->addresses->toArray() ?: [['owned_property' => '1']]);
                                         @endphp
                                         
                                         @foreach($addresses as $index => $address)
@@ -570,26 +648,6 @@
                                                             Remove
                                                         </button>
                                                     @endif
-                                                </div>
-                                                
-                                                <!-- Living Arrangement -->
-                                                <div class="mb-4">
-                                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                                        Living Arrangement <span class="text-plyform-orange">*</span>
-                                                    </label>
-                                                    <select 
-                                                        name="addresses[{{ $index }}][living_arrangement]" 
-                                                        required
-                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                                    >
-                                                        <option value="">Select arrangement</option>
-                                                        <option value="owner" {{ ($address['living_arrangement'] ?? '') == 'owner' ? 'selected' : '' }}>Owner</option>
-                                                        <option value="renting_agent" {{ ($address['living_arrangement'] ?? '') == 'renting_agent' ? 'selected' : '' }}>Renting through Agent</option>
-                                                        <option value="renting_privately" {{ ($address['living_arrangement'] ?? '') == 'renting_privately' ? 'selected' : '' }}>Renting Privately</option>
-                                                        <option value="with_parents" {{ ($address['living_arrangement'] ?? '') == 'with_parents' ? 'selected' : '' }}>Living with Parents</option>
-                                                        <option value="sharing" {{ ($address['living_arrangement'] ?? '') == 'sharing' ? 'selected' : '' }}>Sharing</option>
-                                                        <option value="other" {{ ($address['living_arrangement'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
-                                                    </select>
                                                 </div>
                                                 
                                                 <!-- Full Address -->
@@ -687,6 +745,134 @@
                                                 @if($index === 0)
                                                     <input type="hidden" name="addresses[{{ $index }}][is_current]" value="1">
                                                 @endif
+
+                                                <!-- Did you own the property? -->
+                                                <div class="mb-4">
+                                                    <label class="text-sm font-medium text-plyform-dark mb-3 block">
+                                                        Did you own the property? <span class="text-plyform-orange">*</span>
+                                                    </label>
+                                                    <div class="flex gap-0 bg-gray-100 rounded-lg p-1 w-fit">
+                                                        <label class="relative cursor-pointer">
+                                                            <input 
+                                                                type="radio" 
+                                                                name="addresses[{{ $index }}][owned_property]" 
+                                                                value="1"
+                                                                onchange="toggleOwnership({{ $index }}, true)"
+                                                                {{ ($address['owned_property'] ?? '1') == '1' ? 'checked' : '' }}
+                                                                class="sr-only peer"
+                                                            >
+                                                            <div class="px-6 py-2 rounded-md text-sm font-semibold transition-all
+                                                                peer-checked:bg-gray-700 peer-checked:text-white peer-checked:shadow-sm
+                                                                text-gray-600">
+                                                                Yes
+                                                            </div>
+                                                        </label>
+                                                        <label class="relative cursor-pointer">
+                                                            <input 
+                                                                type="radio" 
+                                                                name="addresses[{{ $index }}][owned_property]" 
+                                                                value="0"
+                                                                onchange="toggleOwnership({{ $index }}, false)"
+                                                                {{ ($address['owned_property'] ?? '1') == '0' ? 'checked' : '' }}
+                                                                class="sr-only peer"
+                                                            >
+                                                            <div class="px-6 py-2 rounded-md text-sm font-semibold transition-all
+                                                                peer-checked:bg-gray-700 peer-checked:text-white peer-checked:shadow-sm
+                                                                text-gray-600">
+                                                                No
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Address Reference Section (shown when owned_property = 0) -->
+                                                <div class="address-reference-section {{ ($address['owned_property'] ?? '1') == '0' ? '' : 'hidden' }}" data-index="{{ $index }}">
+                                                    <div class="bg-gray-50 rounded-lg p-4 space-y-4 border border-gray-200">
+                                                        <div class="flex items-start gap-2 mb-3">
+                                                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            <div>
+                                                                <h5 class="text-sm font-semibold text-plyform-dark">Address reference</h5>
+                                                                <p class="text-xs text-gray-600 mt-1">You must have this person's consent to provide their personal information and be contacted by us and/or the relevant agency during business hours.</p>
+                                                                <p class="text-xs text-blue-700 mt-2">
+                                                                    <strong>📧 After saving,</strong> your address reference will get an email and SMS to confirm your address history and add their answers to your Renter Profile. If you prefer they don't know your plans, add these details later.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Reference Type -->
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                                                Reference type <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <select 
+                                                                name="addresses[{{ $index }}][living_arrangement]" 
+                                                                class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                                                {{ ($address['owned_property'] ?? '0') == '0' ? 'required' : '' }}
+                                                            >
+                                                                <option value="">Please select</option>
+                                                                <option value="property_manager" {{ ($address['living_arrangement'] ?? '') == 'property_manager' ? 'selected' : '' }}>Property Manager</option>
+                                                                <option value="private_landlord" {{ ($address['living_arrangement'] ?? '') == 'private_landlord' ? 'selected' : '' }}>Private Landlord</option>
+                                                                <option value="parents" {{ ($address['living_arrangement'] ?? '') == 'parents' ? 'selected' : '' }}>Parents</option>
+                                                                <option value="other" {{ ($address['living_arrangement'] ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Full Name -->
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                                                Full name <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="text" 
+                                                                name="addresses[{{ $index }}][reference_full_name]" 
+                                                                value="{{ $address['reference_full_name'] ?? '' }}"
+                                                                class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                                                placeholder="First and last name"
+                                                                {{ ($address['owned_property'] ?? '0') == '0' ? 'required' : '' }}
+                                                            >
+                                                        </div>
+
+                                                        <!-- Email -->
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 flex items-center gap-2">
+                                                                Email 
+                                                                <span class="text-plyform-orange">*</span>
+                                                                <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="We'll send an email to confirm address history">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                </svg>
+                                                            </label>
+                                                            <input 
+                                                                type="email" 
+                                                                name="addresses[{{ $index }}][reference_email]" 
+                                                                value="{{ $address['reference_email'] ?? '' }}"
+                                                                class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                                                placeholder="email@example.com"
+                                                                {{ ($address['owned_property'] ?? '0') == '0' ? 'required' : '' }}
+                                                            >
+                                                        </div>
+
+                                                        <!-- Phone Number -->
+                                                        <div>
+                                                            <label class="text-sm font-medium text-plyform-dark mb-2 block">
+                                                                Phone number <span class="text-plyform-orange">*</span>
+                                                            </label>
+                                                            <input 
+                                                                type="tel" 
+                                                                id="address_reference_phone_{{ $index }}" 
+                                                                name="addresses[{{ $index }}][reference_phone_display]"
+                                                                value="{{ $address['reference_phone'] ?? '' }}"
+                                                                class="address-reference-input address-reference-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                                                placeholder="Mobile or Landline"
+                                                                {{ ($address['owned_property'] ?? '0') == '0' ? 'required' : '' }}
+                                                            >
+                                                            <input type="hidden" id="address_reference_country_code_{{ $index }}" name="addresses[{{ $index }}][reference_country_code]" value="{{ $address['reference_country_code'] ?? '+61' }}">
+                                                            <input type="hidden" id="address_reference_phone_clean_{{ $index }}" name="addresses[{{ $index }}][reference_phone]" value="{{ $address['reference_phone'] ?? '' }}">
+                                                            <p class="text-xs text-gray-500 mt-1">To confirm your address history, we'll send your referee a SMS & email.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -2706,6 +2892,7 @@
         // Define which sections are required vs optional
         const requiredSections = [
             'about_me',
+            'personal_details',
             'address_history',
             'employment',
             'finances',
@@ -2885,36 +3072,41 @@
             if (!consentPrivacy?.checked) {
                 showFieldError(consentPrivacy, 'You must consent to privacy collection.', 'terms_conditions');
             }
+
+            const introduction = document.querySelector('textarea[name="introduction"]');
+            if (!introduction?.value) {
+                showFieldError(introduction, 'Please tell us about yourself', 'about_me');
+            }
             
-            // 2. Validate About Me section
+            // 2. Validate Personal Details section
             const title = document.querySelector('select[name="title"]');
             if (!title?.value) {
-                showFieldError(title, 'Please select your title.', 'about_me');
+                showFieldError(title, 'Please select your title.', 'personal_details');
             }
             
             const firstName = document.querySelector('input[name="first_name"]');
             if (!firstName?.value || firstName.value.trim() === '') {
-                showFieldError(firstName, 'First name is required.', 'about_me');
+                showFieldError(firstName, 'First name is required.', 'personal_details');
             }
             
             const lastName = document.querySelector('input[name="last_name"]');
             if (!lastName?.value || lastName.value.trim() === '') {
-                showFieldError(lastName, 'Last name is required.', 'about_me');
+                showFieldError(lastName, 'Last name is required.', 'personal_details');
             }
             
             const dob = document.querySelector('input[name="date_of_birth"]');
             if (!dob?.value) {
-                showFieldError(dob, 'Date of birth is required.', 'about_me');
+                showFieldError(dob, 'Date of birth is required.', 'personal_details');
             }
             
             const email = document.querySelector('input[name="email"]');
             if (!email?.value || email.value.trim() === '') {
-                showFieldError(email, 'Email is required.', 'about_me');
+                showFieldError(email, 'Email is required.', 'personal_details');
             }
             
             const mobileNumber = document.querySelector('input[name="mobile_number"]');
             if (!mobileNumber?.value || mobileNumber.value.trim() === '') {
-                showFieldError(mobileNumber, 'Mobile number is required.', 'about_me');
+                showFieldError(mobileNumber, 'Mobile number is required.', 'personal_details');
             }
             
             // 3. Validate Address History
@@ -3232,6 +3424,100 @@
     }
 
     // Add new address
+    // Toggle ownership function
+    function toggleOwnership(index, isOwned) {
+        const referenceSection = document.querySelector(`.address-reference-section[data-index="${index}"]`);
+        const referenceInputs = referenceSection.querySelectorAll('.address-reference-input');
+        
+        if (isOwned) {
+            // If owned = YES, hide reference section and remove required
+            referenceSection.classList.add('hidden');
+            referenceInputs.forEach(input => {
+                input.required = false;
+            });
+        } else {
+            // If owned = NO, show reference section and add required
+            referenceSection.classList.remove('hidden');
+            referenceInputs.forEach(input => {
+                input.required = true;
+            });
+            
+            // Initialize phone input for this address if not already initialized
+            initializeAddressReferencePhone(index);
+        }
+    }
+
+    // Initialize address reference phone inputs
+    function initializeAddressReferencePhone(index) {
+        const phoneInput = document.getElementById('address_reference_phone_' + index);
+        
+        if (phoneInput && !phoneInput._iti) {
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: true,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+            
+            phoneInput._iti = iti;
+            
+            // Set initial value if exists
+            const existingCountryCode = document.getElementById('address_reference_country_code_' + index).value;
+            const existingNumber = document.getElementById('address_reference_phone_clean_' + index).value;
+            
+            if (existingCountryCode && existingNumber) {
+                const countryCode = existingCountryCode.replace('+', '');
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    iti.setCountry(countryData.iso2);
+                }
+                phoneInput.value = existingNumber;
+            }
+            
+            phoneInput.addEventListener('blur', function() {
+                updateAddressReferencePhone(index);
+            });
+            
+            phoneInput.addEventListener('countrychange', function() {
+                updateAddressReferencePhone(index);
+            });
+        }
+    }
+
+    function updateAddressReferencePhone(index) {
+        const phoneInput = document.getElementById('address_reference_phone_' + index);
+        if (!phoneInput || !phoneInput._iti) return;
+        
+        const iti = phoneInput._iti;
+        const countryData = iti.getSelectedCountryData();
+        document.getElementById('address_reference_country_code_' + index).value = '+' + countryData.dialCode;
+        const fullNumber = iti.getNumber();
+        const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+        document.getElementById('address_reference_phone_clean_' + index).value = numberWithoutCode;
+    }
+
+    // Initialize all address reference phones on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.address-reference-phone').forEach(function(phoneInput) {
+            const match = phoneInput.id.match(/address_reference_phone_(\d+)/);
+            if (match) {
+                const index = match[1];
+                const ownershipNo = document.querySelector(`input[name="addresses[${index}][owned_property]"][value="0"]`);
+                if (ownershipNo && ownershipNo.checked) {
+                    initializeAddressReferencePhone(index);
+                }
+            }
+        });
+    });
+
+    // Update addAddressItem function to include new structure
     function addAddressItem() {
         const container = document.getElementById('addresses-container');
         
@@ -3250,20 +3536,7 @@
                 </div>
                 
                 <div class="mb-4">
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Living Arrangement <span class="text-plyform-orange">*</span></label>
-                    <select name="addresses[${addressIndex}][living_arrangement]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
-                        <option value="">Select arrangement</option>
-                        <option value="owner">Owner</option>
-                        <option value="renting_agent">Renting through Agent</option>
-                        <option value="renting_privately">Renting Privately</option>
-                        <option value="with_parents">Living with Parents</option>
-                        <option value="sharing">Sharing</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Full Address <span class="text-plyform-orange">*</span></label>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Address <span class="text-plyform-orange">*</span></label>
                     <input type="text" name="addresses[${addressIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Main Street, Sydney NSW 2000">
                 </div>
                 
@@ -3298,10 +3571,78 @@
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Postal Address <span class="text-plyform-orange">*</span></label>
                     <input type="text" name="addresses[${addressIndex}][postal_code]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="PO Box 123, Sydney NSW 2000">
                 </div>
+                
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-plyform-dark mb-3 block">Did you own the property? <span class="text-plyform-orange">*</span></label>
+                    <div class="flex gap-0 bg-gray-100 rounded-lg p-1 w-fit">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="addresses[${addressIndex}][owned_property]" value="1" checked onchange="toggleOwnership(${addressIndex}, true)" class="sr-only peer">
+                            <div class="px-6 py-2 rounded-md text-sm font-semibold transition-all peer-checked:bg-gray-700 peer-checked:text-white peer-checked:shadow-sm text-gray-600">Yes</div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="addresses[${addressIndex}][owned_property]" value="0" onchange="toggleOwnership(${addressIndex}, false)" class="sr-only peer">
+                            <div class="px-6 py-2 rounded-md text-sm font-semibold transition-all peer-checked:bg-gray-700 peer-checked:text-white peer-checked:shadow-sm text-gray-600">No</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="address-reference-section hidden" data-index="${addressIndex}">
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-4 border border-gray-200">
+                        <div class="flex items-start gap-2 mb-3">
+                            <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <h5 class="text-sm font-semibold text-plyform-dark">Address reference</h5>
+                                <p class="text-xs text-gray-600 mt-1">You must have this person's consent to provide their personal information and be contacted by us and/or the relevant agency during business hours.</p>
+                                <p class="text-xs text-blue-700 mt-2"><strong>📧 After saving,</strong> your address reference will get an email and SMS to confirm your address history and add their answers to your Renter Profile. If you prefer they don't know your plans, add these details later.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Reference type <span class="text-plyform-orange">*</span></label>
+                            <select name="addresses[${addressIndex}][living_arrangement]" required class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                                <option value="">Please select</option>
+                                <option value="property_manager">Property Manager</option>
+                                <option value="private_landlord">Private Landlord</option>
+                                <option value="parents">Parents</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Full name <span class="text-plyform-orange">*</span></label>
+                            <input type="text" name="addresses[${addressIndex}][reference_full_name]" required class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="First and last name">
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 flex items-center gap-2">Email <span class="text-plyform-orange">*</span>
+                                <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="We'll send an email to confirm address history">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </label>
+                            <input type="email" name="addresses[${addressIndex}][reference_email]" required class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="email@example.com">
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-plyform-dark mb-2 block">Phone number <span class="text-plyform-orange">*</span></label>
+                            <input type="tel" id="address_reference_phone_${addressIndex}" name="addresses[${addressIndex}][reference_phone_display]" required class="address-reference-input address-reference-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Mobile or Landline">
+                            <input type="hidden" id="address_reference_country_code_${addressIndex}" name="addresses[${addressIndex}][reference_country_code]" value="+61">
+                            <input type="hidden" id="address_reference_phone_clean_${addressIndex}" name="addresses[${addressIndex}][reference_phone]">
+                            <p class="text-xs text-gray-500 mt-1">To confirm your address history, we'll send your referee a SMS & email.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
         
         container.insertAdjacentHTML('beforeend', newAddressHtml);
+        
+        // Initialize phone input for the new address
+        setTimeout(() => {
+            initializeAddressReferencePhone(addressIndex);
+        }, 100);
+        
         addressIndex++;
     }
 
@@ -5383,5 +5724,32 @@ function removePetDocument(index) {
         </button>
     `;
 }
+
+// Character counter
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="introduction"]');
+    const charCount = document.getElementById('intro-char-count');
+    
+    if (textarea && charCount) {
+        function updateCount() {
+            const count = textarea.value.length;
+            charCount.textContent = count + ' / 1000';
+            
+            if (count > 900) {
+                charCount.classList.add('text-plyform-orange', 'font-semibold');
+                charCount.classList.remove('text-gray-500', 'font-medium');
+            } else if (count > 0) {
+                charCount.classList.add('text-plyform-dark', 'font-semibold');
+                charCount.classList.remove('text-gray-500', 'font-medium');
+            } else {
+                charCount.classList.remove('text-plyform-orange', 'text-plyform-dark', 'font-semibold');
+                charCount.classList.add('text-gray-500', 'font-medium');
+            }
+        }
+        
+        textarea.addEventListener('input', updateCount);
+        updateCount(); // Initial count
+    }
+});
 </script>
 @endpush
