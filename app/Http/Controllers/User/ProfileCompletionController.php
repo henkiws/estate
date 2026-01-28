@@ -674,7 +674,8 @@ class ProfileCompletionController extends Controller
     {
         $validated = $request->validate([
             'addresses' => 'required|array|min:1',
-            'addresses.*.living_arrangement' => 'required|string|in:owner,renting_agent,renting_privately,with_parents,sharing,other',
+            'addresses.*.owned_property' => 'required|boolean',
+            'addresses.*.living_arrangement' => 'required_if:addresses.*.owned_property,0|nullable|string|in:property_manager,private_landlord,parents,other',
             'addresses.*.address' => 'required|string|max:500',
             'addresses.*.years_lived' => 'required|integer|min:0|max:100',
             'addresses.*.months_lived' => 'required|integer|min:0|max:11',
@@ -682,16 +683,54 @@ class ProfileCompletionController extends Controller
             'addresses.*.different_postal_address' => 'nullable|boolean',
             'addresses.*.postal_code' => 'nullable|string|max:500',
             'addresses.*.is_current' => 'nullable|boolean',
+            // Reference fields (required when owned_property = 0)
+            'addresses.*.reference_full_name' => 'required_if:addresses.*.owned_property,0|nullable|string|max:255',
+            'addresses.*.reference_email' => 'required_if:addresses.*.owned_property,0|nullable|email|max:255',
+            'addresses.*.reference_country_code' => 'required_if:addresses.*.owned_property,0|nullable|string',
+            'addresses.*.reference_phone' => 'required_if:addresses.*.owned_property,0|nullable|string|max:20',
         ]);
 
         // Delete existing addresses
         $user->addresses()->delete();
 
+        $addressReferencesToSend = []; // Store addresses that need reference emails
+
         // Create new address records
         foreach ($validated['addresses'] as $addressData) {
             $address = new UserAddress();
             $address->user_id = $user->id;
-            $address->living_arrangement = $addressData['living_arrangement'];
+            $address->owned_property = $addressData['owned_property'] ?? true;
+            
+            // If owned (owned_property = 1), living_arrangement = 'owner'
+            if ($address->owned_property) {
+                $address->living_arrangement = 'owner';
+            } else {
+                // If not owned, use the provided living_arrangement
+                $address->living_arrangement = $addressData['living_arrangement'];
+                
+                // Save reference details
+                $address->reference_full_name = $addressData['reference_full_name'] ?? null;
+                $address->reference_email = $addressData['reference_email'] ?? null;
+                $address->reference_country_code = $addressData['reference_country_code'] ?? null;
+                $address->reference_phone = $addressData['reference_phone'] ?? null;
+                
+                // Generate token for verification
+                $address->reference_token = \Str::random(64);
+                
+                // Check if this is a new reference (not already sent)
+                // We'll send email only for new references or if email has changed
+                $existingAddress = $user->addresses()
+                    ->where('address', $addressData['address'])
+                    ->where('reference_email', $addressData['reference_email'])
+                    ->where('reference_email_sent_at', '!=', null)
+                    ->first();
+                
+                // Add to list for sending emails later if it's a new reference
+                if (!$existingAddress && $address->reference_email) {
+                    $addressReferencesToSend[] = $address;
+                }
+            }
+            
             $address->address = $addressData['address'];
             $address->years_lived = $addressData['years_lived'];
             $address->months_lived = $addressData['months_lived'];
@@ -702,6 +741,7 @@ class ProfileCompletionController extends Controller
             $address->save();
         }
 
+        // Update profile step
         $user->profile_current_step = max($user->profile_current_step ?? 1, 7);
         $user->save();
 
@@ -851,6 +891,9 @@ class ProfileCompletionController extends Controller
         // Send reference request emails
         $this->sendReferenceRequests($user);
 
+        // Send reference request emails to address references
+        $this->sendAddressReferenceRequests($user);
+
         return [
             'success' => true,
             'message' => 'Profile submitted successfully! Your application is now pending admin approval. Reference requests have been sent.',
@@ -914,6 +957,66 @@ class ProfileCompletionController extends Controller
                 'error' => $e->getMessage()
             ]);
             // Don't throw error - email failure shouldn't stop profile submission
+        }
+    }
+
+    /**
+     * Send reference request emails to address references
+     */
+    private function sendAddressReferenceRequests($user)
+    {
+        // Get all addresses that need references (owned_property = 0)
+        $addressesNeedingReferences = $user->addresses()
+            ->where('owned_property', false)
+            ->whereNotNull('reference_email')
+            ->get();
+
+        if ($addressesNeedingReferences->isEmpty()) {
+            \Log::info('No address references to send', ['user_id' => $user->id]);
+            return;
+        }
+
+        foreach ($addressesNeedingReferences as $address) {
+            // Skip if email was already sent
+            if ($address->reference_email_sent_at) {
+                \Log::info('Address reference email already sent, skipping', [
+                    'address_id' => $address->id,
+                    'reference_email' => $address->reference_email,
+                    'sent_at' => $address->reference_email_sent_at,
+                ]);
+                continue;
+            }
+
+            // Generate token if not exists
+            if (!$address->reference_token) {
+                $address->reference_token = \Str::random(64);
+                $address->save();
+            }
+
+            try {
+                \Mail::to($address->reference_email)->send(
+                    new \App\Mail\AddressReferenceRequest($address, $user, null)
+                );
+                
+                // Update the sent timestamp
+                $address->reference_email_sent_at = now();
+                $address->save();
+                
+                \Log::info('Address reference email sent (Profile Submission)', [
+                    'address_id' => $address->id,
+                    'reference_email' => $address->reference_email,
+                    'reference_full_name' => $address->reference_full_name,
+                    'user_id' => $user->id,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send address reference email (Profile Submission)', [
+                    'address_id' => $address->id,
+                    'reference_email' => $address->reference_email,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                // Don't fail the whole submission if email fails
+            }
         }
     }
 
