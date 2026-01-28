@@ -11,6 +11,7 @@ use App\Models\UserVehicle;
 use App\Models\UserAddress;
 use App\Models\UserReference;
 use App\Models\UserIdentification;
+use App\Models\UserIncomeBankStatement;
 use App\Mail\ReferenceRequestMail;
 use App\Mail\ProfileSubmittedNotification;
 use Illuminate\Http\Request;
@@ -385,7 +386,7 @@ class ProfileCompletionController extends Controller
                     $bankStatement = new UserIncomeBankStatement();
                     $bankStatement->user_income_id = $income->id;
                     $bankStatement->file_path = $path;
-                    $bankStatement->file_name = $file->getClientOriginalName();
+                    $bankStatement->original_filename = $file->getClientOriginalName();
                     $bankStatement->file_size = $file->getSize();
                     $bankStatement->mime_type = $file->getMimeType();
                     $bankStatement->save();
