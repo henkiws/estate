@@ -13,15 +13,16 @@ class UserIdentification extends Model
     protected $fillable = [
         'user_id',
         'identification_type',
-        'points',
-        'document_path',
         'document_number',
         'expiry_date',
+        'points',
+        'document_paths',
     ];
 
     protected $casts = [
         'expiry_date' => 'date',
         'points' => 'integer',
+        'document_paths' => 'array',
     ];
 
     public const ID_POINTS = [
@@ -45,10 +46,32 @@ class UserIdentification extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the first document path (for backward compatibility)
+     */
+    public function getDocumentPathAttribute()
+    {
+        return $this->document_paths[0] ?? null;
+    }
+
+    /**
+     * Get points based on identification type
+     */
     public static function getPointsForType(string $type): int
     {
-        return self::ID_POINTS[$type] ?? 0;
+        return match($type) {
+            'australian_drivers_licence' => 40,
+            'passport' => 70,
+            'birth_certificate' => 70,
+            'medicare' => 25,
+            default => 0,
+        };
     }
+
+    // public static function getPointsForType(string $type): int
+    // {
+    //     return self::ID_POINTS[$type] ?? 0;
+    // }
 
     public function getTypeLabelAttribute(): string
     {

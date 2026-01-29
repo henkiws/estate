@@ -185,103 +185,96 @@
                                 >
                             </div>
                             
-                            <!-- Document Upload -->
+                            <!-- Document Upload - MULTIPLE FILES -->
                             <div class="mt-4">
                                 <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                    Upload Document <span class="text-plyform-orange">*</span>
+                                    Upload Documents <span class="text-plyform-orange">*</span>
                                 </label>
                                 <div class="space-y-3">
-                                    <!-- File Input (Hidden) -->
+                                    <!-- Hidden File Input (Multiple) -->
                                     <input 
                                         type="file" 
-                                        name="identifications[{{ $index }}][document]"
-                                        id="identification_document_{{ $index }}"
+                                        name="identifications[{{ $index }}][documents][]"
+                                        id="identification_documents_{{ $index }}"
                                         accept=".pdf,.jpg,.jpeg,.png"
-                                        {{ empty($id['document_path']) ? 'required' : '' }}
-                                        onchange="previewIdentificationDocument({{ $index }})"
+                                        multiple
+                                        {{ empty($id['document_paths']) ? 'required' : '' }}
+                                        onchange="previewIdentificationDocuments({{ $index }})"
                                         class="hidden"
                                     >
                                     
-                                    <!-- Upload Button/Preview Container -->
-                                    <div id="identification_document_preview_{{ $index }}" class="space-y-2">
-                                        @if(!empty($id['document_path']) && Storage::disk('public')->exists($id['document_path']))
-                                            <!-- EXISTING FILE PREVIEW -->
-                                            <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
-                                                <div class="flex items-center gap-3">
-                                                    <!-- File Icon/Thumbnail -->
-                                                    @if(in_array(pathinfo($id['document_path'], PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                                        <img src="{{ Storage::url($id['document_path']) }}" alt="ID Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
-                                                    @else
-                                                        <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
-                                                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                                            </svg>
+                                    <!-- Preview Container -->
+                                    <div id="identification_documents_preview_{{ $index }}" class="space-y-2">
+                                        @if(!empty($id['document_paths']))
+                                            <!-- EXISTING DOCUMENTS LIST -->
+                                            @foreach($id['document_paths'] as $docIndex => $docPath)
+                                                @if(Storage::disk('public')->exists($docPath))
+                                                    <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3 existing-document" data-doc-index="{{ $docIndex }}">
+                                                        <div class="flex items-center gap-3">
+                                                            <!-- File Icon/Thumbnail -->
+                                                            @if(in_array(pathinfo($docPath, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                                                <img src="{{ Storage::url($docPath) }}" alt="ID Document {{ $docIndex + 1 }}" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
+                                                            @else
+                                                                <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                                                                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                    </svg>
+                                                                </div>
+                                                            @endif
+                                                            
+                                                            <!-- File Info -->
+                                                            <div class="flex-1 min-w-0">
+                                                                <p class="text-sm font-medium text-gray-900 truncate">{{ basename($docPath) }}</p>
+                                                                <p class="text-xs text-gray-500">Document {{ $docIndex + 1 }}</p>
+                                                            </div>
+                                                            
+                                                            <!-- View Button -->
+                                                            <a 
+                                                                href="{{ Storage::url($docPath) }}" 
+                                                                target="_blank"
+                                                                class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
+                                                                title="View document"
+                                                            >
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                </svg>
+                                                            </a>
+                                                            
+                                                            <!-- Remove Button -->
+                                                            <button 
+                                                                type="button" 
+                                                                onclick="removeExistingIdentificationDocument({{ $index }}, {{ $docIndex }})"
+                                                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                title="Remove document"
+                                                            >
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                </svg>
+                                                            </button>
                                                         </div>
-                                                    @endif
-                                                    
-                                                    <!-- File Info -->
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900 truncate">{{ basename($id['document_path']) }}</p>
-                                                        <p class="text-xs text-gray-500">Uploaded document</p>
+                                                        <!-- Hidden input to track existing document -->
+                                                        <input type="hidden" name="identifications[{{ $index }}][existing_documents][]" value="{{ $docPath }}">
                                                     </div>
-                                                    
-                                                    <!-- View Button -->
-                                                    <a 
-                                                        href="{{ Storage::url($id['document_path']) }}" 
-                                                        target="_blank"
-                                                        class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                                                        title="View document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                        </svg>
-                                                    </a>
-                                                    
-                                                    <!-- Remove Button -->
-                                                    <button 
-                                                        type="button" 
-                                                        onclick="removeIdentificationDocument({{ $index }})"
-                                                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                                                        title="Remove document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </button>
-                                                    
-                                                    <!-- Re-upload Button -->
-                                                    <button 
-                                                        type="button" 
-                                                        onclick="document.getElementById('identification_document_{{ $index }}').click()"
-                                                        class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                                                        title="Change document"
-                                                    >
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <!-- Hidden input to track existing file -->
-                                            <input type="hidden" name="identifications[{{ $index }}][existing_document]" value="{{ $id['document_path'] }}">
-                                        @else
-                                            <!-- NO FILE YET - UPLOAD BUTTON -->
-                                            <button 
-                                                type="button" 
-                                                onclick="document.getElementById('identification_document_{{ $index }}').click()"
-                                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-                                            >
-                                                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                </svg>
-                                                <span class="text-sm text-gray-600">Click to upload identification document</span>
-                                                <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-                                            </button>
+                                                @endif
+                                            @endforeach
                                         @endif
                                     </div>
+                                    
+                                    <!-- Upload Button -->
+                                    <button 
+                                        type="button" 
+                                        onclick="document.getElementById('identification_documents_{{ $index }}').click()"
+                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                                    >
+                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">Click to upload identification documents</span>
+                                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB each) - Select multiple files</span>
+                                    </button>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
+                                <p class="mt-1 text-xs text-gray-500">Upload at least 1 document. You can select multiple files at once (e.g., front and back of license).</p>
                             </div>
                             
                             <!-- Expiry Date (Optional) -->
@@ -479,36 +472,39 @@ function addIdentificationItem() {
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Document Number (Optional)</label>
                 <input type="text" name="identifications[${idIndex}][document_number]" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="e.g., ABC123456">
             </div>
-            <!-- Document Upload -->
+            
+            <!-- Document Upload - MULTIPLE FILES -->
             <div class="mt-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Document <span class="text-plyform-orange">*</span></label>
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Upload Documents <span class="text-plyform-orange">*</span></label>
                 <div class="space-y-3">
                     <input 
                         type="file" 
-                        name="identifications[${idIndex}][document]"
-                        id="identification_document_${idIndex}"
+                        name="identifications[${idIndex}][documents][]"
+                        id="identification_documents_${idIndex}"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
                         required
-                        onchange="previewIdentificationDocument(${idIndex})"
+                        onchange="previewIdentificationDocuments(${idIndex})"
                         class="hidden"
                     >
                     
-                    <div id="identification_document_preview_${idIndex}" class="space-y-2">
-                        <button 
-                            type="button" 
-                            onclick="document.getElementById('identification_document_${idIndex}').click()"
-                            class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-                        >
-                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="text-sm text-gray-600">Click to upload identification document</span>
-                            <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-                        </button>
-                    </div>
+                    <div id="identification_documents_preview_${idIndex}" class="space-y-2"></div>
+                    
+                    <button 
+                        type="button" 
+                        onclick="document.getElementById('identification_documents_${idIndex}').click()"
+                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
+                    >
+                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span class="text-sm text-gray-600">Click to upload identification documents</span>
+                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB each) - Select multiple files</span>
+                    </button>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">Max size: 10MB. Accepted: PDF, JPG, PNG</p>
+                <p class="mt-1 text-xs text-gray-500">Upload at least 1 document. You can select multiple files at once (e.g., front and back of license).</p>
             </div>
+            
             <div class="mt-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Expiry Date (if applicable)</label>
                 <input type="date" name="identifications[${idIndex}][expiry_date]" min="${today}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
@@ -540,6 +536,82 @@ function removeIdentificationItem(index) {
     }
 }
 
+// Preview multiple identification documents
+function previewIdentificationDocuments(index) {
+    const input = document.getElementById(`identification_documents_${index}`);
+    const previewContainer = document.getElementById(`identification_documents_preview_${index}`);
+    
+    if (!input || !input.files || input.files.length === 0) {
+        return;
+    }
+    
+    // Clear new previews (keep existing ones)
+    const newPreviews = previewContainer.querySelectorAll('.new-document');
+    newPreviews.forEach(el => el.remove());
+    
+    // Process each file
+    Array.from(input.files).forEach((file, fileIndex) => {
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+            return;
+        }
+        
+        // Validate file type
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        if (!validTypes.includes(file.type)) {
+            alert(`File "${file.name}" must be PDF, JPG, or PNG.`);
+            return;
+        }
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            let thumbnailHtml = '';
+            if (isImage) {
+                thumbnailHtml = `<img src="${e.target.result}" alt="New document ${fileIndex + 1}" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">`;
+            } else {
+                thumbnailHtml = `
+                    <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            
+            const previewHtml = `
+                <div class="relative bg-gray-50 border-2 border-green-200 rounded-lg p-3 new-document">
+                    <div class="flex items-center gap-3">
+                        ${thumbnailHtml}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        <span class="flex-shrink-0 text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded">New</span>
+                    </div>
+                </div>
+            `;
+            previewContainer.insertAdjacentHTML('beforeend', previewHtml);
+        };
+        
+        reader.readAsDataURL(file);
+    });
+}
+
+// Remove existing identification document
+function removeExistingIdentificationDocument(idIndex, docIndex) {
+    if (confirm('Remove this document?')) {
+        const docDiv = document.querySelector(`#identification_documents_preview_${idIndex} .existing-document[data-doc-index="${docIndex}"]`);
+        if (docDiv) {
+            docDiv.remove();
+        }
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     calculateTotalPoints();
@@ -555,198 +627,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-// Preview identification document
-function previewIdentificationDocument(index) {
-    const input = document.getElementById(`identification_document_${index}`);
-    const previewContainer = document.getElementById(`identification_document_preview_${index}`);
-    
-    if (!input || !input.files || input.files.length === 0) {
-        return;
-    }
-    
-    const file = input.files[0];
-    
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
-        input.value = '';
-        return;
-    }
-    
-    // Validate file type
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-        alert('Please select a valid file (PDF, JPG, PNG)');
-        input.value = '';
-        return;
-    }
-    
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const isImage = ['jpg', 'jpeg', 'png'].includes(fileExtension);
-    
-    if (isImage) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Store the preview URL for viewing
-            window[`identification_document_preview_url_${index}`] = e.target.result;
-            
-            previewContainer.innerHTML = `
-                <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
-                    <div class="flex items-center gap-3">
-                        <!-- Image Preview -->
-                        <img src="${e.target.result}" alt="ID Document" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-300">
-                        
-                        <!-- File Info -->
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
-                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
-                        </div>
-                        
-                        <!-- View Button -->
-                        <button 
-                            type="button" 
-                            onclick="viewIdentificationDocument(${index})"
-                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                            title="View document"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                        
-                        <!-- Remove Button -->
-                        <button 
-                            type="button" 
-                            onclick="removeIdentificationDocument(${index})"
-                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                            title="Remove document"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                        
-                        <!-- Re-upload Button -->
-                        <button 
-                            type="button" 
-                            onclick="document.getElementById('identification_document_${index}').click()"
-                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                            title="Change document"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(file);
-    } else {
-        // PDF preview - store blob URL for viewing
-        const blobUrl = URL.createObjectURL(file);
-        window[`identification_document_preview_url_${index}`] = blobUrl;
-        
-        previewContainer.innerHTML = `
-            <div class="relative bg-gray-50 border-2 border-gray-200 rounded-lg p-3">
-                <div class="flex items-center gap-3">
-                    <!-- PDF Icon -->
-                    <div class="w-16 h-16 bg-red-100 rounded-lg border-2 border-red-300 flex items-center justify-center">
-                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- File Info -->
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
-                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(2)} KB</p>
-                    </div>
-                    
-                    <!-- View Button -->
-                    <button 
-                        type="button" 
-                        onclick="viewIdentificationDocument(${index})"
-                        class="flex-shrink-0 text-blue-600 hover:text-blue-800 transition p-2 hover:bg-blue-50 rounded-lg"
-                        title="View document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                    </button>
-                    
-                    <!-- Remove Button -->
-                    <button 
-                        type="button" 
-                        onclick="removeIdentificationDocument(${index})"
-                        class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                        title="Remove document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                    
-                    <!-- Re-upload Button -->
-                    <button 
-                        type="button" 
-                        onclick="document.getElementById('identification_document_${index}').click()"
-                        class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                        title="Change document"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// View identification document in new tab
-function viewIdentificationDocument(index) {
-    const previewUrl = window[`identification_document_preview_url_${index}`];
-    if (previewUrl) {
-        window.open(previewUrl, '_blank');
-    }
-}
-
-// Remove identification document
-function removeIdentificationDocument(index) {
-    const input = document.getElementById(`identification_document_${index}`);
-    const previewContainer = document.getElementById(`identification_document_preview_${index}`);
-    
-    // Clean up blob URL if exists
-    const previewUrl = window[`identification_document_preview_url_${index}`];
-    if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl);
-    }
-    delete window[`identification_document_preview_url_${index}`];
-    
-    if (input) {
-        input.value = '';
-        // Make required again if removed
-        input.required = true;
-    }
-    
-    if (previewContainer) {
-        previewContainer.innerHTML = `
-            <button 
-                type="button" 
-                onclick="document.getElementById('identification_document_${index}').click()"
-                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-green transition-colors text-center cursor-pointer"
-            >
-                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                <span class="text-sm text-gray-600">Click to upload identification document</span>
-                <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-            </button>
-        `;
-    }
-}
 </script>

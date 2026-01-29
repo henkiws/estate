@@ -94,14 +94,14 @@
             <!-- Section 7: Address History -->
             @include('user.profile.cards.address-history-card')
             
-            <!-- Section 8: References -->
-            @include('user.profile.cards.references-card')
+            {{-- <!-- Section 8: References -->
+            @include('user.profile.cards.references-card') --}}
             
             <!-- Section 9: Identification -->
             @include('user.profile.cards.identification-card')
             
             <!-- Section 10: Terms & Conditions -->
-            @include('user.profile.cards.terms-card')
+            {{-- @include('user.profile.cards.terms-card') --}}
             
         </div>
         

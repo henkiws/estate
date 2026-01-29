@@ -160,7 +160,7 @@
                                     Proof you can pay rent
                                     <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                                 </label>
-                                <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
+                                <span class="text-xs text-gray-500 font-normal">Attach 3 recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
                                 
                                 <div class="space-y-3">
                                     <!-- File Input (Hidden) - Multiple -->
@@ -386,7 +386,7 @@ function addIncome() {
                     Proof you can pay rent
                     <span class="text-xs text-gray-500 font-normal">- Upload multiple documents</span>
                 </label>
-                <span class="text-xs text-gray-500 font-normal">Attach three recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
+                <span class="text-xs text-gray-500 font-normal">Attach 3 recent payslips or other supporting documents. If using bank statements, hide account numbers and any non-income transactions.</span>
                 <div class="space-y-3">
                     <input 
                         type="file" 

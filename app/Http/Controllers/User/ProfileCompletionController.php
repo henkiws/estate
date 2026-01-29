@@ -20,9 +20,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Traits\StoresFilesWithOriginalName;
 
 class ProfileCompletionController extends Controller
 {
+    use StoresFilesWithOriginalName;
+
     /**
      * Show profile overview with all sections (card-based UI)
      */
@@ -318,6 +321,9 @@ class ProfileCompletionController extends Controller
         return ['success' => true];
     }
 
+    /**
+     * Save Step 3: Income Information with ORIGINAL FILENAMES
+     */
     private function saveStep3(Request $request, $user)
     {
         $validated = $request->validate([
@@ -340,14 +346,13 @@ class ProfileCompletionController extends Controller
             if (!empty($incomeData['id'])) {
                 $income = UserIncome::find($incomeData['id']);
                 if (!$income || $income->user_id !== $user->id) {
-                    continue; // Skip if not found or doesn't belong to user
+                    continue;
                 }
             } else {
                 $income = new UserIncome();
                 $income->user_id = $user->id;
             }
 
-            // Update basic income data
             $income->source_of_income = $incomeData['source_of_income'];
             $income->net_weekly_amount = $incomeData['net_weekly_amount'];
             $income->save();
@@ -363,24 +368,22 @@ class ProfileCompletionController extends Controller
                             ->first();
                         
                         if ($statement) {
-                            // Delete file from storage
                             if ($statement->file_path && Storage::disk('public')->exists($statement->file_path)) {
                                 Storage::disk('public')->delete($statement->file_path);
                             }
-                            // Delete database record
                             $statement->delete();
                         }
                     }
                 }
             }
 
-            // Handle new bank statement uploads
+            // Handle new bank statement uploads with ORIGINAL FILENAMES
             if ($request->hasFile("incomes.$index.bank_statements")) {
                 $files = $request->file("incomes.$index.bank_statements");
                 
                 foreach ($files as $file) {
-                    // Upload file
-                    $path = $file->store('bank-statements', 'public');
+                    // Store with original filename
+                    $path = $this->storeFileWithOriginalName($file, 'bank-statements');
                     
                     // Create bank statement record
                     $bankStatement = new UserIncomeBankStatement();
@@ -400,7 +403,6 @@ class ProfileCompletionController extends Controller
             ->get();
         
         foreach ($incomesToDelete as $income) {
-            // Delete all associated bank statements
             $statements = UserIncomeBankStatement::where('user_income_id', $income->id)->get();
             foreach ($statements as $statement) {
                 if ($statement->file_path && Storage::disk('public')->exists($statement->file_path)) {
@@ -408,24 +410,23 @@ class ProfileCompletionController extends Controller
                 }
                 $statement->delete();
             }
-            
-            // Delete the income record
             $income->delete();
         }
 
-        // Update user's profile step
         $user->profile_current_step = max($user->profile_current_step ?? 1, 3);
         $user->save();
 
         return ['success' => true];
     }
 
+    /**
+     * Save Step 4: Employment Information with ORIGINAL FILENAMES
+     */
     private function saveStep4(Request $request, $user)
     {
         $hasEmployment = $request->boolean('has_employment');
 
         if (!$hasEmployment) {
-            // Delete all employments if user says they have no employment
             foreach ($user->employments as $employment) {
                 if ($employment->employment_letter_path) {
                     Storage::disk('public')->delete($employment->employment_letter_path);
@@ -444,7 +445,6 @@ class ProfileCompletionController extends Controller
             'employments.*.company_name' => 'required|string|max:255',
             'employments.*.address' => 'required|string|max:500',
             'employments.*.position' => 'required|string|max:255',
-            // 'employments.*.gross_annual_salary' => 'required|numeric|min:0|max:9999999.99',
             'employments.*.manager_full_name' => 'required|string|max:255',
             'employments.*.contact_country_code' => 'required|string',
             'employments.*.contact_number' => 'required|string|max:20',
@@ -456,23 +456,18 @@ class ProfileCompletionController extends Controller
             'employments.*.existing_letter' => 'nullable|string',
         ]);
 
-        // Get existing employments
         $existingEmployments = $user->employments()->get()->keyBy(function($employment, $key) {
             return $key;
         });
 
-        // Track which employments to keep
         $processedEmploymentIds = [];
 
-        // Create new employment records
         foreach ($validated['employments'] as $index => $employmentData) {
-            // Update existing or create new
             $employment = $existingEmployments->get($index) ?: new UserEmployment();
             $employment->user_id = $user->id;
             $employment->company_name = $employmentData['company_name'];
             $employment->address = $employmentData['address'];
             $employment->position = $employmentData['position'];
-            // $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
             $employment->manager_full_name = $employmentData['manager_full_name'];
             $employment->contact_country_code = $employmentData['contact_country_code'];
             $employment->contact_number = $employmentData['contact_number'];
@@ -481,18 +476,18 @@ class ProfileCompletionController extends Controller
             $employment->still_employed = $employmentData['still_employed'] ?? false;
             $employment->end_date = $employmentData['end_date'] ?? null;
             
-            // Handle file upload
+            // Handle file upload with ORIGINAL FILENAME
             if ($request->hasFile("employments.$index.employment_letter")) {
-                // Delete old file if exists
                 if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
                     Storage::disk('public')->delete($employment->employment_letter_path);
                 }
-                // Upload new file
-                $path = $request->file("employments.$index.employment_letter")
-                    ->store('employment-letters', 'public');
+                // Store with original filename
+                $path = $this->storeFileWithOriginalName(
+                    $request->file("employments.$index.employment_letter"),
+                    'employment-letters'
+                );
                 $employment->employment_letter_path = $path;
             } elseif (isset($employmentData['existing_letter'])) {
-                // Keep existing file if no new file uploaded
                 $employment->employment_letter_path = $employmentData['existing_letter'];
             }
             
@@ -500,7 +495,6 @@ class ProfileCompletionController extends Controller
             $processedEmploymentIds[] = $employment->id;
         }
 
-        // Delete employments that were removed (not in the submitted form)
         $employmentsToDelete = $user->employments()->whereNotIn('id', array_filter($processedEmploymentIds))->get();
         foreach ($employmentsToDelete as $employment) {
             if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
@@ -515,18 +509,28 @@ class ProfileCompletionController extends Controller
         return ['success' => true];
     }
 
+    /**
+     * Save Step 5: Pets Information with ORIGINAL FILENAMES
+     */
     private function saveStep5(Request $request, $user)
     {
         $hasPets = $request->boolean('has_pets');
 
         if (!$hasPets) {
-            // Delete all pets if user says they have no pets
             foreach ($user->pets as $pet) {
-                if ($pet->photo_path) {
-                    Storage::disk('public')->delete($pet->photo_path);
+                if ($pet->photo_paths) {
+                    foreach ($pet->photo_paths as $photoPath) {
+                        if (Storage::disk('public')->exists($photoPath)) {
+                            Storage::disk('public')->delete($photoPath);
+                        }
+                    }
                 }
-                if ($pet->document_path) {
-                    Storage::disk('public')->delete($pet->document_path);
+                if ($pet->document_paths) {
+                    foreach ($pet->document_paths as $docPath) {
+                        if (Storage::disk('public')->exists($docPath)) {
+                            Storage::disk('public')->delete($docPath);
+                        }
+                    }
                 }
             }
             $user->pets()->delete();
@@ -537,7 +541,6 @@ class ProfileCompletionController extends Controller
             return ['success' => true];
         }
 
-        // Conditional validation for photos
         $rules = [
             'pets' => 'required|array|min:1',
             'pets.*.type' => 'required|string|in:dog,cat,bird,fish,rabbit,other',
@@ -545,32 +548,30 @@ class ProfileCompletionController extends Controller
             'pets.*.desexed' => 'required|boolean',
             'pets.*.size' => 'required|string|in:small,medium,large',
             'pets.*.registration_number' => 'nullable|string|max:100',
-            'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'pets.*.existing_photo' => 'nullable|string',
+            'pets.*.photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'pets.*.documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'pets.*.existing_photos' => 'nullable|array',
+            'pets.*.existing_documents' => 'nullable|array',
         ];
 
-        // Make photo required only if no existing photo
         foreach ($request->input('pets', []) as $index => $petData) {
-            if (empty($petData['existing_photo'])) {
-                $rules["pets.$index.photo"] = 'required|image|mimes:jpeg,png,jpg,gif|max:10240';
-            } else {
-                $rules["pets.$index.photo"] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240';
+            $hasExistingPhotos = !empty($petData['existing_photos']);
+            $hasNewPhotos = $request->hasFile("pets.$index.photos");
+            
+            if (!$hasExistingPhotos && !$hasNewPhotos) {
+                $rules["pets.$index.photos"] = 'required|array|min:1';
             }
         }
 
         $validated = $request->validate($rules);
 
-        // Get existing pets
         $existingPets = $user->pets()->get()->keyBy(function($pet, $key) {
             return $key;
         });
 
-        // Track which pets to keep
         $processedPetIds = [];
 
-        // Process each pet
         foreach ($validated['pets'] as $index => $petData) {
-            // Update existing pet or create new one
             $pet = $existingPets->get($index) ?: new UserPet();
             $pet->user_id = $user->id;
             $pet->type = $petData['type'];
@@ -579,42 +580,79 @@ class ProfileCompletionController extends Controller
             $pet->size = $petData['size'];
             $pet->registration_number = $petData['registration_number'] ?? null;
         
-            // Handle pet photo upload
-            if ($request->hasFile("pets.$index.photo")) {
-                // Delete old photo if exists
-                if ($pet->photo_path && Storage::disk('public')->exists($pet->photo_path)) {
-                    Storage::disk('public')->delete($pet->photo_path);
-                }
-                // Upload new photo
-                $path = $request->file("pets.$index.photo")->store('pet-photos', 'public');
-                $pet->photo_path = $path;
-            } elseif (isset($petData['existing_photo'])) {
-                // Keep existing photo if no new file uploaded
-                $pet->photo_path = $petData['existing_photo'];
+            // ========== HANDLE MULTIPLE PHOTO UPLOADS WITH ORIGINAL FILENAMES ==========
+            $photoPaths = [];
+            
+            if (isset($petData['existing_photos']) && is_array($petData['existing_photos'])) {
+                $photoPaths = array_merge($photoPaths, $petData['existing_photos']);
             }
             
-            // Handle document upload
-            if ($request->hasFile("pets.$index.document")) {
-                // Delete old document if exists
-                if ($pet->document_path && Storage::disk('public')->exists($pet->document_path)) {
-                    Storage::disk('public')->delete($pet->document_path);
-                }
-                $path = $request->file("pets.$index.document")->store('pet-documents', 'public');
-                $pet->document_path = $path;
+            // Upload new photos with original filenames
+            if ($request->hasFile("pets.$index.photos")) {
+                $newPaths = $this->storeFilesWithOriginalNames(
+                    $request->file("pets.$index.photos"),
+                    'pet-photos'
+                );
+                $photoPaths = array_merge($photoPaths, $newPaths);
             }
+            
+            if ($pet->photo_paths) {
+                $oldPhotos = $pet->photo_paths;
+                foreach ($oldPhotos as $oldPath) {
+                    if (!in_array($oldPath, $photoPaths) && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+            }
+            
+            $pet->photo_paths = $photoPaths;
+            
+            // ========== HANDLE MULTIPLE DOCUMENT UPLOADS WITH ORIGINAL FILENAMES ==========
+            $documentPaths = [];
+            
+            if (isset($petData['existing_documents']) && is_array($petData['existing_documents'])) {
+                $documentPaths = array_merge($documentPaths, $petData['existing_documents']);
+            }
+            
+            // Upload new documents with original filenames
+            if ($request->hasFile("pets.$index.documents")) {
+                $newPaths = $this->storeFilesWithOriginalNames(
+                    $request->file("pets.$index.documents"),
+                    'pet-documents'
+                );
+                $documentPaths = array_merge($documentPaths, $newPaths);
+            }
+            
+            if ($pet->document_paths) {
+                $oldDocs = $pet->document_paths;
+                foreach ($oldDocs as $oldPath) {
+                    if (!in_array($oldPath, $documentPaths) && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+            }
+            
+            $pet->document_paths = $documentPaths;
             
             $pet->save();
             $processedPetIds[] = $pet->id;
         }
 
-        // Delete pets that were removed (not in the submitted form)
         $petsToDelete = $user->pets()->whereNotIn('id', array_filter($processedPetIds))->get();
         foreach ($petsToDelete as $pet) {
-            if ($pet->photo_path && Storage::disk('public')->exists($pet->photo_path)) {
-                Storage::disk('public')->delete($pet->photo_path);
+            if ($pet->photo_paths) {
+                foreach ($pet->photo_paths as $photoPath) {
+                    if (Storage::disk('public')->exists($photoPath)) {
+                        Storage::disk('public')->delete($photoPath);
+                    }
+                }
             }
-            if ($pet->document_path && Storage::disk('public')->exists($pet->document_path)) {
-                Storage::disk('public')->delete($pet->document_path);
+            if ($pet->document_paths) {
+                foreach ($pet->document_paths as $docPath) {
+                    if (Storage::disk('public')->exists($docPath)) {
+                        Storage::disk('public')->delete($docPath);
+                    }
+                }
             }
             $pet->delete();
         }
@@ -783,84 +821,112 @@ class ProfileCompletionController extends Controller
         return ['success' => true];
     }
 
+    /**
+     * Save Step 9: Identification Documents with ORIGINAL FILENAMES
+     */
     private function saveStep9(Request $request, $user)
     {
-        $validated = $request->validate([
+        $rules = [
             'identifications' => 'required|array|min:1',
             'identifications.*.identification_type' => 'required|string|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
-            'identifications.*.document_number' => 'nullable|string|max:100',
-            'identifications.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'identifications.*.existing_document' => 'nullable|string',
+            'identifications.*.document_number' => 'nullable|string|max:255',
             'identifications.*.expiry_date' => 'nullable|date|after:today',
-        ]);
+            'identifications.*.documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'identifications.*.existing_documents' => 'nullable|array',
+        ];
 
-        // Get existing identifications
-        $existingIdentifications = $user->identifications()->get()->keyBy(function($identification, $key) {
+        foreach ($request->input('identifications', []) as $index => $idData) {
+            $hasExistingDocuments = !empty($idData['existing_documents']);
+            $hasNewDocuments = $request->hasFile("identifications.$index.documents");
+            
+            if (!$hasExistingDocuments && !$hasNewDocuments) {
+                $rules["identifications.$index.documents"] = 'required|array|min:1';
+            }
+        }
+
+        $validated = $request->validate($rules);
+
+        $existingIdentifications = $user->identifications()->get()->keyBy(function($id, $key) {
             return $key;
         });
 
-        // Track which identifications to keep
-        $processedIdentificationIds = [];
+        $processedIdIds = [];
         $totalPoints = 0;
 
-        // Create new identification records
         foreach ($validated['identifications'] as $index => $idData) {
-            // Update existing or create new
             $identification = $existingIdentifications->get($index) ?: new UserIdentification();
             $identification->user_id = $user->id;
             $identification->identification_type = $idData['identification_type'];
+            $identification->document_number = $idData['document_number'] ?? null;
+            $identification->expiry_date = $idData['expiry_date'] ?? null;
             
-            // Calculate points based on document type
-            $pointsMap = [
+            $identification->points = match($idData['identification_type']) {
                 'australian_drivers_licence' => 40,
                 'passport' => 70,
                 'birth_certificate' => 70,
                 'medicare' => 25,
-                'other' => 0,
-            ];
-            $identification->points = $pointsMap[$idData['identification_type']] ?? 0;
+                default => 0,
+            };
             
-            $identification->document_number = $idData['document_number'] ?? null;
-            $identification->expiry_date = $idData['expiry_date'] ?? null;
+            $totalPoints += $identification->points;
+        
+            // ========== HANDLE MULTIPLE DOCUMENT UPLOADS WITH ORIGINAL FILENAMES ==========
+            $documentPaths = [];
             
-            // Handle file upload
-            if ($request->hasFile("identifications.$index.document")) {
-                // Delete old file if exists
-                if ($identification->document_path && Storage::disk('public')->exists($identification->document_path)) {
-                    Storage::disk('public')->delete($identification->document_path);
-                }
-                // Upload new file
-                $path = $request->file("identifications.$index.document")
-                    ->store('identification-documents', 'public');
-                $identification->document_path = $path;
-            } elseif (isset($idData['existing_document'])) {
-                // Keep existing file if no new file uploaded
-                $identification->document_path = $idData['existing_document'];
+            if (isset($idData['existing_documents']) && is_array($idData['existing_documents'])) {
+                $documentPaths = array_merge($documentPaths, $idData['existing_documents']);
             }
             
+            // Upload new documents with original filenames
+            if ($request->hasFile("identifications.$index.documents")) {
+                $newPaths = $this->storeFilesWithOriginalNames(
+                    $request->file("identifications.$index.documents"),
+                    'identification-documents'
+                );
+                $documentPaths = array_merge($documentPaths, $newPaths);
+            }
+            
+            if ($identification->document_paths) {
+                $oldDocs = $identification->document_paths;
+                foreach ($oldDocs as $oldPath) {
+                    if (!in_array($oldPath, $documentPaths) && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+            }
+            
+            $identification->document_paths = $documentPaths;
+            
             $identification->save();
-            $processedIdentificationIds[] = $identification->id;
-            $totalPoints += $identification->points;
+            $processedIdIds[] = $identification->id;
         }
 
-        // Delete identifications that were removed (not in the submitted form)
-        $identificationsToDelete = $user->identifications()->whereNotIn('id', array_filter($processedIdentificationIds))->get();
+        $identificationsToDelete = $user->identifications()->whereNotIn('id', array_filter($processedIdIds))->get();
         foreach ($identificationsToDelete as $identification) {
-            if ($identification->document_path && Storage::disk('public')->exists($identification->document_path)) {
-                Storage::disk('public')->delete($identification->document_path);
+            if ($identification->document_paths) {
+                foreach ($identification->document_paths as $docPath) {
+                    if (Storage::disk('public')->exists($docPath)) {
+                        Storage::disk('public')->delete($docPath);
+                    }
+                }
             }
             $identification->delete();
         }
 
-        // Validate total points
         if ($totalPoints < 80) {
-            throw new \Exception('You need at least 80 identification points. Current total: ' . $totalPoints . ' points.');
+            return [
+                'success' => false,
+                'message' => "You need at least 80 points. You currently have {$totalPoints} points. Please add more identification documents.",
+            ];
         }
 
         $user->profile_current_step = max($user->profile_current_step ?? 1, 9);
         $user->save();
 
-        return ['success' => true];
+        return [
+            'success' => true,
+            'message' => "Identification documents saved successfully. Total points: {$totalPoints}",
+        ];
     }
 
     private function saveStep10(Request $request, $user)

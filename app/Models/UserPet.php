@@ -17,12 +17,34 @@ class UserPet extends Model
         'desexed',
         'size',
         'registration_number',
-        'document_path',
-        'photo_path'
+        'photo_paths',
+        'document_paths',
+    ];
+
+    protected $casts = [
+        'photo_paths' => 'array',
+        'document_paths' => 'array',
+        'desexed' => 'boolean',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * Get the first photo path (for backward compatibility)
+     */
+    public function getPhotoPathAttribute()
+    {
+        return $this->photo_paths[0] ?? null;
+    }
+    
+    /**
+     * Get the first document path (for backward compatibility)
+     */
+    public function getDocumentPathAttribute()
+    {
+        return $this->document_paths[0] ?? null;
     }
 }
