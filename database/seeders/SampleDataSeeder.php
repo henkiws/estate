@@ -543,7 +543,7 @@ class SampleDataSeeder extends Seeder
                 'desexed' => 'yes',
                 'size' => 'medium',
                 'registration_number' => 'PET' . rand(100000, 999999),
-                'document_path' => 'private/pet-documents/' . $user->id . '/registration.pdf',
+                // 'document_path' => 'private/pet-documents/' . $user->id . '/registration.pdf',
             ]);
         }
         
@@ -666,7 +666,7 @@ class SampleDataSeeder extends Seeder
                 'user_id' => $user->id,
                 'identification_type' => $idType['type'],
                 'points' => $idType['points'],
-                'document_path' => 'private/identification-documents/' . $user->id . '/' . $idType['type'] . '.pdf',
+                // 'document_path' => 'private/identification-documents/' . $user->id . '/' . $idType['type'] . '.pdf',
                 'expiry_date' => now()->addYears(rand(1, 5))->format('Y-m-d'),
             ]);
         }
