@@ -420,7 +420,11 @@ class ProfileCompletionController extends Controller
     }
 
     /**
-     * Save Step 4: Employment Information with ORIGINAL FILENAMES
+     * Save Step 4: Employment Information - FIXED EMAIL SENDING LOGIC
+     * Only sends email when:
+     * 1. New employment added
+     * 2. Email address changed
+     * 3. Key details changed (company, position, manager name)
      */
     private function saveStep4(Request $request, $user)
     {
@@ -442,9 +446,10 @@ class ProfileCompletionController extends Controller
 
         $validated = $request->validate([
             'employments' => 'required|array|min:1',
+            'employments.*.id' => 'nullable|exists:user_employments,id',
             'employments.*.company_name' => 'required|string|max:255',
-            'employments.*.address' => 'required|string|max:500',
             'employments.*.position' => 'required|string|max:255',
+            'employments.*.address' => 'required|string|max:500',
             'employments.*.manager_full_name' => 'required|string|max:255',
             'employments.*.contact_country_code' => 'required|string',
             'employments.*.contact_number' => 'required|string|max:20',
@@ -456,14 +461,55 @@ class ProfileCompletionController extends Controller
             'employments.*.existing_letter' => 'nullable|string',
         ]);
 
-        $existingEmployments = $user->employments()->get()->keyBy(function($employment, $key) {
-            return $key;
-        });
+        // Custom validation for end_date when not still employed
+        foreach ($validated['employments'] as $index => $employmentData) {
+            $stillEmployed = $employmentData['still_employed'] ?? false;
+            
+            if (!$stillEmployed && empty($employmentData['end_date'])) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(["employments.{$index}.end_date" => "End date is required when not currently employed"]);
+            }
+            
+            if (!empty($employmentData['end_date']) && !empty($employmentData['start_date'])) {
+                if ($employmentData['end_date'] < $employmentData['start_date']) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(["employments.{$index}.end_date" => "End date must be after start date"]);
+                }
+            }
+        }
 
+        $existingEmployments = $user->employments()->get()->keyBy('id');
         $processedEmploymentIds = [];
+        $employmentsNeedingEmail = [];
 
         foreach ($validated['employments'] as $index => $employmentData) {
-            $employment = $existingEmployments->get($index) ?: new UserEmployment();
+            $employmentId = $employmentData['id'] ?? null;
+            $employment = $employmentId ? $existingEmployments->get($employmentId) : null;
+            
+            $isNewEmployment = !$employment;
+            
+            // ✅ FIXED: Track what actually changed
+            $emailChanged = false;
+            $detailsChanged = false;
+            
+            if (!$isNewEmployment) {
+                // Check if email changed
+                if ($employment->email !== $employmentData['email']) {
+                    $emailChanged = true;
+                }
+                
+                // Check if critical details changed (company, position, manager name)
+                if ($employment->company_name !== $employmentData['company_name'] ||
+                    $employment->position !== $employmentData['position'] ||
+                    $employment->manager_full_name !== $employmentData['manager_full_name']) {
+                    $detailsChanged = true;
+                }
+            }
+            
+            $employment = $employment ?: new UserEmployment();
+            
             $employment->user_id = $user->id;
             $employment->company_name = $employmentData['company_name'];
             $employment->address = $employmentData['address'];
@@ -475,13 +521,13 @@ class ProfileCompletionController extends Controller
             $employment->start_date = $employmentData['start_date'];
             $employment->still_employed = $employmentData['still_employed'] ?? false;
             $employment->end_date = $employmentData['end_date'] ?? null;
+            $employment->gross_annual_salary = $employmentData['gross_annual_salary'] ?? null;
             
             // Handle file upload with ORIGINAL FILENAME
             if ($request->hasFile("employments.$index.employment_letter")) {
                 if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
                     Storage::disk('public')->delete($employment->employment_letter_path);
                 }
-                // Store with original filename
                 $path = $this->storeFileWithOriginalName(
                     $request->file("employments.$index.employment_letter"),
                     'employment-letters'
@@ -491,10 +537,37 @@ class ProfileCompletionController extends Controller
                 $employment->employment_letter_path = $employmentData['existing_letter'];
             }
             
+            // ✅ FIXED: Only generate new token and send email when needed
+            $shouldSendEmail = false;
+            
+            if ($isNewEmployment) {
+                // New employment - always send email
+                $shouldSendEmail = true;
+                $employment->reference_token = \Str::random(64);
+                $employment->reference_status = 'pending';
+                $employment->reference_email_sent_at = null;
+                $employment->reference_verified_at = null;
+            } elseif ($emailChanged || $detailsChanged) {
+                // Existing employment with changes - only send if not verified
+                if ($employment->reference_status !== 'verified') {
+                    $shouldSendEmail = true;
+                    $employment->reference_token = \Str::random(64);
+                    $employment->reference_status = 'pending';
+                    $employment->reference_email_sent_at = null;
+                    $employment->reference_verified_at = null;
+                }
+            }
+            // else: No changes - don't send email
+            
             $employment->save();
             $processedEmploymentIds[] = $employment->id;
+            
+            if ($shouldSendEmail) {
+                $employmentsNeedingEmail[] = $employment;
+            }
         }
 
+        // Delete employments that were removed
         $employmentsToDelete = $user->employments()->whereNotIn('id', array_filter($processedEmploymentIds))->get();
         foreach ($employmentsToDelete as $employment) {
             if ($employment->employment_letter_path && Storage::disk('public')->exists($employment->employment_letter_path)) {
@@ -503,10 +576,39 @@ class ProfileCompletionController extends Controller
             $employment->delete();
         }
 
+        // ✅ Send employment reference emails ONLY for employments that need it
+        $emailsSent = 0;
+        foreach ($employmentsNeedingEmail as $employment) {
+            try {
+                \Mail::to($employment->email)->send(new \App\Mail\EmploymentReferenceRequest($employment));
+                $employment->reference_email_sent_at = now();
+                $employment->save();
+                $emailsSent++;
+            } catch (\Exception $e) {
+                Log::error('Failed to send employment reference email', [
+                    'employment_id' => $employment->id,
+                    'email' => $employment->email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
         $user->profile_current_step = max($user->profile_current_step ?? 1, 4);
         $user->save();
 
-        return ['success' => true];
+        // ✅ Provide feedback about emails sent
+        if ($emailsSent > 0) {
+            $message = $emailsSent === 1 
+                ? 'Employment saved! Reference email sent to 1 employer.' 
+                : "Employment saved! Reference emails sent to {$emailsSent} employers.";
+        } else {
+            $message = 'Employment information saved successfully!';
+        }
+
+        return [
+            'success' => true,
+            'message' => $message
+        ];
     }
 
     /**

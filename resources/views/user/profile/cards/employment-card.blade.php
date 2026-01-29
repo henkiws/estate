@@ -19,7 +19,27 @@
                     <h3 class="text-lg font-semibold text-plyform-dark">Employment</h3>
                     <p class="text-sm text-gray-600 mt-1" id="employment-summary">
                         @if($user->employments && $user->employments->count() > 0)
-                            Currently at {{ $user->employments->first()->company_name }}
+                            @php
+                                $employment = $user->employments->first();
+                                $verified = $employment->reference_status === 'verified';
+                                $pending = $employment->reference_status === 'pending';
+                            @endphp
+                            Currently at {{ $employment->company_name }}
+                            @if($verified)
+                                <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Verified
+                                </span>
+                            @elseif($pending)
+                                <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <svg class="w-3 h-3 mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Pending
+                                </span>
+                            @endif
                         @else
                             Not completed yet
                         @endif
@@ -92,6 +112,20 @@
             </div>
 
             <div id="employment-section" class="{{ old('has_employment', $user->employments->count() > 0) ? '' : 'hidden' }}">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-blue-900 mb-1">Employment Reference</h4>
+                            <p class="text-sm text-blue-800">
+                                After saving, an email will be sent to your manager/supervisor to verify your employment details.
+                                Once verified, you can only delete (not edit) the employment record.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <!-- Employment History Section -->
                 <div class="bg-white rounded-lg p-6 space-y-4">
                     <div class="flex items-center justify-between mb-4">
@@ -110,17 +144,92 @@
                         @foreach($employments as $index => $employment)
                             <div class="employment-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-purple/30 transition-colors" data-index="{{ $index }}">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-semibold text-plyform-dark">Employment {{ $index + 1 }}</h4>
-                                    @if($index > 0)
-                                        <button 
-                                            type="button" 
-                                            onclick="removeEmployment({{ $index }})"
-                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
-                                        >
-                                            Remove
-                                        </button>
-                                    @endif
+                                    <div class="flex items-center gap-3">
+                                        <h4 class="font-semibold text-plyform-dark">Employment {{ $index + 1 }}</h4>
+                                        
+                                        <!-- Reference Status Badge -->
+                                        @if(!empty($employment['reference_status']))
+                                            @if($employment['reference_status'] === 'verified')
+                                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Reference Verified
+                                                </span>
+                                            @elseif($employment['reference_status'] === 'pending')
+                                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <svg class="w-3 h-3 mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Reference Pending
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- ✅ FIXED: Action buttons for ALL employments (removed $index > 0 condition) -->
+                                    @php
+                                        $isVerified = ($employment['reference_status'] ?? '') === 'verified';
+                                        $isPending = ($employment['reference_status'] ?? '') === 'pending';
+                                        $hasNoReference = empty($employment['reference_status']);
+                                    @endphp
+                                    
+                                    <div class="flex items-center gap-2">
+                                        @if($isVerified)
+                                            <!-- Verified: Can only DELETE with confirmation -->
+                                            <button 
+                                                type="button" 
+                                                onclick="deleteVerifiedEmployment({{ $index }})"
+                                                class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
+                                            >
+                                                Delete
+                                            </button>
+                                            
+                                        @elseif($isPending)
+                                            <!-- Pending: Can EDIT (will resend email) or DELETE -->
+                                            <button 
+                                                type="button" 
+                                                onclick="confirmEditPendingEmployment({{ $index }})"
+                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded-lg transition-colors"
+                                                title="Editing will send a new reference request"
+                                            >
+                                                Edit
+                                            </button>
+                                            
+                                            @if($index > 0)
+                                                <button 
+                                                    type="button" 
+                                                    onclick="deleteEmployment({{ $index }})"
+                                                    class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            @endif
+                                            
+                                        @else
+                                            <!-- No reference: Normal REMOVE (only for additional employments) -->
+                                            @if($index > 0)
+                                                <button 
+                                                    type="button" 
+                                                    onclick="removeEmployment({{ $index }})"
+                                                    class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                                >
+                                                    Remove
+                                                </button>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </div>
+                                
+                                <!-- Hidden field for employment ID -->
+                                <input type="hidden" name="employments[{{ $index }}][id]" value="{{ $employment['id'] ?? '' }}">
+                                
+                                <!-- Make fields readonly if verified -->
+                                @php
+                                    $isVerified = ($employment['reference_status'] ?? '') === 'verified';
+                                    $readonlyAttr = $isVerified ? 'readonly' : '';
+                                    $disabledClass = $isVerified ? 'bg-gray-100 cursor-not-allowed' : '';
+                                @endphp
                                 
                                 <!-- Company & Position -->
                                 <div class="grid md:grid-cols-2 gap-4 mb-4">
@@ -132,10 +241,14 @@
                                             type="text" 
                                             name="employments[{{ $index }}][company_name]" 
                                             value="{{ $employment['company_name'] ?? '' }}"
+                                            {{ $readonlyAttr }}
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }} @error('employments.'.$index.'.company_name') border-red-500 @enderror"
                                             placeholder="ABC Company Pty Ltd"
                                         >
+                                        @error('employments.'.$index.'.company_name')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                     
                                     <div>
@@ -146,8 +259,9 @@
                                             type="text" 
                                             name="employments[{{ $index }}][position]" 
                                             value="{{ $employment['position'] ?? '' }}"
+                                            {{ $readonlyAttr }}
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="Senior Developer"
                                         >
                                     </div>
@@ -162,45 +276,27 @@
                                         type="text" 
                                         name="employments[{{ $index }}][address]" 
                                         value="{{ $employment['address'] ?? '' }}"
+                                        {{ $readonlyAttr }}
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                         placeholder="123 Business St, Sydney NSW 2000"
                                     >
                                 </div>
                                 
-                                <!-- Salary & Manager -->
-                                <div class="grid md:grid-cols-2 gap-4 mb-4">
-                                    <div class="hidden">
-                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                            Gross Annual Salary <span class="text-plyform-orange">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <span class="absolute left-4 top-3.5 text-gray-500">$</span>
-                                            <input 
-                                                type="number" 
-                                                name="employments[{{ $index }}][gross_annual_salary]" 
-                                                value="{{ $employment['gross_annual_salary'] ?? '' }}"
-                                                min="0"
-                                                required
-                                                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                                placeholder="75000"
-                                            >
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
-                                            Manager/Supervisor Name <span class="text-plyform-orange">*</span>
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            name="employments[{{ $index }}][manager_full_name]" 
-                                            value="{{ $employment['manager_full_name'] ?? '' }}"
-                                            required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
-                                            placeholder="John Smith"
-                                        >
-                                    </div>
+                                <!-- Manager Name -->
+                                <div class="mb-4">
+                                    <label class="flex items-center gap-2 text-sm font-medium text-plyform-dark mb-2">
+                                        Manager/Supervisor Name <span class="text-plyform-orange">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name="employments[{{ $index }}][manager_full_name]" 
+                                        value="{{ $employment['manager_full_name'] ?? '' }}"
+                                        {{ $readonlyAttr }}
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
+                                        placeholder="John Smith"
+                                    >
                                 </div>
                                 
                                 <!-- Contact Details -->
@@ -216,12 +312,12 @@
                                             id="employment_contact_{{ $index }}" 
                                             name="employments[{{ $index }}][contact_number_display]"
                                             value="{{ $employment['contact_number'] ?? '' }}"
+                                            {{ $readonlyAttr }}
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="Enter phone number"
                                         >
                                         
-                                        <!-- Hidden fields for country code and number -->
                                         <input type="hidden" id="employment_contact_country_code_{{ $index }}" name="employments[{{ $index }}][contact_country_code]" value="{{ $employment['contact_country_code'] ?? '+61' }}">
                                         <input type="hidden" id="employment_contact_number_clean_{{ $index }}" name="employments[{{ $index }}][contact_number]" value="{{ $employment['contact_number'] ?? '' }}">
                                         
@@ -236,8 +332,9 @@
                                             type="email" 
                                             name="employments[{{ $index }}][email]" 
                                             value="{{ $employment['email'] ?? '' }}"
+                                            {{ $readonlyAttr }}
                                             required
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="manager@company.com"
                                         >
                                     </div>
@@ -253,9 +350,11 @@
                                             type="date" 
                                             name="employments[{{ $index }}][start_date]" 
                                             value="{{ isset($employment['start_date']) ? \Carbon\Carbon::parse($employment['start_date'])->format('Y-m-d') : '' }}"
+                                            {{ $readonlyAttr }}
                                             required
                                             max="{{ now()->format('Y-m-d') }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            onchange="updateStartDate({{ $index }})"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                         >
                                     </div>
                                     
@@ -270,6 +369,7 @@
                                                 value="1"
                                                 onchange="toggleEndDate({{ $index }})"
                                                 {{ ($employment['still_employed'] ?? false) ? 'checked' : '' }}
+                                                {{ $isVerified ? 'disabled' : '' }}
                                                 class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20"
                                             >
                                             <span class="text-sm">Yes, currently employed</span>
@@ -284,9 +384,14 @@
                                             type="date" 
                                             name="employments[{{ $index }}][end_date]" 
                                             value="{{ isset($employment['end_date']) ? \Carbon\Carbon::parse($employment['end_date'])->format('Y-m-d') : '' }}"
+                                            {{ $readonlyAttr }}
                                             max="{{ now()->format('Y-m-d') }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            min="{{ isset($employment['start_date']) ? \Carbon\Carbon::parse($employment['start_date'])->format('Y-m-d') : '' }}"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }} @error('employments.'.$index.'.end_date') border-red-500 @enderror"
                                         >
+                                        @error('employments.'.$index.'.end_date')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                 </div>
                                 
@@ -303,6 +408,7 @@
                                             id="employment_letter_{{ $index }}"
                                             accept=".pdf,.jpg,.jpeg,.png"
                                             onchange="previewEmploymentLetter({{ $index }})"
+                                            {{ $isVerified ? 'disabled' : '' }}
                                             class="hidden"
                                         >
                                         
@@ -342,46 +448,51 @@
                                                             </svg>
                                                         </a>
                                                         
-                                                        <!-- Remove Button -->
-                                                        <button 
-                                                            type="button" 
-                                                            onclick="removeEmploymentLetter({{ $index }})"
-                                                            class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
-                                                            title="Remove document"
-                                                        >
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                            </svg>
-                                                        </button>
-                                                        
-                                                        <!-- Re-upload Button -->
-                                                        <button 
-                                                            type="button" 
-                                                            onclick="document.getElementById('employment_letter_{{ $index }}').click()"
-                                                            class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
-                                                            title="Change document"
-                                                        >
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                                            </svg>
-                                                        </button>
+                                                        @if(!$isVerified)
+                                                            <!-- Remove Button (only if not verified) -->
+                                                            <button 
+                                                                type="button" 
+                                                                onclick="removeEmploymentLetter({{ $index }})"
+                                                                class="flex-shrink-0 text-red-600 hover:text-red-800 transition p-2 hover:bg-red-50 rounded-lg"
+                                                                title="Remove document"
+                                                            >
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                                </svg>
+                                                            </button>
+                                                            
+                                                            <!-- Re-upload Button (only if not verified) -->
+                                                            <button 
+                                                                type="button" 
+                                                                onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                                class="flex-shrink-0 text-gray-600 hover:text-gray-800 transition p-2 hover:bg-gray-100 rounded-lg"
+                                                                title="Change document"
+                                                            >
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                                </svg>
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </div>
-                                                <!-- Hidden input to track existing file -->
                                                 <input type="hidden" name="employments[{{ $index }}][existing_letter]" value="{{ $employment['employment_letter_path'] }}">
                                             @else
                                                 <!-- NO FILE YET - UPLOAD BUTTON -->
-                                                <button 
-                                                    type="button" 
-                                                    onclick="document.getElementById('employment_letter_{{ $index }}').click()"
-                                                    class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-purple transition-colors text-center cursor-pointer"
-                                                >
-                                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                    </svg>
-                                                    <span class="text-sm text-gray-600">Click to upload employment letter</span>
-                                                    <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
-                                                </button>
+                                                @if(!$isVerified)
+                                                    <button 
+                                                        type="button" 
+                                                        onclick="document.getElementById('employment_letter_{{ $index }}').click()"
+                                                        class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-plyform-purple transition-colors text-center cursor-pointer"
+                                                    >
+                                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                        </svg>
+                                                        <span class="text-sm text-gray-600">Click to upload employment letter</span>
+                                                        <span class="text-xs text-gray-500 block mt-1">PDF, JPG, PNG (Max 10MB)</span>
+                                                    </button>
+                                                @else
+                                                    <p class="text-sm text-gray-500 italic">No employment letter uploaded</p>
+                                                @endif
                                             @endif
                                         </div>
                                     </div>
@@ -474,18 +585,51 @@ function toggleEmploymentSection() {
 
 function toggleEndDate(index) {
     const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
-    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input`);
+    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input[type="date"]`);
     const requiredStar = document.querySelector(`.end-date-field[data-index="${index}"] .required-if`);
     
-    if (checkbox.checked) {
+    if (!endDateField) return;
+    
+    if (checkbox && checkbox.checked) {
+        // Still employed = true → End date NOT required, disabled, and cleared
         endDateField.required = false;
         endDateField.disabled = true;
         endDateField.value = '';
+        endDateField.setAttribute('disabled', 'disabled'); // Add this for safety
+        endDateField.classList.add('bg-gray-100', 'cursor-not-allowed');
         if (requiredStar) requiredStar.classList.add('hidden');
     } else {
+        // Still employed = false → End date IS required and enabled
         endDateField.required = true;
         endDateField.disabled = false;
+        endDateField.removeAttribute('disabled'); // Remove disabled attribute
+        endDateField.classList.remove('bg-gray-100', 'cursor-not-allowed');
         if (requiredStar) requiredStar.classList.remove('hidden');
+        
+        // Set min date to start date
+        const startDateField = document.querySelector(`input[name="employments[${index}][start_date]"]`);
+        if (startDateField && startDateField.value) {
+            endDateField.setAttribute('min', startDateField.value);
+        }
+    }
+}
+
+// Update start date to set min for end date
+function updateStartDate(index) {
+    const startDateField = document.querySelector(`input[name="employments[${index}][start_date]"]`);
+    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input[type="date"]`);
+    const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
+    
+    if (startDateField && endDateField && startDateField.value) {
+        // Only set min if not still employed
+        if (!checkbox || !checkbox.checked) {
+            endDateField.setAttribute('min', startDateField.value);
+            
+            // Clear end date if it's before start date
+            if (endDateField.value && endDateField.value < startDateField.value) {
+                endDateField.value = '';
+            }
+        }
     }
 }
 
@@ -498,6 +642,7 @@ function addEmployment() {
                 <button type="button" onclick="removeEmployment(${employmentIndex})" class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">Remove</button>
             </div>
             
+            <!-- Company & Position -->
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Name <span class="text-plyform-orange">*</span></label>
@@ -509,45 +654,33 @@ function addEmployment() {
                 </div>
             </div>
             
+            <!-- Company Address -->
             <div class="mb-4">
                 <label class="text-sm font-medium text-plyform-dark mb-2 block">Company Address <span class="text-plyform-orange">*</span></label>
                 <input type="text" name="employments[${employmentIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Business St, Sydney NSW 2000">
             </div>
             
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div class="hidden">
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Gross Annual Salary <span class="text-plyform-orange">*</span></label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3.5 text-gray-500">$</span>
-                        <input type="number" name="employments[${employmentIndex}][gross_annual_salary]" required class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="75000">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
-                    <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
-                </div>
+            <!-- Manager Name -->
+            <div class="mb-4">
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
+                <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
             </div>
             
+            <!-- Contact Details -->
             <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div class="grid md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
-                        <input 
-                            type="tel" 
-                            id="employment_contact_${employmentIndex}" 
-                            name="employments[${employmentIndex}][contact_number_display]" 
-                            required 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" 
-                            placeholder="Enter phone number"
-                        >
-                        <input type="hidden" id="employment_contact_country_code_${employmentIndex}" name="employments[${employmentIndex}][contact_country_code]" value="+61">
-                        <input type="hidden" id="employment_contact_number_clean_${employmentIndex}" name="employments[${employmentIndex}][contact_number]" value="">
-                        <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
-                        <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="manager@company.com">
-                    </div>
+                <div>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Contact Number <span class="text-plyform-orange">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="employment_contact_${employmentIndex}" 
+                        name="employments[${employmentIndex}][contact_number_display]" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" 
+                        placeholder="Enter phone number"
+                    >
+                    <input type="hidden" id="employment_contact_country_code_${employmentIndex}" name="employments[${employmentIndex}][contact_country_code]" value="+61">
+                    <input type="hidden" id="employment_contact_number_clean_${employmentIndex}" name="employments[${employmentIndex}][contact_number]" value="">
+                    <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
@@ -555,10 +688,11 @@ function addEmployment() {
                 </div>
             </div>
             
+            <!-- Employment Dates -->
             <div class="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Start Date <span class="text-plyform-orange">*</span></label>
-                    <input type="date" name="employments[${employmentIndex}][start_date]" required max="{{ now()->format('Y-m-d') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                    <input type="date" name="employments[${employmentIndex}][start_date]" required max="{{ now()->format('Y-m-d') }}" onchange="updateStartDate(${employmentIndex})" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
                 </div>
                 <div>
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">Still Employed?</label>
@@ -606,34 +740,49 @@ function addEmployment() {
     `;
     
     container.insertAdjacentHTML('beforeend', newEmployment);
-    const newElement = container.lastElementChild;
-    if (typeof reinitializePlugins === 'function') {
-        reinitializePlugins(newElement);
-    }
+    
+    // Initialize phone input for new employment
+    setTimeout(() => {
+        initializeEmploymentContactPhone(employmentIndex);
+    }, 100);
+    
     employmentIndex++;
 }
 
+// Remove employment (for new/unsaved employments)
 function removeEmployment(index) {
-    const item = document.querySelector(`.employment-item[data-index="${index}"]`);
-    if (item) {
-        // Destroy intl-tel-input instance
-        if (employmentContactPhoneInstances[index]) {
-            employmentContactPhoneInstances[index].destroy();
-            delete employmentContactPhoneInstances[index];
+    if (confirm('Remove this employment entry?')) {
+        const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+        if (item) {
+            // Destroy intl-tel-input instance
+            if (employmentContactPhoneInstances[index]) {
+                employmentContactPhoneInstances[index].destroy();
+                delete employmentContactPhoneInstances[index];
+            }
+            
+            item.remove();
+            
+            // Renumber remaining items
+            document.querySelectorAll('.employment-item').forEach((el, idx) => {
+                const h4 = el.querySelector('h4');
+                if (h4) {
+                    h4.textContent = `Employment ${idx + 1}`;
+                }
+            });
         }
-        
-        item.remove();
-        // Renumber remaining items
-        document.querySelectorAll('.employment-item').forEach((el, idx) => {
-            el.querySelector('h4').textContent = `Employment ${idx + 1}`;
-        });
     }
 }
 
 // Initialize end date fields on page load
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox, index) => {
-        if (checkbox.checked) toggleEndDate(index);
+    // Loop through all employments and set initial state
+    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox) => {
+        // Get index from checkbox name
+        const match = checkbox.name.match(/employments\[(\d+)\]/);
+        if (match) {
+            const index = match[1];
+            toggleEndDate(index);
+        }
     });
 });
 
@@ -898,10 +1047,138 @@ document.addEventListener('DOMContentLoaded', function() {
     @foreach($employments as $index => $employment)
         initializeEmploymentContactPhone({{ $index }});
     @endforeach
-    
-    // Keep existing DOMContentLoaded code
-    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox, index) => {
-        if (checkbox.checked) toggleEndDate(index);
+
+    // Loop through all employments and set initial state
+    document.querySelectorAll('input[name^="employments"][name$="[still_employed]"]').forEach((checkbox) => {
+        // Get index from checkbox name
+        const match = checkbox.name.match(/employments\[(\d+)\]/);
+        if (match) {
+            const index = match[1];
+            toggleEndDate(index);
+        }
     });
 });
+</script>
+
+<script>
+// Confirm edit for pending employment (will resend email)
+function confirmEditPendingEmployment(index) {
+    if (confirm('⚠️ Making any changes will send a NEW reference request to your employment reference.\n\nThe previous reference link will be expired.\n\nDo you want to continue?')) {
+        // Enable editing - remove readonly attributes
+        const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+        
+        if (!item) return;
+        
+        // Remove readonly from all input fields
+        item.querySelectorAll('input[readonly], select[readonly], textarea[readonly]').forEach(field => {
+            field.removeAttribute('readonly');
+            field.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        });
+        
+        // Re-enable disabled checkboxes
+        item.querySelectorAll('input[type="checkbox"][disabled]').forEach(checkbox => {
+            checkbox.removeAttribute('disabled');
+        });
+        
+        // Re-enable file upload
+        const fileInput = item.querySelector('input[type="file"][disabled]');
+        if (fileInput) {
+            fileInput.removeAttribute('disabled');
+        }
+        
+        // Show notification
+        showNotification('Fields are now editable. Remember to save your changes. A new reference email will be sent.', 'warning');
+        
+        // Change button text
+        const editBtn = item.querySelector('button[onclick*="confirmEditPendingEmployment"]');
+        if (editBtn) {
+            editBtn.textContent = 'Editing...';
+            editBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            editBtn.disabled = true;
+        }
+    }
+}
+
+// Delete employment with pending reference (with confirmation)
+function deleteEmployment(index) {
+    if (confirm('Are you sure you want to delete this employment record? The pending reference request will be cancelled.')) {
+        const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+        if (item) {
+            // Destroy intl-tel-input instance
+            if (employmentContactPhoneInstances[index]) {
+                employmentContactPhoneInstances[index].destroy();
+                delete employmentContactPhoneInstances[index];
+            }
+            
+            item.remove();
+            
+            // Renumber remaining items
+            document.querySelectorAll('.employment-item').forEach((el, idx) => {
+                const h4 = el.querySelector('h4');
+                if (h4) {
+                    h4.textContent = `Employment ${idx + 1}`;
+                }
+            });
+        }
+    }
+}
+
+// Delete verified employment (with stronger confirmation)
+function deleteVerifiedEmployment(index) {
+    if (confirm('⚠️ WARNING: Are you sure you want to delete this employment record?\n\nThe reference verification will be permanently lost and cannot be recovered.')) {
+        const item = document.querySelector(`.employment-item[data-index="${index}"]`);
+        if (item) {
+            // Destroy intl-tel-input instance
+            if (employmentContactPhoneInstances[index]) {
+                employmentContactPhoneInstances[index].destroy();
+                delete employmentContactPhoneInstances[index];
+            }
+            
+            item.remove();
+            
+            // Renumber remaining items
+            document.querySelectorAll('.employment-item').forEach((el, idx) => {
+                const h4 = el.querySelector('h4');
+                if (h4) {
+                    h4.textContent = `Employment ${idx + 1}`;
+                }
+            });
+        }
+    }
+}
+
+// Show notification helper (keep existing function)
+function showNotification(message, type = 'info') {
+    const colors = {
+        info: 'bg-blue-100 text-blue-800 border-blue-200',
+        warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        success: 'bg-green-100 text-green-800 border-green-200',
+        error: 'bg-red-100 text-red-800 border-red-200'
+    };
+    
+    const icons = {
+        info: '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>',
+        warning: '<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>',
+        success: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>',
+        error: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
+    };
+    
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 ${colors[type]} px-4 py-3 rounded-lg shadow-lg border z-50 max-w-md`;
+    notification.innerHTML = `
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                ${icons[type]}
+            </svg>
+            <span class="text-sm">${message}</span>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
 </script>

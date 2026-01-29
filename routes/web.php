@@ -526,4 +526,15 @@ Route::post('/address-reference/{token}/draft', [App\Http\Controllers\AddressRef
 Route::post('/address-reference/{token}/submit', [App\Http\Controllers\AddressReferenceController::class, 'submit'])->name('address-reference.submit');
 Route::get('/address-reference/{token}/thank-you', [App\Http\Controllers\AddressReferenceController::class, 'thankYou'])->name('address-reference.thank-you');
 
+// Employment Reference Routes (Public - No Authentication Required)
+Route::prefix('employment-reference')->name('employment.reference.')->group(function () {
+    // Show the reference form
+    Route::get('/{token}', [App\Http\Controllers\EmploymentReferenceController::class, 'showForm'])->name('form');
+    // Submit the reference
+    Route::post('/{token}', [App\Http\Controllers\EmploymentReferenceController::class, 'submitReference'])->name('submit');
+    // Opt out
+    Route::get('/{token}/optout', [App\Http\Controllers\EmploymentReferenceController::class, 'optOut'])->name('optout');
+    Route::post('/{token}/optout', [App\Http\Controllers\EmploymentReferenceController::class, 'confirmOptOut'])->name('optout.confirm');
+});
+
 require __DIR__.'/auth.php';
