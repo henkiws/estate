@@ -11,12 +11,50 @@
             flex: 1;
         }
         .btn-group button.active {
-            background-color: #E5E7EB;
+            background-color: #bbf7d0;
             font-weight: 600;
+        }
+        
+        /* Beautiful notification styles */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.hiding {
+            animation: slideOut 0.3s ease-in;
+        }
+        
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Notification Container -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
     <div class="max-w-2xl mx-auto py-8 px-4">
         
         <!-- Logo -->
@@ -39,25 +77,6 @@
             <!-- Form -->
             <form id="reference-form" method="POST" action="{{ route('address-reference.submit', $address->reference_token) }}" enctype="multipart/form-data">
                 @csrf
-
-                <!-- Display validation errors -->
-                @if ($errors->any())
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                        <div class="flex">
-                            <svg class="h-5 w-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <div>
-                                <h3 class="text-sm font-semibold text-red-800 mb-2">Please correct the following errors:</h3>
-                                <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 <!-- Header -->
                 <div class="bg-red-600 text-white p-6 rounded-t-lg">
@@ -256,7 +275,7 @@
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectCooperativeRating({{ $i }})" data-coop-rating="{{ $i }}" class="coop-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'bg-gray-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectCooperativeRating({{ $i }})" data-coop-rating="{{ $i }}" class="coop-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
@@ -273,7 +292,7 @@
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectConditionRating({{ $i }})" data-condition-rating="{{ $i }}" class="condition-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'bg-gray-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectConditionRating({{ $i }})" data-condition-rating="{{ $i }}" class="condition-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
@@ -290,7 +309,7 @@
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectRating({{ $i }})" data-rating="{{ $i }}" class="rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'bg-gray-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectRating({{ $i }})" data-rating="{{ $i }}" class="rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
@@ -306,7 +325,15 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
-                                <input type="text" name="ref_signature_name" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter your full name" value="{{ old('ref_signature_name', $address->ref_signature_name) }}">
+                                <input 
+                                    type="text" 
+                                    name="ref_signature_name" 
+                                    id="ref_signature_name"
+                                    required 
+                                    class="w-full border border-gray-300 rounded px-3 py-2" 
+                                    placeholder="Enter your full name" 
+                                    value="{{ old('ref_signature_name', $address->ref_signature_name) }}"
+                                >
                             </div>
                         </div>
                     </div>
@@ -338,20 +365,54 @@
     </div>
 
     <script>
+        // ✅ Beautiful notification system
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-800', icon: 'text-green-500' },
+                error: { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-800', icon: 'text-red-500' },
+                warning: { bg: 'bg-yellow-50', border: 'border-yellow-500', text: 'text-yellow-800', icon: 'text-yellow-500' },
+                info: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-800', icon: 'text-blue-500' }
+            };
+            
+            const icons = {
+                success: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>',
+                error: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>',
+                warning: '<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>',
+                info: '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>'
+            };
+            
+            const color = colors[type] || colors.info;
+            const icon = icons[type] || icons.info;
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${color.bg} ${color.border} border-l-4 p-4 rounded-r-lg shadow-lg max-w-md`;
+            notification.innerHTML = `
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 ${color.icon} mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        ${icon}
+                    </svg>
+                    <div class="flex-1">
+                        <p class="${color.text} text-sm font-medium">${message}</p>
+                    </div>
+                    <button onclick="this.closest('.notification').remove()" class="ml-3 ${color.text} hover:opacity-70">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('notification-container').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('hiding');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
         // Select option for Yes/No/N/A buttons
         function selectOption(field, value) {
-            // Update hidden input
             document.getElementById(field).value = value;
-            
-            // Remove error styling
-            const buttonGroup = document.querySelector(`[data-field="${field}"]`)?.closest('.btn-group');
-            if (buttonGroup) {
-                buttonGroup.classList.remove('border-red-500');
-                const errorMsg = buttonGroup.parentElement.querySelector('.error-message');
-                if (errorMsg) errorMsg.remove();
-            }
-            
-            // Update button styles
             const buttons = document.querySelectorAll(`[data-field="${field}"]`);
             buttons.forEach(btn => {
                 if (btn.dataset.value === value) {
@@ -365,67 +426,40 @@
         // Select rating
         function selectRating(rating) {
             document.getElementById('ref_overall_rating').value = rating;
-            
-            // Remove error styling
-            const ratingContainer = document.querySelector('.rating-btn')?.closest('.space-y-2');
-            if (ratingContainer) {
-                const errorMsg = ratingContainer.querySelector('.error-message');
-                if (errorMsg) errorMsg.remove();
-            }
-            
             const buttons = document.querySelectorAll('.rating-btn');
             buttons.forEach(btn => {
                 if (parseInt(btn.dataset.rating) === rating) {
-                    btn.classList.add('bg-gray-200', 'font-bold');
+                    btn.classList.add('bg-green-200', 'font-bold');
                 } else {
-                    btn.classList.remove('bg-gray-200', 'font-bold');
+                    btn.classList.remove('bg-green-200', 'font-bold');
                 }
             });
         }
 
-        // Select cooperative rating
         function selectCooperativeRating(rating) {
             document.getElementById('ref_cooperative_rating').value = rating;
-            
-            // Remove error styling
-            const ratingContainer = document.querySelector('.coop-rating-btn')?.closest('.space-y-2');
-            if (ratingContainer) {
-                const errorMsg = ratingContainer.querySelector('.error-message');
-                if (errorMsg) errorMsg.remove();
-            }
-            
             const buttons = document.querySelectorAll('.coop-rating-btn');
             buttons.forEach(btn => {
                 if (parseInt(btn.dataset.coopRating) === rating) {
-                    btn.classList.add('bg-gray-200', 'font-bold');
+                    btn.classList.add('bg-green-200', 'font-bold');
                 } else {
-                    btn.classList.remove('bg-gray-200', 'font-bold');
+                    btn.classList.remove('bg-green-200', 'font-bold');
                 }
             });
         }
 
-        // Select condition rating
         function selectConditionRating(rating) {
             document.getElementById('ref_property_condition_rating').value = rating;
-            
-            // Remove error styling
-            const ratingContainer = document.querySelector('.condition-rating-btn')?.closest('.space-y-2');
-            if (ratingContainer) {
-                const errorMsg = ratingContainer.querySelector('.error-message');
-                if (errorMsg) errorMsg.remove();
-            }
-            
             const buttons = document.querySelectorAll('.condition-rating-btn');
             buttons.forEach(btn => {
                 if (parseInt(btn.dataset.conditionRating) === rating) {
-                    btn.classList.add('bg-gray-200', 'font-bold');
+                    btn.classList.add('bg-green-200', 'font-bold');
                 } else {
-                    btn.classList.remove('bg-gray-200', 'font-bold');
+                    btn.classList.remove('bg-green-200', 'font-bold');
                 }
             });
         }
 
-        // Toggle comment field
         function toggleComment(id) {
             const textarea = document.getElementById(id);
             textarea.classList.toggle('hidden');
@@ -434,7 +468,6 @@
             }
         }
 
-        // File preview
         document.getElementById('ledger_file')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -442,9 +475,10 @@
             }
         });
 
-        // Save as draft
         function saveDraft() {
             const formData = new FormData(document.getElementById('reference-form'));
+            
+            showNotification('Saving draft...', 'info');
             
             fetch('{{ route("address-reference.draft", $address->reference_token) }}', {
                 method: 'POST',
@@ -456,167 +490,40 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                 } else {
-                    alert('Failed to save draft');
+                    showNotification('Failed to save draft', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to save draft');
+                showNotification('Failed to save draft. Please try again.', 'error');
             });
         }
 
-        // Show error message under field
-        function showError(element, message) {
-            // Remove existing error message
-            const existingError = element.querySelector('.error-message');
-            if (existingError) existingError.remove();
-            
-            // Create error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message text-red-600 text-sm mt-1 font-medium';
-            errorDiv.textContent = message;
-            element.appendChild(errorDiv);
-            
-            // Add red border
-            const buttonGroup = element.querySelector('.btn-group');
-            if (buttonGroup) {
-                buttonGroup.classList.add('border-red-500');
-            }
-            
-            const input = element.querySelector('input[type="text"], input[type="number"]');
-            if (input) {
-                input.classList.add('border-red-500');
-            }
-        }
-
-        // Validate form before submission
         document.getElementById('reference-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Clear all previous errors
-            document.querySelectorAll('.error-message').forEach(err => err.remove());
-            document.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
-            
-            let firstError = null;
             let hasErrors = false;
+            const required = ['ref_is_leaseholder', 'ref_would_rent_again', 'ref_lived_at_address', 'ref_rent_paid_on_time', 'ref_full_bond_refund', 'ref_breach_free', 'ref_property_clean', 'ref_had_pet', 'ref_pet_policy_complied', 'ref_cooperative_rating', 'ref_property_condition_rating', 'ref_overall_rating', 'ref_signature_name'];
             
-            // Validation rules
-            const validations = [
-                {
-                    field: 'ref_is_leaseholder',
-                    message: 'Please answer: Is this tenant a leaseholder or an approved occupant?',
-                    selector: '[name="ref_is_leaseholder"]'
-                },
-                {
-                    field: 'ref_would_rent_again',
-                    message: 'Please answer: Would you rent to this tenant again?',
-                    selector: '[name="ref_would_rent_again"]'
-                },
-                {
-                    field: 'ref_lived_at_address',
-                    message: 'Please answer: Did the tenant live at the above address?',
-                    selector: '[name="ref_lived_at_address"]'
-                },
-                {
-                    field: 'ref_rent_paid_on_time',
-                    message: 'Please answer: Was the rent always paid on time?',
-                    selector: '[name="ref_rent_paid_on_time"]'
-                },
-                {
-                    field: 'ref_full_bond_refund',
-                    message: 'Please answer: Did they receive a full bond refund?',
-                    selector: '[name="ref_full_bond_refund"]'
-                },
-                {
-                    field: 'ref_breach_free',
-                    message: 'Please answer: Was the tenancy free of breach notices?',
-                    selector: '[name="ref_breach_free"]'
-                },
-                {
-                    field: 'ref_property_clean',
-                    message: 'Please answer: Was the property found to be clean and well maintained?',
-                    selector: '[name="ref_property_clean"]'
-                },
-                {
-                    field: 'ref_had_pet',
-                    message: 'Please answer: Did the tenant have a pet during the tenancy?',
-                    selector: '[name="ref_had_pet"]'
-                },
-                {
-                    field: 'ref_pet_policy_complied',
-                    message: 'Please answer: Did the tenant comply with the pet policy?',
-                    selector: '[name="ref_pet_policy_complied"]'
-                },
-                {
-                    field: 'ref_cooperative_rating',
-                    message: 'Please rate: How co-operative and pleasant was the tenant?',
-                    selector: '[name="ref_cooperative_rating"]'
-                },
-                {
-                    field: 'ref_property_condition_rating',
-                    message: 'Please rate: What was the condition of the property when the tenant left?',
-                    selector: '[name="ref_property_condition_rating"]'
-                },
-                {
-                    field: 'ref_overall_rating',
-                    message: 'Please rate: Your overall experience with the tenant',
-                    selector: '[name="ref_overall_rating"]'
-                },
-                {
-                    field: 'ref_signature_name',
-                    message: 'Please enter your full name',
-                    selector: '[name="ref_signature_name"]',
-                    type: 'input'
-                }
-            ];
-            
-            // Check each validation
-            validations.forEach(validation => {
-                const input = document.getElementById(validation.field);
-                const value = input ? input.value.trim() : '';
-                
-                if (!value) {
+            required.forEach(field => {
+                const input = document.getElementById(field);
+                console.log(field, input)
+                if (!input || !input.value.trim()) {
                     hasErrors = true;
-                    
-                    // Find the container
-                    let container = input ? input.closest('.space-y-2') : null;
-                    if (!container && validation.selector) {
-                        const element = document.querySelector(validation.selector);
-                        container = element ? element.closest('.space-y-2') : null;
-                    }
-                    
-                    if (container) {
-                        showError(container, validation.message);
-                        
-                        // Set first error for scrolling
-                        if (!firstError) {
-                            firstError = container;
-                        }
-                    }
                 }
             });
             
-            // If there are errors
             if (hasErrors) {
-                // Scroll to first error
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                
-                // Show error summary
-                alert('Please fill in all required fields before submitting the reference.');
+                showNotification('Please fill in all required fields before submitting', 'error');
                 return false;
             }
             
-            // If no errors, submit the form
             this.submit();
         });
 
-        // Initialize active buttons on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Set active states for Yes/No/N/A buttons
             @foreach(['ref_is_leaseholder', 'ref_would_rent_again', 'ref_lived_at_address', 'ref_rent_paid_on_time', 'ref_full_bond_refund', 'ref_breach_free', 'ref_property_clean', 'ref_had_pet', 'ref_pet_policy_complied'] as $field)
                 const {{ $field }}_value = document.getElementById('{{ $field }}').value;
                 if ({{ $field }}_value) {
@@ -624,23 +531,15 @@
                 }
             @endforeach
 
-            // Set active ratings
             const rating = document.getElementById('ref_overall_rating').value;
-            if (rating) {
-                selectRating(parseInt(rating));
-            }
+            if (rating) selectRating(parseInt(rating));
 
             const coopRating = document.getElementById('ref_cooperative_rating').value;
-            if (coopRating) {
-                selectCooperativeRating(parseInt(coopRating));
-            }
+            if (coopRating) selectCooperativeRating(parseInt(coopRating));
 
             const conditionRating = document.getElementById('ref_property_condition_rating').value;
-            if (conditionRating) {
-                selectConditionRating(parseInt(conditionRating));
-            }
+            if (conditionRating) selectConditionRating(parseInt(conditionRating));
 
-            // Show comments if they have content
             @foreach(['is_leaseholder', 'would_rent_again', 'lived_at_address', 'rent_paid_on_time', 'last_inspection', 'rent_per_week', 'full_bond_refund', 'breach_free', 'property_clean', 'had_pet', 'pet_policy_complied', 'cooperative_rating', 'property_condition_rating', 'overall_rating'] as $field)
                 const comment_{{ $field }} = document.getElementById('comment_{{ $field }}');
                 if (comment_{{ $field }} && comment_{{ $field }}.value.trim() !== '') {

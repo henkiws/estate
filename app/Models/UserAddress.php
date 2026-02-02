@@ -26,10 +26,10 @@ class UserAddress extends Model
         'reference_email',
         'reference_country_code',
         'reference_phone',
-        'reference_verified',
-        'reference_verified_at',
         'reference_token',
+        'reference_status',
         'reference_email_sent_at',
+        'reference_verified_at',
         // Reference form data
         'ref_is_leaseholder',
         'ref_is_leaseholder_comment',
@@ -97,11 +97,6 @@ class UserAddress extends Model
         return ($this->years_lived * 12) + $this->months_lived;
     }
 
-    public function needsReference(): bool
-    {
-        return !$this->owned_property;
-    }
-
     public function referenceEmailSent(): bool
     {
         return !is_null($this->reference_email_sent_at);
@@ -122,5 +117,34 @@ class UserAddress extends Model
         $this->reference_token = \Str::random(64);
         $this->save();
         return $this->reference_token;
+    }
+
+    public function addressReference(): HasOne
+    {
+        return $this->hasOne(UserAddressReference::class, 'user_address_id');
+    }
+
+    /**
+     * Check if reference is verified
+     */
+    public function isReferenceVerified(): bool
+    {
+        return $this->reference_status === 'verified';
+    }
+
+     /**
+     * Check if reference is pending
+     */
+    public function isReferencePending(): bool
+    {
+        return $this->reference_status === 'pending';
+    }
+
+    /**
+     * Check if this address needs a reference
+     */
+    public function needsReference(): bool
+    {
+        return !$this->owned_property && !empty($this->reference_email);
     }
 }

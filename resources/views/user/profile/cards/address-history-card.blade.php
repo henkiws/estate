@@ -104,22 +104,94 @@
                     @foreach($addresses as $index => $address)
                         <div class="address-item p-4 border-2 border-gray-200 rounded-lg mb-4 hover:border-plyform-mint/50 transition-colors bg-white" data-index="{{ $index }}">
                             <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-3">
                                     <h4 class="font-semibold text-plyform-dark">Address {{ $index + 1 }}</h4>
+                                    
                                     @if($index === 0)
                                         <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded">Current</span>
                                     @endif
+                                    
+                                    <!-- ✅ ADD: Reference Status Badge (only for non-owned properties) -->
+                                    @if(!($address['owned_property'] ?? true) && !empty($address['reference_status']))
+                                        @if($address['reference_status'] === 'verified')
+                                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Verified
+                                            </span>
+                                        @elseif($address['reference_status'] === 'pending')
+                                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <svg class="w-3 h-3 mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Pending
+                                            </span>
+                                        @endif
+                                    @endif
                                 </div>
-                                @if($index > 0)
+                                
+                                <!-- ✅ UPDATE: Conditional Action Buttons Based on Reference Status -->
+                                @php
+                                    $isOwned = $address['owned_property'] ?? true;
+                                    $isVerified = !$isOwned && ($address['reference_status'] ?? '') === 'verified';
+                                    $isPending = !$isOwned && ($address['reference_status'] ?? '') === 'pending';
+                                @endphp
+                                
+                                @if(!$isOwned && $isVerified)
+                                    <!-- Verified: Can only DELETE -->
                                     <button 
                                         type="button" 
-                                        onclick="removeAddressItem({{ $index }})"
-                                        class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                        onclick="deleteVerifiedAddress({{ $index }})"
+                                        class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
                                     >
-                                        Remove
+                                        Delete
                                     </button>
+                                    
+                                @elseif(!$isOwned && $isPending)
+                                    <!-- Pending: Can EDIT (will resend email) or DELETE -->
+                                    <button 
+                                        type="button" 
+                                        onclick="confirmEditPendingAddress({{ $index }})"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded-lg transition-colors"
+                                        title="Editing will send a new reference request"
+                                    >
+                                        Edit
+                                    </button>
+                                    
+                                    @if($index > 0)
+                                        <button 
+                                            type="button" 
+                                            onclick="deleteAddress({{ $index }})"
+                                            class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors ml-2"
+                                        >
+                                            Delete
+                                        </button>
+                                    @endif
+                                    
+                                @else
+                                    <!-- No reference OR owned property: Normal remove (only for index > 0) -->
+                                    @if($index > 0)
+                                        <button 
+                                            type="button" 
+                                            onclick="removeAddressItem({{ $index }})"
+                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    @endif
                                 @endif
                             </div>
+                            
+                            <!-- ✅ ADD: Hidden ID field -->
+                            <input type="hidden" name="addresses[{{ $index }}][id]" value="{{ $address['id'] ?? '' }}">
+                            
+                            <!-- ✅ ADD: Make fields readonly if verified -->
+                            @php
+                                $readonlyAttr = $isVerified ? 'readonly' : '';
+                                $disabledAttr = $isVerified ? 'disabled' : '';
+                                $disabledClass = $isVerified ? 'bg-gray-100 cursor-not-allowed' : '';
+                            @endphp
                             
                             <!-- Full Address -->
                             <div class="mb-4">
@@ -130,8 +202,9 @@
                                     type="text" 
                                     name="addresses[{{ $index }}][address]" 
                                     value="{{ $address['address'] ?? '' }}"
+                                    {{ $readonlyAttr }}
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                     placeholder="123 Main Street, Sydney NSW 2000"
                                 >
                             </div>
@@ -144,8 +217,9 @@
                                     </label>
                                     <select 
                                         name="addresses[{{ $index }}][years_lived]" 
+                                        {{ $disabledAttr }}
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                     >
                                         @for($i = 0; $i <= 20; $i++)
                                             <option value="{{ $i }}" {{ ($address['years_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'year' : 'years' }}</option>
@@ -159,8 +233,9 @@
                                     </label>
                                     <select 
                                         name="addresses[{{ $index }}][months_lived]" 
+                                        {{ $disabledAttr }}
                                         required
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                     >
                                         @for($i = 0; $i <= 11; $i++)
                                             <option value="{{ $i }}" {{ ($address['months_lived'] ?? 0) == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'month' : 'months' }}</option>
@@ -177,8 +252,9 @@
                                     </label>
                                     <textarea 
                                         name="addresses[{{ $index }}][reason_for_leaving]" 
+                                        {{ $readonlyAttr }}
                                         rows="3"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all resize-none {{ $disabledClass }}"
                                         placeholder="e.g., End of lease, relocated for work, purchased property..."
                                     >{{ $address['reason_for_leaving'] ?? '' }}</textarea>
                                 </div>
@@ -191,9 +267,10 @@
                                         type="checkbox" 
                                         name="addresses[{{ $index }}][different_postal_address]" 
                                         value="1"
+                                        {{ $disabledAttr }}
                                         onchange="togglePostalAddress({{ $index }})"
                                         {{ ($address['different_postal_address'] ?? false) ? 'checked' : '' }}
-                                        class="w-5 h-5 text-plyform-green border-gray-300 rounded focus:ring-plyform-green/20"
+                                        class="w-5 h-5 text-plyform-green border-gray-300 rounded focus:ring-plyform-green/20 {{ $isVerified ? 'cursor-not-allowed' : '' }}"
                                     >
                                     <span class="text-sm text-gray-700 font-medium">My postal address is different from this address</span>
                                 </label>
@@ -207,7 +284,8 @@
                                     type="text" 
                                     name="addresses[{{ $index }}][postal_code]" 
                                     value="{{ $address['postal_code'] ?? '' }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                    {{ $readonlyAttr }}
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                     placeholder="PO Box 123, Sydney NSW 2000"
                                 >
                             </div>
@@ -222,12 +300,13 @@
                                 <label class="text-sm font-medium text-plyform-dark mb-3 block">
                                     Did you own the property? <span class="text-plyform-orange">*</span>
                                 </label>
-                                <div class="flex gap-0 bg-gray-100 rounded-lg p-1 w-fit">
+                                <div class="flex gap-0 bg-gray-100 rounded-lg p-1 w-fit {{ $isVerified ? 'opacity-50 pointer-events-none' : '' }}">
                                     <label class="relative cursor-pointer">
                                         <input 
                                             type="radio" 
                                             name="addresses[{{ $index }}][owned_property]" 
                                             value="1"
+                                            {{ $disabledAttr }}
                                             onchange="toggleOwnership({{ $index }}, true)"
                                             {{ ($address['owned_property'] ?? '1') == '1' ? 'checked' : '' }}
                                             class="sr-only peer"
@@ -243,6 +322,7 @@
                                             type="radio" 
                                             name="addresses[{{ $index }}][owned_property]" 
                                             value="0"
+                                            {{ $disabledAttr }}
                                             onchange="toggleOwnership({{ $index }}, false)"
                                             {{ ($address['owned_property'] ?? '1') == '0' ? 'checked' : '' }}
                                             class="sr-only peer"
@@ -279,7 +359,8 @@
                                         </label>
                                         <select 
                                             name="addresses[{{ $index }}][living_arrangement]" 
-                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            {{ $disabledAttr }}
+                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             {{ ($address['owned_property'] ?? '1') == '0' ? 'required' : '' }}
                                         >
                                             <option value="">Please select</option>
@@ -299,7 +380,8 @@
                                             type="text" 
                                             name="addresses[{{ $index }}][reference_full_name]" 
                                             value="{{ $address['reference_full_name'] ?? '' }}"
-                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            {{ $readonlyAttr }}
+                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="First and last name"
                                             {{ ($address['owned_property'] ?? '1') == '0' ? 'required' : '' }}
                                         >
@@ -318,7 +400,8 @@
                                             type="email" 
                                             name="addresses[{{ $index }}][reference_email]" 
                                             value="{{ $address['reference_email'] ?? '' }}"
-                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            {{ $readonlyAttr }}
+                                            class="address-reference-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="email@example.com"
                                             {{ ($address['owned_property'] ?? '1') == '0' ? 'required' : '' }}
                                         >
@@ -334,7 +417,8 @@
                                             id="address_reference_phone_{{ $index }}" 
                                             name="addresses[{{ $index }}][reference_phone_display]"
                                             value="{{ $address['reference_phone'] ?? '' }}"
-                                            class="address-reference-input address-reference-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all"
+                                            {{ $readonlyAttr }}
+                                            class="address-reference-input address-reference-phone w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }}"
                                             placeholder="Mobile or Landline"
                                             {{ ($address['owned_property'] ?? '1') == '0' ? 'required' : '' }}
                                         >

@@ -3,8 +3,6 @@
 namespace App\Mail;
 
 use App\Models\UserAddress;
-use App\Models\User;
-use App\Models\PropertyApplication;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -16,19 +14,19 @@ class AddressReferenceRequest extends Mailable
     use Queueable, SerializesModels;
 
     public $address;
-    public $applicant;
-    public $application;
-    public $verificationUrl;
+    public $user;
+    public $referenceUrl;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(UserAddress $address, User $applicant, PropertyApplication $application)
+    public function __construct(UserAddress $address)
     {
         $this->address = $address;
-        $this->applicant = $applicant;
-        $this->application = $application;
-        $this->verificationUrl = route('address-reference.form', ['token' => $address->reference_token]);
+        $this->user = $address->user; // Get user from address relationship
+        
+        // ✅ FIX: Use the correct route name that exists
+        $this->referenceUrl = route('address-reference.form', ['token' => $address->reference_token]);
     }
 
     /**
@@ -36,8 +34,12 @@ class AddressReferenceRequest extends Mailable
      */
     public function envelope(): Envelope
     {
+        $userName = $this->user->profile 
+            ? $this->user->profile->first_name . ' ' . $this->user->profile->last_name 
+            : $this->user->name;
+            
         return new Envelope(
-            subject: 'Address Reference Request - ' . $this->applicant->profile->first_name . ' ' . $this->applicant->profile->last_name,
+            subject: 'Address Reference Request - ' . $userName,
         );
     }
 

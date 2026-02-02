@@ -6,8 +6,8 @@
     <title>Employment Reference Form - {{ config('app.name') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .plyform-green { color: #DDEECD; }
-        .bg-plyform-green { background-color: #DDEECD; }
+        .plyform-green { color: #0d9488; }
+        .bg-plyform-green { background-color: #0d9488; }
         .plyform-yellow { color: #E6FF4B; }
         .bg-plyform-yellow { background-color: #E6FF4B; }
         .plyform-purple { color: #5E17EB; }
@@ -64,11 +64,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('currently_works_there', 1, this)" 
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('currently_works_there') == '1' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '1' ? 'border-plyform-green bg-green-50' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('currently_works_there', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('currently_works_there') == '0' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '0' ? 'border-plyform-green bg-green-50' : '' }}">
                             No
                         </button>
                     </div>
@@ -83,7 +83,7 @@
                         </button>
                         <div id="current_works_there_comment_section" class="mt-2 {{ old('current_works_there_comment') ? '' : 'hidden' }}">
                             <input type="text" name="current_works_there_comment" value="{{ old('current_works_there_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -96,11 +96,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('job_title_correct', 1, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('job_title_correct') == '1' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '1' ? 'border-plyform-green bg-green-50' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('job_title_correct', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('job_title_correct') == '0' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '0' ? 'border-plyform-green bg-green-50' : '' }}">
                             No
                         </button>
                     </div>
@@ -115,7 +115,7 @@
                         </button>
                         <div id="job_title_comment_section" class="mt-2 {{ old('job_title_comment') ? '' : 'hidden' }}">
                             <input type="text" name="job_title_comment" value="{{ old('job_title_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                         What's their employment type? <span class="text-red-600">*</span>
                     </label>
                     <select name="employment_type" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange">
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green">
                         <option value="">Select</option>
                         <option value="full_time" {{ old('employment_type') == 'full_time' ? 'selected' : '' }}>Full Time</option>
                         <option value="part_time" {{ old('employment_type') == 'part_time' ? 'selected' : '' }}>Part Time</option>
@@ -145,7 +145,7 @@
                         </button>
                         <div id="employment_type_comment_section" class="mt-2 {{ old('employment_type_comment') ? '' : 'hidden' }}">
                             <input type="text" name="employment_type_comment" value="{{ old('employment_type_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -158,11 +158,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4 mb-3">
                         <button type="button" onclick="toggleStartDate(true, this)"
-                            class="start-date-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors">
+                            class="start-date-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors">
                             Yes
                         </button>
                         <button type="button" onclick="toggleStartDate(false, this)"
-                            class="start-date-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors">
+                            class="start-date-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors">
                             No
                         </button>
                     </div>
@@ -170,7 +170,7 @@
                     <div id="actual_start_date_section" class="mt-3 hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Actual start date</label>
                         <input type="date" name="actual_start_date" value="{{ old('actual_start_date') }}"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green">
                     </div>
                     
                     <div class="mt-3">
@@ -179,7 +179,7 @@
                         </button>
                         <div id="start_date_comment_section" class="mt-2 {{ old('start_date_comment') ? '' : 'hidden' }}">
                             <input type="text" name="start_date_comment" value="{{ old('start_date_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -194,7 +194,7 @@
                         <span class="absolute left-4 top-3.5 text-gray-500">$</span>
                         <input type="number" name="annual_income" value="{{ old('annual_income') }}" required
                             step="0.01" min="0"
-                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                            class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                             placeholder="Enter amount">
                     </div>
                     @error('annual_income')
@@ -207,7 +207,7 @@
                         </button>
                         <div id="annual_income_comment_section" class="mt-2 {{ old('annual_income_comment') ? '' : 'hidden' }}">
                             <input type="text" name="annual_income_comment" value="{{ old('annual_income_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -220,11 +220,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('role_ongoing', 1, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('role_ongoing') == '1' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '1' ? 'border-plyform-green bg-green-50' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('role_ongoing', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-orange transition-colors {{ old('role_ongoing') == '0' ? 'border-plyform-orange bg-orange-50' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '0' ? 'border-plyform-green bg-green-50' : '' }}">
                             No
                         </button>
                     </div>
@@ -239,7 +239,7 @@
                         </button>
                         <div id="role_ongoing_comment_section" class="mt-2 {{ old('role_ongoing_comment') ? '' : 'hidden' }}">
                             <input type="text" name="role_ongoing_comment" value="{{ old('role_ongoing_comment') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                                 placeholder="Add a comment (optional)">
                         </div>
                     </div>
@@ -247,7 +247,7 @@
             </div>
 
             <!-- Your Details Section -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hidden">
                 <h3 class="text-lg font-semibold text-gray-900 mb-6">Your Details</h3>
 
                 <div class="space-y-4">
@@ -256,7 +256,7 @@
                             Full Name <span class="text-red-600">*</span>
                         </label>
                         <input type="text" name="referee_name" value="{{ old('referee_name', $employment->manager_full_name) }}" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                             placeholder="Your full name">
                         @error('referee_name')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -268,7 +268,7 @@
                             Email Address <span class="text-red-600">*</span>
                         </label>
                         <input type="email" name="referee_email" value="{{ old('referee_email', $employment->email) }}" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                             placeholder="your.email@company.com">
                         @error('referee_email')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -279,8 +279,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Your Position/Title <span class="text-red-600">*</span>
                         </label>
-                        <input type="text" name="referee_position" value="{{ old('referee_position') }}" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                        <input type="text" name="referee_position" value="{{ old('referee_position') }}"  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                             placeholder="e.g., HR Manager">
                         @error('referee_position')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -292,7 +291,7 @@
                             Additional Comments (Optional)
                         </label>
                         <textarea name="additional_comments" rows="4"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-orange focus:border-plyform-orange"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
                             placeholder="Any additional information you'd like to provide...">{{ old('additional_comments') }}</textarea>
                     </div>
                 </div>
@@ -301,7 +300,7 @@
             <!-- Submit Button -->
             <div class="flex justify-end">
                 <button type="submit" 
-                    class="bg-plyform-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                    class="bg-plyform-green text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
                     Submit reference
                 </button>
             </div>
@@ -326,11 +325,11 @@
             // Update button styles
             const container = button.parentElement;
             container.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('border-plyform-orange', 'bg-orange-50');
+                btn.classList.remove('border-plyform-green', 'bg-green-50');
                 btn.classList.add('border-gray-300');
             });
             button.classList.remove('border-gray-300');
-            button.classList.add('border-plyform-orange', 'bg-orange-50');
+            button.classList.add('border-plyform-green', 'bg-green-50');
         }
 
         // Toggle comment section
@@ -349,11 +348,11 @@
             
             // Update button styles
             container.querySelectorAll('.start-date-btn').forEach(btn => {
-                btn.classList.remove('border-plyform-orange', 'bg-orange-50');
+                btn.classList.remove('border-plyform-green', 'bg-green-50');
                 btn.classList.add('border-gray-300');
             });
             button.classList.remove('border-gray-300');
-            button.classList.add('border-plyform-orange', 'bg-orange-50');
+            button.classList.add('border-plyform-green', 'bg-green-50');
             
             // Show/hide date input
             if (!isCorrect) {

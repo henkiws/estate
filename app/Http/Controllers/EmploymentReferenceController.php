@@ -60,7 +60,7 @@ class EmploymentReferenceController extends Controller
             'role_ongoing_comment' => 'nullable|string|max:500',
             'referee_name' => 'required|string|max:255',
             'referee_email' => 'required|email|max:255',
-            'referee_position' => 'required|string|max:255',
+            // 'referee_position' => 'required|string|max:255',
             'additional_comments' => 'nullable|string|max:1000',
         ]);
         

@@ -811,10 +811,17 @@ class ProfileCompletionController extends Controller
         return ['success' => true];
     }
 
+    /**
+     * FIXED: Save Step 7 with Proper Email Change Detection
+     * 
+     * The issue: Email change detection was checking the OLD address object's email
+     * BEFORE we set the new values, so it was comparing the wrong values
+     */
     private function saveStep7(Request $request, $user)
     {
         $validated = $request->validate([
             'addresses' => 'required|array|min:1',
+            'addresses.*.id' => 'nullable|exists:user_addresses,id',
             'addresses.*.owned_property' => 'required|boolean',
             'addresses.*.living_arrangement' => 'required_if:addresses.*.owned_property,0|nullable|string|in:property_manager,private_landlord,parents,other',
             'addresses.*.address' => 'required|string|max:500',
@@ -824,54 +831,125 @@ class ProfileCompletionController extends Controller
             'addresses.*.different_postal_address' => 'nullable|boolean',
             'addresses.*.postal_code' => 'nullable|string|max:500',
             'addresses.*.is_current' => 'nullable|boolean',
-            // Reference fields (required when owned_property = 0)
             'addresses.*.reference_full_name' => 'required_if:addresses.*.owned_property,0|nullable|string|max:255',
             'addresses.*.reference_email' => 'required_if:addresses.*.owned_property,0|nullable|email|max:255',
             'addresses.*.reference_country_code' => 'required_if:addresses.*.owned_property,0|nullable|string',
             'addresses.*.reference_phone' => 'required_if:addresses.*.owned_property,0|nullable|string|max:20',
         ]);
 
-        // Delete existing addresses
-        $user->addresses()->delete();
+        $existingAddresses = $user->addresses()->get()->keyBy('id');
+        $processedAddressIds = [];
+        $addressesNeedingEmail = [];
 
-        $addressReferencesToSend = []; // Store addresses that need reference emails
-
-        // Create new address records
         foreach ($validated['addresses'] as $addressData) {
-            $address = new UserAddress();
-            $address->user_id = $user->id;
-            $address->owned_property = $addressData['owned_property'] ?? true;
+            $addressId = $addressData['id'] ?? null;
+            $oldAddress = $addressId ? $existingAddresses->get($addressId) : null;
             
-            // If owned (owned_property = 1), living_arrangement = 'owner'
-            if ($address->owned_property) {
-                $address->living_arrangement = 'owner';
-            } else {
-                // If not owned, use the provided living_arrangement
-                $address->living_arrangement = $addressData['living_arrangement'];
+            $isNewAddress = !$oldAddress;
+            
+            // ✅ FIX: Store old values BEFORE creating/updating address object
+            $oldEmail = $oldAddress->reference_email ?? null;
+            $oldName = $oldAddress->reference_full_name ?? null;
+            $oldStatus = $oldAddress->reference_status ?? null;
+            $wasOwned = $oldAddress ? $oldAddress->owned_property : null;
+            
+            // Get new values from form
+            $newEmail = $addressData['reference_email'] ?? null;
+            $newName = $addressData['reference_full_name'] ?? null;
+            $isOwned = filter_var($addressData['owned_property'] ?? true, FILTER_VALIDATE_BOOLEAN);
+            
+            // ✅ FIX: Determine changes using old vs new comparison
+            $emailChanged = false;
+            $detailsChanged = false;
+            
+            if (!$isNewAddress && !$isOwned) {
+                // Check if reference email changed
+                if ($oldEmail !== $newEmail) {
+                    $emailChanged = true;
+                    Log::info('Email changed', [
+                        'old' => $oldEmail,
+                        'new' => $newEmail
+                    ]);
+                }
                 
-                // Save reference details
-                $address->reference_full_name = $addressData['reference_full_name'] ?? null;
-                $address->reference_email = $addressData['reference_email'] ?? null;
-                $address->reference_country_code = $addressData['reference_country_code'] ?? null;
-                $address->reference_phone = $addressData['reference_phone'] ?? null;
-                
-                // Generate token for verification
-                $address->reference_token = \Str::random(64);
-                
-                // Check if this is a new reference (not already sent)
-                // We'll send email only for new references or if email has changed
-                $existingAddress = $user->addresses()
-                    ->where('address', $addressData['address'])
-                    ->where('reference_email', $addressData['reference_email'])
-                    ->where('reference_email_sent_at', '!=', null)
-                    ->first();
-                
-                // Add to list for sending emails later if it's a new reference
-                if (!$existingAddress && $address->reference_email) {
-                    $addressReferencesToSend[] = $address;
+                // Check if reference details changed
+                if ($oldName !== $newName) {
+                    $detailsChanged = true;
+                    Log::info('Reference name changed', [
+                        'old' => $oldName,
+                        'new' => $newName
+                    ]);
                 }
             }
             
+            // Create or update address
+            $address = $oldAddress ?: new UserAddress();
+            $address->user_id = $user->id;
+            $address->owned_property = $isOwned;
+            
+            if ($isOwned) {
+                // Owned - clear reference fields
+                $address->living_arrangement = 'owner';
+                $address->reference_full_name = null;
+                $address->reference_email = null;
+                $address->reference_country_code = null;
+                $address->reference_phone = null;
+                $address->reference_token = null;
+                $address->reference_status = null;
+                $address->reference_email_sent_at = null;
+                $address->reference_verified_at = null;
+            } else {
+                // Not owned - handle reference
+                $address->living_arrangement = $addressData['living_arrangement'];
+                $address->reference_full_name = $newName;
+                $address->reference_email = $newEmail;
+                $address->reference_country_code = $addressData['reference_country_code'] ?? null;
+                $address->reference_phone = $addressData['reference_phone'] ?? null;
+                
+                // ✅ FIX: Determine if we should send email
+                $shouldSendEmail = false;
+                
+                if ($isNewAddress && $newEmail) {
+                    // New address with reference email
+                    $shouldSendEmail = true;
+                    Log::info('New address - will send email', ['email' => $newEmail]);
+                    
+                } elseif (($emailChanged || $detailsChanged) && $newEmail) {
+                    // Existing address with changes
+                    if ($oldStatus !== 'verified') {
+                        $shouldSendEmail = true;
+                        Log::info('Changes detected, not verified - will send email', [
+                            'email_changed' => $emailChanged,
+                            'details_changed' => $detailsChanged,
+                            'old_status' => $oldStatus,
+                            'email' => $newEmail
+                        ]);
+                    } else {
+                        Log::info('Changes detected but verified - NOT sending', [
+                            'old_status' => $oldStatus
+                        ]);
+                    }
+                }
+                
+                if ($shouldSendEmail) {
+                    // Generate new token and set to pending
+                    $address->reference_token = \Str::random(64);
+                    $address->reference_status = 'pending';
+                    $address->reference_email_sent_at = null;
+                    $address->reference_verified_at = null;
+                    
+                    $addressesNeedingEmail[] = $address;
+                    
+                    Log::info('Added to email queue', [
+                        'email' => $newEmail,
+                        'is_new' => $isNewAddress,
+                        'email_changed' => $emailChanged,
+                        'details_changed' => $detailsChanged
+                    ]);
+                }
+            }
+            
+            // Save common fields
             $address->address = $addressData['address'];
             $address->years_lived = $addressData['years_lived'];
             $address->months_lived = $addressData['months_lived'];
@@ -880,13 +958,59 @@ class ProfileCompletionController extends Controller
             $address->postal_code = $addressData['postal_code'] ?? null;
             $address->is_current = $addressData['is_current'] ?? false;
             $address->save();
+            
+            $processedAddressIds[] = $address->id;
         }
 
-        // Update profile step
+        // Delete removed addresses
+        $addressesToDelete = $user->addresses()->whereNotIn('id', array_filter($processedAddressIds))->get();
+        foreach ($addressesToDelete as $address) {
+            $address->delete();
+        }
+
+        // ✅ DEBUG: Log what's about to be sent
+        Log::info('Final email queue', [
+            'count' => count($addressesNeedingEmail),
+            'emails' => collect($addressesNeedingEmail)->pluck('reference_email')->toArray()
+        ]);
+
+        // Send address reference emails
+        $emailsSent = 0;
+        foreach ($addressesNeedingEmail as $address) {
+            try {
+                \Mail::to($address->reference_email)->send(new \App\Mail\AddressReferenceRequest($address));
+                $address->reference_email_sent_at = now();
+                $address->save();
+                $emailsSent++;
+                
+                Log::info('Email sent successfully', [
+                    'email' => $address->reference_email,
+                    'address_id' => $address->id
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send address reference email', [
+                    'address_id' => $address->id,
+                    'email' => $address->reference_email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
         $user->profile_current_step = max($user->profile_current_step ?? 1, 7);
         $user->save();
 
-        return ['success' => true];
+        if ($emailsSent > 0) {
+            $message = $emailsSent === 1 
+                ? 'Address saved! Reference email sent to 1 landlord/property manager.' 
+                : "Address saved! Reference emails sent to {$emailsSent} landlords/property managers.";
+        } else {
+            $message = 'Address history saved successfully!';
+        }
+
+        return [
+            'success' => true,
+            'message' => $message
+        ];
     }
 
     private function saveStep8(Request $request, $user)
