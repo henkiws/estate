@@ -3,180 +3,208 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Update Required - {{ config('app.name') }}</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f5f5f5;
         }
         .email-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
         }
-        .header {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 40px 30px;
+        .email-header {
+            background-color: #1E1C1C;
+            padding: 20px;
             text-align: center;
         }
-        .header h1 {
+        .email-header h2 {
+            color: #E6FF4B;
             margin: 0;
-            font-size: 28px;
-            font-weight: 700;
         }
-        .warning-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
+        .email-content {
+            padding: 30px;
         }
-        .content {
-            padding: 40px 30px;
-        }
-        .content h2 {
-            color: #d97706;
-            font-size: 22px;
-            margin-top: 0;
-        }
-        .alert-box {
-            background: #fef3c7;
+        .warning-box {
+            background-color: #fef3c7;
             border-left: 4px solid #f59e0b;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
         }
-        .alert-box strong {
-            color: #d97706;
-            display: block;
-            margin-bottom: 10px;
-            font-size: 16px;
+        .warning-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #92400e;
+        }
+        .warning-box p:first-of-type {
+            margin-top: 0;
+            font-weight: bold;
+            color: #78350f;
+            font-size: 15px;
+        }
+        .warning-box p:last-of-type {
+            margin-bottom: 0;
         }
         .reason-box {
-            background: #fef2f2;
+            background-color: #fee2e2;
             border: 2px solid #fca5a5;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 8px;
-        }
-        .reason-box h3 {
-            color: #dc2626;
-            font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
         }
         .reason-box p {
-            color: #991b1b;
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-        .button {
-            display: inline-block;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
-        }
-        .button:hover {
-            box-shadow: 0 6px 8px rgba(245, 158, 11, 0.4);
-        }
-        .action-required {
-            background: #f9fafb;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        .action-required h3 {
-            color: #374151;
-            font-size: 18px;
-            margin-top: 0;
-        }
-        .action-required ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .action-required li {
-            margin: 10px 0;
-            color: #6b7280;
-        }
-        .footer {
-            text-align: center;
-            padding: 30px;
-            border-top: 1px solid #e5e7eb;
-            color: #6b7280;
+            margin: 8px 0;
             font-size: 14px;
+            color: #991b1b;
         }
-        .footer a {
+        .reason-box p:first-of-type {
+            margin-top: 0;
+            font-weight: bold;
+            color: #7f1d1d;
+            font-size: 15px;
+        }
+        .reason-box p:last-of-type {
+            margin-bottom: 0;
+        }
+        .info-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #E6FF4B;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .info-box p:first-of-type {
+            margin-top: 0;
+            font-weight: bold;
+            color: #1E1C1C;
+            font-size: 15px;
+        }
+        .info-box p:last-of-type {
+            margin-bottom: 0;
+        }
+        .feature-list {
+            margin: 15px 0;
+        }
+        .feature-list p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #555;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature-list p:before {
+            content: "•";
+            position: absolute;
+            left: 0;
             color: #f59e0b;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #f59e0b;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #d97706;
+        }
+        .link-text {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #666;
+            margin: 15px 0;
+        }
+        .link-text a {
+            color: #0066cc;
             text-decoration: none;
         }
-        @media only screen and (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .header, .content {
-                padding: 30px 20px;
-            }
+        .email-footer {
+            background-color: #2c2c2c;
+            color: #ffffff;
+            padding: 25px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .email-footer p {
+            margin: 8px 0;
+        }
+        .email-footer a {
+            color: #E6FF4B;
+            text-decoration: none;
+        }
+        .email-footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
-        <div class="header">
-            <div class="warning-icon">⚠</div>
-            <h1>Profile Update Required</h1>
+        <!-- Header -->
+        <div class="email-header">
+            <h2>{{ config('app.name') }}</h2>
         </div>
-        
-        <div class="content">
+
+        <!-- Content -->
+        <div class="email-content">
+            <h2 style="color: #1E1C1C; margin-top: 0;">Profile Update Required ⚠</h2>
+            
             <p>Hello {{ $userName }},</p>
-            
-            <h2>Profile Review Update</h2>
-            
+
             <p>Thank you for submitting your profile. After careful review, we need you to update some information before we can approve your profile.</p>
-            
+
+            <!-- Reason Box -->
             <div class="reason-box">
-                <h3>📋 Reason for Update Request:</h3>
+                <p>📋 Reason for Update Request:</p>
                 <p>{{ $rejectionReason }}</p>
             </div>
 
-            <div class="alert-box">
-                <strong>What You Need to Do:</strong>
-                <p style="margin: 5px 0;">Please review the feedback above and update your profile accordingly. Once you've made the necessary changes, resubmit your profile for review.</p>
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <p>What You Need to Do:</p>
+                <p>Please review the feedback above and update your profile accordingly. Once you've made the necessary changes, resubmit your profile for review.</p>
             </div>
 
-            <center>
-                <a href="{{ $updateProfileUrl }}" class="button">
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ $updateProfileUrl }}" class="cta-button">
                     Update Profile Now →
                 </a>
-            </center>
-
-            <div class="action-required">
-                <h3>📝 Common Updates Needed:</h3>
-                <ul>
-                    <li><strong>Identity Documents:</strong> Ensure you have minimum 80 points of valid ID</li>
-                    <li><strong>Income Verification:</strong> Upload clear, recent bank statements or payslips</li>
-                    <li><strong>Employment Details:</strong> Provide complete employment history and letters</li>
-                    <li><strong>Contact Information:</strong> Double-check all contact details are correct</li>
-                    <li><strong>Document Quality:</strong> Make sure all uploaded documents are clear and readable</li>
-                </ul>
             </div>
 
-            <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
+            <!-- Common Updates Box -->
+            <div class="info-box">
+                <p>📝 Common Updates Needed:</p>
+                <div class="feature-list">
+                    <p><strong>Identity Documents:</strong> Ensure you have minimum 80 points of valid ID</p>
+                    <p><strong>Income Verification:</strong> Upload clear, recent bank statements or payslips</p>
+                    <p><strong>Employment Details:</strong> Provide complete employment history and letters</p>
+                    <p><strong>Contact Information:</strong> Double-check all contact details are correct</p>
+                    <p><strong>Document Quality:</strong> Make sure all uploaded documents are clear and readable</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 14px; color: #666;">
                 <strong>Reviewed on:</strong> {{ \Carbon\Carbon::parse($rejectedAt)->format('F j, Y \a\t g:i A') }}
             </p>
 
@@ -184,19 +212,36 @@
                 If you have any questions about the required updates or need assistance, please don't hesitate to contact our support team.
             </p>
 
-            <p>
+            <p style="margin-top: 25px;">
                 Best regards,<br>
-                <strong>The Sorted Team</strong>
+                <strong>The {{ config('app.name') }} Team</strong>
             </p>
+
+            <!-- Alternative Link -->
+            <p style="font-size: 14px; margin-top: 30px;">If you're having trouble clicking the button, copy and paste the URL below into your web browser:</p>
+            <div class="link-text">
+                <a href="{{ $updateProfileUrl }}">{{ $updateProfileUrl }}</a>
+            </div>
         </div>
-        
-        <div class="footer">
-            <p>This is an automated notification from Sorted Services</p>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            <p>This is an automated notification from {{ config('app.name') }}</p>
+            
             <p>
                 <a href="{{ $updateProfileUrl }}">Update Profile</a> • 
-                <a href="mailto:support@sorted.com">Support</a>
+                <a href="mailto:support@{{ str_replace(['http://', 'https://'], '', config('app.url')) }}">Support</a>
             </p>
-            <p>© {{ date('Y') }} Sorted Services. All rights reserved.</p>
+            
+            <p>
+                <a href="{{ config('app.url') }}/support">Support FAQs</a> | 
+                <a href="{{ config('app.url') }}/terms">Terms of use</a> | 
+                <a href="{{ config('app.url') }}/privacy">Privacy Policy</a>
+            </p>
+            
+            <p style="margin-top: 15px; color: #999;">
+                © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+            </p>
         </div>
     </div>
 </body>

@@ -3,160 +3,202 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Approved - {{ config('app.name') }}</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f5f5f5;
         }
         .email-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
         }
-        .header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 40px 30px;
+        .email-header {
+            background-color: #1E1C1C;
+            padding: 20px;
             text-align: center;
         }
-        .header h1 {
+        .email-header h2 {
+            color: #E6FF4B;
             margin: 0;
-            font-size: 28px;
-            font-weight: 700;
         }
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
+        .email-content {
+            padding: 30px;
         }
-        .content {
-            padding: 40px 30px;
+        .success-box {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
         }
-        .content h2 {
-            color: #10b981;
-            font-size: 22px;
+        .success-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #065f46;
+        }
+        .success-box p:first-of-type {
             margin-top: 0;
+            font-weight: bold;
+            color: #065f46;
+            font-size: 15px;
+        }
+        .success-box p:last-of-type {
+            margin-bottom: 0;
         }
         .info-box {
-            background: #f0fdf4;
-            border-left: 4px solid #10b981;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 4px;
-        }
-        .info-box strong {
-            color: #059669;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .button {
-            display: inline-block;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 8px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #E6FF4B;
+            padding: 15px;
             margin: 20px 0;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+            border-radius: 5px;
         }
-        .button:hover {
-            box-shadow: 0 6px 8px rgba(16, 185, 129, 0.4);
-        }
-        .next-steps {
-            background: #f9fafb;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        .next-steps h3 {
-            color: #374151;
-            font-size: 18px;
-            margin-top: 0;
-        }
-        .next-steps ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .next-steps li {
-            margin: 10px 0;
-            color: #6b7280;
-        }
-        .footer {
-            text-align: center;
-            padding: 30px;
-            border-top: 1px solid #e5e7eb;
-            color: #6b7280;
+        .info-box p {
+            margin: 8px 0;
             font-size: 14px;
+            color: #555;
         }
-        .footer a {
-            color: #10b981;
+        .info-box p:first-of-type {
+            margin-top: 0;
+            font-weight: bold;
+            color: #1E1C1C;
+            font-size: 15px;
+        }
+        .info-box p:last-of-type {
+            margin-bottom: 0;
+        }
+        .feature-list {
+            margin: 15px 0;
+        }
+        .feature-list p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #555;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature-list p:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #0d9488;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #10b981;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #059669;
+        }
+        .secondary-link {
+            color: #0d9488;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .secondary-link:hover {
+            text-decoration: underline;
+        }
+        .link-text {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #666;
+            margin: 15px 0;
+        }
+        .link-text a {
+            color: #0066cc;
             text-decoration: none;
         }
-        @media only screen and (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .header, .content {
-                padding: 30px 20px;
-            }
+        .email-footer {
+            background-color: #2c2c2c;
+            color: #ffffff;
+            padding: 25px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .email-footer p {
+            margin: 8px 0;
+        }
+        .email-footer a {
+            color: #E6FF4B;
+            text-decoration: none;
+        }
+        .email-footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
-        <div class="header">
-            <div class="success-icon">✓</div>
-            <h1>Profile Approved!</h1>
+        <!-- Header -->
+        <div class="email-header">
+            <h2>{{ config('app.name') }}</h2>
         </div>
-        
-        <div class="content">
+
+        <!-- Content -->
+        <div class="email-content">
+            <h2 style="color: #1E1C1C; margin-top: 0;">Profile Approved! 🎉</h2>
+            
             <p>Hello {{ $userName }},</p>
-            
-            <h2>🎉 Great News!</h2>
-            
-            <p>We're pleased to inform you that your profile has been <strong>approved</strong> and you can now start applying for properties on Sorted.</p>
-            
-            <div class="info-box">
-                <strong>What This Means:</strong>
-                <p style="margin: 5px 0;">Your profile has been verified and you now have full access to all features including property applications, saved properties, and direct communication with agencies.</p>
+
+            <p>We're pleased to inform you that your profile has been <strong>approved</strong> and you can now start applying for properties on {{ config('app.name') }}.</p>
+
+            <!-- Success Box -->
+            <div class="success-box">
+                <p>Great News!</p>
+                <p>Your profile has been verified and you now have full access to all features.</p>
             </div>
 
-            <center>
-                <a href="{{ $dashboardUrl }}" class="button">
+            <!-- Info Box -->
+            <div class="info-box">
+                <p>What This Means:</p>
+                <p>You can now access property applications, saved properties, and direct communication with agencies.</p>
+            </div>
+
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ $dashboardUrl }}" class="cta-button">
                     Go to Dashboard →
                 </a>
-            </center>
-
-            <div class="next-steps">
-                <h3>🏡 Next Steps:</h3>
-                <ul>
-                    <li><strong>Browse Properties:</strong> Explore available rentals and properties for sale</li>
-                    <li><strong>Save Favorites:</strong> Create a shortlist of properties you're interested in</li>
-                    <li><strong>Apply for Properties:</strong> Submit applications directly through the platform</li>
-                    <li><strong>Track Applications:</strong> Monitor your application status in real-time</li>
-                </ul>
             </div>
 
-            <center>
-                <a href="{{ $propertiesUrl }}" style="display: inline-block; margin: 10px; color: #10b981; text-decoration: none; font-weight: 600;">
+            <!-- Next Steps Box -->
+            <div class="info-box">
+                <p>🏡 Next Steps:</p>
+                <div class="feature-list">
+                    <p><strong>Browse Properties:</strong> Explore available rentals and properties for sale</p>
+                    <p><strong>Save Favorites:</strong> Create a shortlist of properties you're interested in</p>
+                    <p><strong>Apply for Properties:</strong> Submit applications directly through the platform</p>
+                    <p><strong>Track Applications:</strong> Monitor your application status in real-time</p>
+                </div>
+            </div>
+
+            <!-- Browse Properties Link -->
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ $propertiesUrl }}" class="secondary-link">
                     Browse Properties →
                 </a>
-            </center>
+            </div>
 
-            <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
+            <p style="margin-top: 30px; font-size: 14px; color: #666;">
                 <strong>Approved on:</strong> {{ \Carbon\Carbon::parse($approvedAt)->format('F j, Y \a\t g:i A') }}
             </p>
 
@@ -164,20 +206,37 @@
                 If you have any questions, feel free to contact our support team.
             </p>
 
-            <p>
+            <p style="margin-top: 25px;">
                 Best regards,<br>
-                <strong>The Sorted Team</strong>
+                <strong>The {{ config('app.name') }} Team</strong>
             </p>
+
+            <!-- Alternative Links -->
+            <p style="font-size: 14px; margin-top: 30px;">If you're having trouble clicking the button, copy and paste the URL below into your web browser:</p>
+            <div class="link-text">
+                <a href="{{ $dashboardUrl }}">{{ $dashboardUrl }}</a>
+            </div>
         </div>
-        
-        <div class="footer">
-            <p>This is an automated notification from Sorted Services</p>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            <p>This is an automated notification from {{ config('app.name') }}</p>
+            
             <p>
                 <a href="{{ $dashboardUrl }}">Dashboard</a> • 
                 <a href="{{ $propertiesUrl }}">Properties</a> • 
-                <a href="mailto:support@sorted.com">Support</a>
+                <a href="mailto:support@{{ str_replace(['http://', 'https://'], '', config('app.url')) }}">Support</a>
             </p>
-            <p>© {{ date('Y') }} Sorted Services. All rights reserved.</p>
+            
+            <p>
+                <a href="{{ config('app.url') }}/support">Support FAQs</a> | 
+                <a href="{{ config('app.url') }}/terms">Terms of use</a> | 
+                <a href="{{ config('app.url') }}/privacy">Privacy Policy</a>
+            </p>
+            
+            <p style="margin-top: 15px; color: #999;">
+                © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+            </p>
         </div>
     </div>
 </body>
