@@ -73,7 +73,7 @@ class ProfileCompletionController extends Controller
     /**
      * Calculate completion statistics for all sections
      */
-    private function calculateCompletionStats($user, $profile)
+    function calculateCompletionStats($user, $profile)
     {
         return [
             'personal_details' => $this->isStep1Complete($profile),
@@ -91,7 +91,7 @@ class ProfileCompletionController extends Controller
     
     // ==================== COMPLETION CHECK METHODS ====================
     
-    private function isStep1Complete($profile)
+    function isStep1Complete($profile)
     {
         return $profile && 
                $profile->title &&
@@ -103,52 +103,52 @@ class ProfileCompletionController extends Controller
                $profile->mobile_number;
     }
     
-    private function isStep2Complete($profile)
+    function isStep2Complete($profile)
     {
         // Introduction is optional, so always complete
         return true;
     }
     
-    private function isStep3Complete($user)
+    function isStep3Complete($user)
     {
         return $user->incomes()->count() > 0;
     }
     
-    private function isStep4Complete($user)
+    function isStep4Complete($user)
     {
         // Employment is optional, so always complete
         return true;
     }
     
-    private function isStep5Complete($user)
+    function isStep5Complete($user)
     {
         // Pets are optional, so always complete
         return true;
     }
     
-    private function isStep6Complete($user)
+    function isStep6Complete($user)
     {
         // Vehicles are optional, so always complete
         return true;
     }
     
-    private function isStep7Complete($user)
+    function isStep7Complete($user)
     {
         return $user->addresses()->count() > 0;
     }
     
-    private function isStep8Complete($user)
+    function isStep8Complete($user)
     {
         return $user->references()->count() >= 2;
     }
     
-    private function isStep9Complete($user)
+    function isStep9Complete($user)
     {
         $totalPoints = $user->identifications->sum('points') ?? 0;
         return $totalPoints >= 80;
     }
     
-    private function isStep10Complete($profile)
+    function isStep10Complete($profile)
     {
         return $profile && 
                $profile->terms_accepted && 
@@ -237,7 +237,7 @@ class ProfileCompletionController extends Controller
             }
             
             // For all other steps, redirect back with next section to scroll to
-            return redirect()->route('user.profile.overview')
+            return redirect()->back()
                 ->with('success', 'Section saved successfully!')
                 ->with('scroll_to', $nextSection);
             

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\User\ProfileCompletionController;
 
 class ApplicationController extends Controller
 {
@@ -119,6 +120,30 @@ class ApplicationController extends Controller
             return redirect()->route('user.applications.show', $existingApplication->id)
                 ->with('info', 'You already have an application for this property.');
         }
+
+        $user = Auth::user();
+        $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
+
+        // Load all related data for the overview with eager loading
+        $user->load([
+            'incomes',
+            'employments',
+            'pets',
+            'vehicles',
+            'addresses',
+            'references',
+            'identifications'
+        ]);
+        
+        // Calculate total ID points
+        $totalPoints = $user->identifications->sum('points') ?? 0;
+        
+        // Calculate completion percentage for each section
+        $completionStats = (new ProfileCompletionController())->calculateCompletionStats($user, $profile);
+        
+        // Calculate overall completion
+        $overallCompletion = count(array_filter($completionStats)) / count($completionStats) * 100;
+        $totalProfilePoints = ($overallCompletion / 100) * 80;
         
         // TODO: Check if user profile is complete (optional)
         // if (!Auth::user()->hasCompletedProfile()) {
@@ -126,7 +151,15 @@ class ApplicationController extends Controller
         //         ->with('warning', 'Please complete your profile before applying for properties.');
         // }
         
-        return view('user.applications.create', compact('property'));
+        return view('user.applications.create', [
+            'profile' => $profile,
+            'user' => $user,
+            'totalPoints' => $totalPoints,
+            'completionStats' => $completionStats,
+            'overallCompletion' => round($overallCompletion, 2),
+            'totalProfilePoints' => round($totalProfilePoints, 2),
+            'property' => $property,
+        ]);
     }
 
    /**
@@ -146,79 +179,8 @@ class ApplicationController extends Controller
                 'move_in_date' => 'required|date|after:today',
                 'lease_term' => 'required|integer|min:1|max:24',
                 'property_inspection' => 'required|in:yes,no',
-                'inspection_date' => 'required_if:property_inspection,yes|nullable|date|before_or_equal:today',
+                'inspection_date' => 'required_if:property_inspection,yes|nullable|date|after:today',
                 'rent_per_week' => 'required|numeric|min:0|max:999999999.99',
-                
-                // Step 1: Personal Details & Contact
-                'title' => 'required|string|in:Mr,Mrs,Ms,Miss,Dr,Prof,Other',
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'surname' => 'nullable|string|max:255',
-                'date_of_birth' => 'required|date|before:' . now()->subYears(18)->format('Y-m-d'),
-                'email' => 'required|email|max:255',
-                'mobile_country_code' => 'required|string',
-                'mobile_number' => 'required|string|max:20',
-                'introduction' => 'required|string',
-                
-                // Step 2: Address History
-                'addresses' => 'required|array|min:1',
-                'addresses.*.owned_property' => 'required|boolean',
-                'addresses.*.living_arrangement' => 'required_if:addresses.*.owned_property,0|nullable|string|in:property_manager,private_landlord,parents,other',
-                'addresses.*.address' => 'required|string|max:500',
-                'addresses.*.years_lived' => 'required|integer|min:0|max:100',
-                'addresses.*.months_lived' => 'required|integer|min:0|max:11',
-                'addresses.*.reason_for_leaving' => 'nullable|string|max:1000',
-                'addresses.*.different_postal_address' => 'nullable|boolean',
-                'addresses.*.postal_code' => 'nullable|string|max:500',
-                'addresses.*.is_current' => 'nullable|boolean',
-                // Reference fields (required when owned_property = 0)
-                'addresses.*.reference_full_name' => 'required_if:addresses.*.owned_property,0|nullable|string|max:255',
-                'addresses.*.reference_email' => 'required_if:addresses.*.owned_property,0|nullable|email|max:255',
-                'addresses.*.reference_country_code' => 'required_if:addresses.*.owned_property,0|nullable|string',
-                'addresses.*.reference_phone' => 'required_if:addresses.*.owned_property,0|nullable|string|max:20',
-                
-                // Step 3: Employment
-                'has_employment' => 'nullable|boolean',
-                'employments' => 'nullable|array',
-                'employments.*.company_name' => 'required_if:has_employment,true|nullable|string|max:255',
-                'employments.*.address' => 'required_if:has_employment,true|nullable|string|max:500',
-                'employments.*.position' => 'required_if:has_employment,true|nullable|string|max:255',
-                // 'employments.*.gross_annual_salary' => 'required_if:has_employment,true|nullable|numeric|min:0|max:9999999.99',
-                'employments.*.manager_full_name' => 'required_if:has_employment,true|nullable|string|max:255',
-                'employments.*.contact_number' => 'required_if:has_employment,true|nullable|string|max:20',
-                'employments.*.contact_country_code' => 'nullable|string',
-                'employments.*.email' => 'required_if:has_employment,true|nullable|email|max:255',
-                'employments.*.start_date' => 'required_if:has_employment,true|nullable|date|before_or_equal:today',
-                'employments.*.still_employed' => 'nullable|boolean',
-                'employments.*.end_date' => 'nullable|date|before_or_equal:today',
-                'employments.*.employment_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-                'employments.*.existing_letter' => 'nullable|string',
-                
-                // Step 4: Income/Finances - FIXED VALIDATION FOR MULTIPLE FILES
-                'incomes' => 'required|array|min:1',
-                'incomes.*.source_of_income' => 'required|string|in:full_time_employment,part_time_employment,casual_employment,self_employed,centrelink,pension,investment,savings,other',
-                'incomes.*.net_weekly_amount' => 'required|numeric|min:0|max:999999.99',
-                'incomes.*.bank_statements' => 'nullable|array',
-                'incomes.*.bank_statements.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240',
-                'incomes.*.existing_statements' => 'nullable|array',
-                'incomes.*.existing_statements.*' => 'string',
-                
-                // Step 5: Identity Documents
-                'identifications' => 'required|array|min:1',
-                'identifications.*.identification_type' => 'required|string|in:australian_drivers_licence,passport,birth_certificate,medicare,other',
-                'identifications.*.document_number' => 'nullable|string|max:100',
-                'identifications.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-                'identifications.*.existing_document' => 'nullable|string',
-                'identifications.*.expiry_date' => 'nullable|date|after:today',
-                
-                // Step 6: Emergency Contact (optional)
-                'has_emergency_contact' => 'nullable|boolean',
-                'emergency_contact_name' => 'nullable|required_if:has_emergency_contact,1|string|max:255',
-                'emergency_contact_relationship' => 'nullable|required_if:has_emergency_contact,1|string|max:255',
-                'emergency_contact_country_code' => 'nullable|required_if:has_emergency_contact,1|string',
-                'emergency_contact_number' => 'nullable|required_if:has_emergency_contact,1|string|max:20',
-                'emergency_contact_email' => 'nullable|required_if:has_emergency_contact,1|email|max:255',
                 
                 // Step 7: Household
                 'number_of_occupants' => 'required|integer|min:1|max:10',
@@ -229,19 +191,6 @@ class ApplicationController extends Controller
                 'occupants_details.*.age' => 'nullable|integer|min:0|max:120',
                 'occupants_details.0.age' => 'required|integer|min:18|max:120',
                 'occupants_details.*.email' => 'nullable|email|max:255',
-                
-                // Step 8: Pets (optional) - FIXED
-                'has_pets' => 'nullable|boolean',
-                'pets' => 'nullable|array',
-                'pets.*.type' => 'required_with:pets|string|in:dog,cat,bird,fish,rabbit,other',
-                'pets.*.breed' => 'required_with:pets|string|max:255',
-                'pets.*.desexed' => 'required_with:pets|boolean',
-                'pets.*.size' => 'required_with:pets|string|in:small,medium,large',
-                'pets.*.registration_number' => 'nullable|string|max:100',
-                'pets.*.photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-                'pets.*.existing_photo' => 'nullable|string',
-                'pets.*.document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
-                'pets.*.existing_document' => 'nullable|string',
                 
                 // Step 9: Utility Connections (optional)
                 'utility_electricity' => 'nullable|boolean',
@@ -265,309 +214,6 @@ class ApplicationController extends Controller
                 throw new \Exception('Sorry, this property is no longer available for applications.');
             }
             
-            // ============ UPDATE USER PROFILE ============
-            
-            // 1. Update/Create Profile
-            $profile = $user->profile ?: new UserProfile();
-            $profile->user_id = $user->id;
-            $profile->title = $validated['title'];
-            $profile->first_name = $validated['first_name'];
-            $profile->middle_name = $validated['middle_name'] ?? null;
-            $profile->last_name = $validated['last_name'];
-            $profile->surname = $validated['surname'] ?? null;
-            $profile->date_of_birth = $validated['date_of_birth'];
-            $profile->mobile_country_code = $validated['mobile_country_code'];
-            $profile->mobile_number = $validated['mobile_number'];
-            $profile->introduction = $validated['introduction'];
-            
-            // Emergency Contact
-            $profile->has_emergency_contact = $validated['has_emergency_contact'] ?? false;
-            if ($profile->has_emergency_contact) {
-                $profile->emergency_contact_name = $validated['emergency_contact_name'];
-                $profile->emergency_contact_relationship = $validated['emergency_contact_relationship'];
-                $profile->emergency_contact_country_code = $validated['emergency_contact_country_code'];
-                $profile->emergency_contact_number = $validated['emergency_contact_number'];
-                $profile->emergency_contact_email = $validated['emergency_contact_email'];
-            }
-            
-            $profile->save();
-            
-            // 2. Update Addresses
-            $user->addresses()->delete();
-            $addressReferencesToSend = []; // Store addresses that need reference emails
-
-            foreach ($validated['addresses'] as $addressData) {
-                $address = new UserAddress();
-                $address->user_id = $user->id;
-                $address->owned_property = $addressData['owned_property'] ?? true;
-                
-                // If owned (owned_property = 1), living_arrangement = 'owner'
-                if ($address->owned_property) {
-                    $address->living_arrangement = 'owner';
-                } else {
-                    // If not owned, use the provided living_arrangement
-                    $address->living_arrangement = $addressData['living_arrangement'];
-                    
-                    // Save reference details
-                    $address->reference_full_name = $addressData['reference_full_name'] ?? null;
-                    $address->reference_email = $addressData['reference_email'] ?? null;
-                    $address->reference_country_code = $addressData['reference_country_code'] ?? null;
-                    $address->reference_phone = $addressData['reference_phone'] ?? null;
-                    
-                    // Generate token for verification
-                    $address->reference_token = \Str::random(64);
-                    
-                    // Add to list for sending emails later
-                    if ($address->reference_email) {
-                        $addressReferencesToSend[] = $address;
-                    }
-                }
-                
-                $address->address = $addressData['address'];
-                $address->years_lived = $addressData['years_lived'];
-                $address->months_lived = $addressData['months_lived'];
-                $address->reason_for_leaving = $addressData['reason_for_leaving'] ?? null;
-                $address->different_postal_address = $addressData['different_postal_address'] ?? false;
-                $address->postal_code = $addressData['postal_code'] ?? null;
-                $address->is_current = $addressData['is_current'] ?? false;
-                $address->save();
-            }
-            
-            // 3. Update Employment
-            if ($validated['has_employment'] && isset($validated['employments'])) {
-                $existingEmployments = $user->employments->keyBy(function($item, $key) {
-                    return $key;
-                });
-                
-                if (count($validated['employments']) < $existingEmployments->count()) {
-                    $user->employments()->skip(count($validated['employments']))->take(PHP_INT_MAX)->each(function($employment) {
-                        if ($employment->employment_letter_path) {
-                            Storage::disk('public')->delete($employment->employment_letter_path);
-                        }
-                        $employment->delete();
-                    });
-                }
-                
-                foreach ($validated['employments'] as $index => $employmentData) {
-                    $employment = $existingEmployments->get($index) ?: new UserEmployment();
-                    $employment->user_id = $user->id;
-                    $employment->company_name = $employmentData['company_name'];
-                    $employment->address = $employmentData['address'];
-                    $employment->position = $employmentData['position'];
-                    // $employment->gross_annual_salary = $employmentData['gross_annual_salary'];
-                    $employment->manager_full_name = $employmentData['manager_full_name'];
-                    $employment->contact_number = $employmentData['contact_number'];
-                    $employment->email = $employmentData['email'];
-                    $employment->start_date = $employmentData['start_date'];
-                    $employment->still_employed = $employmentData['still_employed'] ?? false;
-                    $employment->end_date = $employmentData['end_date'] ?? null;
-                    
-                    if ($request->hasFile("employments.$index.employment_letter")) {
-                        if ($employment->employment_letter_path) {
-                            Storage::disk('public')->delete($employment->employment_letter_path);
-                        }
-                        $path = $request->file("employments.$index.employment_letter")
-                            ->store('employment-letters', 'public');
-                        $employment->employment_letter_path = $path;
-                    }
-                    
-                    $employment->save();
-                }
-            } else {
-                foreach ($user->employments as $employment) {
-                    if ($employment->employment_letter_path) {
-                        Storage::disk('public')->delete($employment->employment_letter_path);
-                    }
-                }
-                $user->employments()->delete();
-            }
-
-            // 4. Update Income - WITH MULTIPLE BANK STATEMENTS SUPPORT
-            $existingIncomes = $user->incomes->keyBy(function($item, $key) {
-                return $key;
-            });
-
-            // Delete incomes that are no longer in the form
-            if (count($validated['incomes']) < $existingIncomes->count()) {
-                $user->incomes()->skip(count($validated['incomes']))->take(PHP_INT_MAX)->each(function($income) {
-                    // Delete all bank statements for this income
-                    foreach ($income->bankStatements as $statement) {
-                        Storage::disk('public')->delete($statement->file_path);
-                    }
-                    $income->bankStatements()->delete();
-                    
-                    // Delete old single bank_statement_path if exists
-                    if ($income->bank_statement_path) {
-                        Storage::disk('public')->delete($income->bank_statement_path);
-                    }
-                    $income->delete();
-                });
-            }
-
-            foreach ($validated['incomes'] as $index => $incomeData) {
-                // Get existing income or create new
-                $income = $existingIncomes->get($index) ?: new UserIncome();
-                $income->user_id = $user->id;
-                $income->source_of_income = $incomeData['source_of_income'];
-                $income->net_weekly_amount = $incomeData['net_weekly_amount'];
-                $income->save();
-
-                // Handle existing statements that user wants to keep
-                if ($request->has("incomes.$index.existing_statements")) {
-                    $existingStatements = $request->input("incomes.$index.existing_statements");
-                    
-                    // Get current statement paths
-                    $currentStatementPaths = $income->bankStatements->pluck('file_path')->toArray();
-                    
-                    // Delete statements that are no longer in the existing_statements array
-                    foreach ($currentStatementPaths as $currentPath) {
-                        if (!in_array($currentPath, $existingStatements)) {
-                            // Find and delete the statement
-                            $statement = $income->bankStatements()->where('file_path', $currentPath)->first();
-                            if ($statement) {
-                                Storage::disk('public')->delete($statement->file_path);
-                                $statement->delete();
-                            }
-                        }
-                    }
-                } else {
-                    // If no existing_statements sent, delete all existing statements
-                    foreach ($income->bankStatements as $statement) {
-                        Storage::disk('public')->delete($statement->file_path);
-                    }
-                    $income->bankStatements()->delete();
-                }
-                
-                // Handle MULTIPLE bank statements
-                if ($request->hasFile("incomes.$index.bank_statements")) {
-                    $files = $request->file("incomes.$index.bank_statements");
-                    
-                    foreach ($files as $file) {
-                        // Upload file
-                        $path = $file->store('bank-statements', 'public');
-                        
-                        // Create bank statement record
-                        UserIncomeBankStatement::create([
-                            'user_income_id' => $income->id,
-                            'file_path' => $path,
-                            'original_filename' => $file->getClientOriginalName(),
-                            'file_size' => $file->getSize(),
-                            'mime_type' => $file->getMimeType(),
-                        ]);
-                    }
-                }
-            }
-
-            // 5. Update Identifications
-            $existingIds = $user->identifications->keyBy(function($item, $key) {
-                return $key;
-            });
-
-            if (count($validated['identifications']) < $existingIds->count()) {
-                $user->identifications()->skip(count($validated['identifications']))->take(PHP_INT_MAX)->each(function($identification) {
-                    if ($identification->document_path) {
-                        Storage::disk('public')->delete($identification->document_path);
-                    }
-                    $identification->delete();
-                });
-            }
-
-            foreach ($validated['identifications'] as $index => $idData) {
-                $identification = $existingIds->get($index) ?: new UserIdentification();
-                $identification->user_id = $user->id;
-                $identification->identification_type = $idData['identification_type'];
-                
-                $pointsMap = [
-                    'australian_drivers_licence' => 40,
-                    'passport' => 70,
-                    'birth_certificate' => 70,
-                    'medicare' => 25,
-                    'other' => 0,
-                ];
-                $identification->points = $pointsMap[$idData['identification_type']] ?? 0;
-                $identification->document_number = $idData['document_number'] ?? null;
-                $identification->expiry_date = $idData['expiry_date'] ?? null;
-                
-                if ($request->hasFile("identifications.$index.document")) {
-                    if ($identification->document_path) {
-                        Storage::disk('public')->delete($identification->document_path);
-                    }
-                    $path = $request->file("identifications.$index.document")
-                        ->store('identification-documents', 'public');
-                    $identification->document_path = $path;
-                }
-                
-                $identification->save();
-            }
-
-            // 6. Update Pets
-            $hasPets = $validated['has_pets'] ?? false;
-            if ($hasPets && isset($validated['pets'])) {
-                $existingPets = $user->pets->keyBy(function($item, $key) {
-                    return $key;
-                });
-                
-                if (count($validated['pets']) < $existingPets->count()) {
-                    $user->pets()->skip(count($validated['pets']))->take(PHP_INT_MAX)->each(function($pet) {
-                        if ($pet->photo_path) {
-                            Storage::disk('public')->delete($pet->photo_path);
-                        }
-                        if ($pet->document_path) {
-                            Storage::disk('public')->delete($pet->document_path);
-                        }
-                        $pet->delete();
-                    });
-                }
-                
-                foreach ($validated['pets'] as $index => $petData) {
-                    $pet = $existingPets->get($index) ?: new UserPet();
-                    $pet->user_id = $user->id;
-                    $pet->type = $petData['type'];
-                    $pet->breed = $petData['breed'];
-                    $pet->desexed = $petData['desexed'];
-                    $pet->size = $petData['size'];
-                    $pet->registration_number = $petData['registration_number'] ?? null;
-                    
-                    // Handle pet photo upload - FIXED
-                    if ($request->hasFile("pets.$index.photo")) {
-                        // Delete old photo if exists
-                        if ($pet->photo_path) {
-                            Storage::disk('public')->delete($pet->photo_path);
-                        }
-                        // Upload new photo
-                        $path = $request->file("pets.$index.photo")->store('pet-photos', 'public');
-                        $pet->photo_path = $path;
-                    } elseif ($request->has("pets.$index.existing_photo")) {
-                        // Keep existing photo
-                        $pet->photo_path = $request->input("pets.$index.existing_photo");
-                    }
-                    
-                    // Handle document upload - FIXED
-                    if ($request->hasFile("pets.$index.document")) {
-                        if ($pet->document_path) {
-                            Storage::disk('public')->delete($pet->document_path);
-                        }
-                        $path = $request->file("pets.$index.document")->store('pet-documents', 'public');
-                        $pet->document_path = $path;
-                    } elseif ($request->has("pets.$index.existing_document")) {
-                        // Keep existing document
-                        $pet->document_path = $request->input("pets.$index.existing_document");
-                    }
-                    
-                    $pet->save();
-                }
-            } else {
-                foreach ($user->pets as $pet) {
-                    if ($pet->photo_path) {
-                        Storage::disk('public')->delete($pet->photo_path);
-                    }
-                    if ($pet->document_path) {
-                        Storage::disk('public')->delete($pet->document_path);
-                    }
-                }
-                $user->pets()->delete();
-            }
-            
             // ============ CREATE APPLICATION ============
             $user->load('profile');
             
@@ -585,7 +231,8 @@ class ApplicationController extends Controller
                 'date_of_birth' => $user->profile->date_of_birth,
                 'current_address' => $validated['addresses'][0]['address'] ?? '',
                 
-                'annual_income' => collect($validated['incomes'])->sum('net_weekly_amount') * 52,
+                // 'annual_income' => collect($validated['incomes'])->sum('net_weekly_amount') * 52,
+                'annual_income' => 0, // default to 0, can be updated later
                 'rent_per_week' => $validated['rent_per_week'],
                 
                 // Application-specific fields
@@ -618,34 +265,6 @@ class ApplicationController extends Controller
             }
             
             DB::commit();
-
-            // ============ SEND REFERENCE EMAILS ============
-            if (!empty($addressReferencesToSend)) {
-                foreach ($addressReferencesToSend as $address) {
-                    try {
-                        \Mail::to($address->reference_email)->send(
-                            new \App\Mail\AddressReferenceRequest($address, $user, $application)
-                        );
-                        
-                        // Update the sent timestamp
-                        $address->reference_email_sent_at = now();
-                        $address->save();
-                        
-                        Log::info('Address reference email sent', [
-                            'address_id' => $address->id,
-                            'reference_email' => $address->reference_email,
-                            'user_id' => $user->id,
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to send address reference email', [
-                            'address_id' => $address->id,
-                            'reference_email' => $address->reference_email,
-                            'error' => $e->getMessage(),
-                        ]);
-                        // Don't fail the whole application if email fails
-                    }
-                }
-            }
             
             // ✅ Return JSON response for AJAX
             if ($request->ajax() || $request->wantsJson()) {

@@ -62,6 +62,7 @@
         <form method="POST" action="{{ route('user.profile.update-step') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             <input type="hidden" name="current_step" value="3">
+            <input type="hidden" name="mode" value="{{ $mode }}">
             
             <!-- Income Sources Section -->
             <div class="bg-white rounded-lg space-y-4">
