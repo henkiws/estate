@@ -1,66 +1,49 @@
 <!-- Vehicles Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="vehicles-card">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card mb-4" id="vehicles-card">
     
-    <!-- Card Header (Always Visible) -->
-    <div class="p-6">
-        <div class="flex items-start justify-between">
-            
-            <!-- Left: Icon + Content -->
-            <div class="flex items-start gap-4 flex-1">
-                <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
-                    </svg>
-                </div>
-                
-                <!-- Content -->
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-plyform-dark">Vehicles</h3>
-                    <p class="text-sm text-gray-600 mt-1" id="vehicles-summary">
-                        @if($user->vehicles && $user->vehicles->count() > 0)
-                            {{ $user->vehicles->count() }} {{ Str::plural('vehicle', $user->vehicles->count()) }}
-                        @else
-                            None
-                        @endif
-                    </p>
-                    
-                    <!-- Status Badge -->
-                    <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-plyform-mint text-plyform-dark border border-plyform-mint" id="vehicles-status">
-                            Complete
-                        </span>
-                    </div>
-                </div>
+    <!-- Card Header - Collapsible Button (Always Visible) -->
+    <button type="button" onclick="toggleVehicles()" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+        <div class="flex items-center gap-3">
+            <!-- Status Icon -->
+            <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center section-status" id="status_vehicles">
+                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
             </div>
             
-            <!-- Right: Completion % + Edit Button -->
-            <div class="flex items-start gap-4 ml-4">
-                <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 border-[#5E17EB] bg-white">
-                    <span class="text-xs font-bold text-[#5E17EB]" id="vehicles-percentage">100%</span>
-                </div>
-                
-                <!-- Edit Button -->
-                <button 
-                    type="button" 
-                    onclick="toggleVehicles()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
-                    id="vehicles-edit-btn"
-                >
-                    <span>Edit</span>
-                    <svg class="w-4 h-4 transition-transform" id="vehicles-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
+            <!-- Title and Summary -->
+            <div class="text-left">
+                <span class="font-semibold text-gray-900">Vehicles</span>
+                @if($user->vehicles && $user->vehicles->count() > 0)
+                    <span class="text-xs bg-green-200 text-green-600 px-2 py-0.5 rounded-full font-medium">Completed</span>
+                @endif
+                <p class="text-xs text-gray-500" id="vehicles-summary">
+                    @if($user->vehicles && $user->vehicles->count() > 0)
+                        {{ $user->vehicles->count() }} {{ Str::plural('vehicle', $user->vehicles->count()) }}
+                    @else
+                        None
+                    @endif
+                </p>
             </div>
-            
         </div>
-    </div>
+        
+        <!-- Right Side: Percentage + Chevron -->
+        <div class="flex items-center gap-4">
+            <!-- Completion Percentage Circle -->
+            <div class="flex items-center justify-center w-12 h-12 rounded-full border-3 border-teal-600 bg-teal-50" id="vehicles-percentage-circle">
+                <span class="text-xs font-bold text-teal-600" id="vehicles-percentage">100%</span>
+            </div>
+            
+            <!-- Chevron Icon -->
+            <svg class="w-5 h-5 text-gray-400 section-chevron transition-transform" id="vehicles-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </button>
     
     <!-- Expandable Form Content (Hidden by Default) -->
-    <div class="border-t border-gray-200 bg-gray-50 hidden" id="vehicles-form">
-        <form method="POST" action="{{ route('user.profile.update-step') }}" class="p-6 space-y-6">
+    <div class="section-content hidden px-6 pb-6" id="vehicles-form">
+        <form method="POST" action="{{ route('user.profile.update-step') }}" class="space-y-6">
             @csrf
             <input type="hidden" name="current_step" value="6">
             
@@ -272,17 +255,15 @@ var vehicleIndex = {{ count($vehicles ?? []) }};
 function toggleVehicles() {
     const formDiv = document.getElementById('vehicles-form');
     const chevron = document.getElementById('vehicles-chevron');
-    const editBtn = document.getElementById('vehicles-edit-btn');
     
     if (formDiv.classList.contains('hidden')) {
         // Expand
         formDiv.classList.remove('hidden');
-        chevron.style.transform = 'rotate(180deg)';
-        editBtn.querySelector('span').textContent = 'Close';
+        chevron.style.transform = 'rotate(90deg)';
         
         // Scroll to card
         setTimeout(() => {
-            document.getElementById('vehicles-card').scrollIntoView({ 
+            document.getElementById('vehicles-card')?.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start' 
             });
@@ -291,7 +272,6 @@ function toggleVehicles() {
         // Collapse
         formDiv.classList.add('hidden');
         chevron.style.transform = 'rotate(0deg)';
-        editBtn.querySelector('span').textContent = 'Edit';
     }
 }
 

@@ -5,7 +5,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> --}}
 
 <!-- intl-tel-input CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/css/intlTelInput.css">
@@ -53,7 +53,7 @@
     }
     
     /* Flatpickr Custom Styling */
-    .flatpickr-calendar {
+    /* .flatpickr-calendar {
         border-radius: 0.5rem !important;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
     }
@@ -66,5 +66,16 @@
     .flatpickr-day:hover {
         background: #f0fdfa !important;
         border-color: #99f6e4 !important;
+    } */
+     .datepicker-cell.disabled {
+        color: #d1d5db !important;
+        /* background-color: #f3f4f6 !important; */
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+    }
+
+    .dark .datepicker-cell.disabled {
+        color: #6b7280 !important;
+        /* background-color: #374151 !important; */
     }
 </style>

@@ -1,96 +1,72 @@
 <!-- Employment Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="employment-card">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card mb-4" id="employment-card">
     
-    <!-- Card Header (Always Visible) -->
-    <div class="p-6">
-        <div class="flex items-start justify-between">
-            
-            <!-- Left: Icon + Content -->
-            <div class="flex items-start gap-4 flex-1">
-                <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+    <!-- Card Header - Collapsible Button (Always Visible) -->
+    <button type="button" onclick="toggleEmployment()" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+        <div class="flex items-center gap-3">
+            <!-- Status Icon -->
+            <div class="w-8 h-8 rounded-full {{ $user->employments && $user->employments->count() > 0 ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_employment">
+                @if($user->employments && $user->employments->count() > 0)
+                    <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                </div>
-                
-                <!-- Content -->
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-plyform-dark">Employment</h3>
-                    <p class="text-sm text-gray-600 mt-1" id="employment-summary">
-                        @if($user->employments && $user->employments->count() > 0)
-                            @php
-                                $employment = $user->employments->first();
-                                $verified = $employment->reference_status === 'verified';
-                                $pending = $employment->reference_status === 'pending';
-                            @endphp
-                            Currently at {{ $employment->company_name }}
-                            @if($verified)
-                                <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Verified
-                                </span>
-                            @elseif($pending)
-                                <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    <svg class="w-3 h-3 mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Pending
-                                </span>
-                            @endif
-                        @else
-                            Not completed yet
-                        @endif
-                    </p>
-                    
-                    <!-- Status Badge -->
-                    <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $user->employments && $user->employments->count() > 0 ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="employment-status">
-                            @if($user->employments && $user->employments->count() > 0)
-                                Complete
-                            @else
-                                Incomplete
-                            @endif
-                        </span>
-                    </div>
-                </div>
+                @else
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                @endif
             </div>
             
-            <!-- Right: Completion % + Edit Button -->
-            <div class="flex items-start gap-4 ml-4">
-                <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $user->employments && $user->employments->count() > 0 ? 'border-[#5E17EB]' : 'border-gray-300' }} bg-white">
-                    <span class="text-xs font-bold {{ $user->employments && $user->employments->count() > 0 ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="employment-percentage">
-                        @if($user->employments && $user->employments->count() > 0)
-                            100%
-                        @else
-                            0%
+            <!-- Title and Summary -->
+            <div class="text-left">
+                <span class="font-semibold text-gray-900">Employment</span>
+                <p class="text-xs text-gray-500" id="employment-summary">
+                    @if($user->employments && $user->employments->count() > 0)
+                        @php
+                            $employment = $user->employments->first();
+                            $verified = $employment->reference_status === 'verified';
+                            $pending = $employment->reference_status === 'pending';
+                        @endphp
+                        Currently at {{ $employment->company_name }}
+                        @if($verified)
+                            <span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+                                ✓ Verified
+                            </span>
+                        @elseif($pending)
+                            <span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-700">
+                                ⏱ Pending
+                            </span>
                         @endif
-                    </span>
-                </div>
-                
-                <!-- Edit Button -->
-                <button 
-                    type="button" 
-                    onclick="toggleEmployment()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
-                    id="employment-edit-btn"
-                >
-                    <span>Edit</span>
-                    <svg class="w-4 h-4 transition-transform" id="employment-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
+                    @else
+                        Not completed yet
+                    @endif
+                </p>
             </div>
-            
         </div>
-    </div>
+        
+        <!-- Right Side: Percentage + Chevron -->
+        <div class="flex items-center gap-4">
+            <!-- Completion Percentage Circle -->
+            <div class="flex items-center justify-center w-12 h-12 rounded-full border-3 {{ $user->employments && $user->employments->count() > 0 ? 'border-teal-600 bg-teal-50' : 'border-gray-300 bg-gray-50' }}" id="employment-percentage-circle">
+                <span class="text-xs font-bold {{ $user->employments && $user->employments->count() > 0 ? 'text-teal-600' : 'text-gray-400' }}" id="employment-percentage">
+                    @if($user->employments && $user->employments->count() > 0)
+                        100%
+                    @else
+                        0%
+                    @endif
+                </span>
+            </div>
+            
+            <!-- Chevron Icon -->
+            <svg class="w-5 h-5 text-gray-400 section-chevron transition-transform" id="employment-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </button>
     
     <!-- Expandable Form Content (Hidden by Default) -->
-    <div class="border-t border-gray-200 bg-gray-50 hidden" id="employment-form">
-        <form method="POST" action="{{ route('user.profile.update-step') }}" enctype="multipart/form-data" class="p-6 space-y-6">
+    <div class="section-content hidden px-6 pb-6" id="employment-form">
+        <form method="POST" action="{{ route('user.profile.update-step') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             <input type="hidden" name="current_step" value="4">
             
@@ -227,8 +203,9 @@
                                 <!-- Make fields readonly if verified -->
                                 @php
                                     $isVerified = ($employment['reference_status'] ?? '') === 'verified';
-                                    $readonlyAttr = $isVerified ? 'readonly' : '';
-                                    $disabledClass = $isVerified ? 'bg-gray-100 cursor-not-allowed' : '';
+                                    $isPending = ($employment['reference_status'] ?? '') === 'pending';
+                                    $readonlyAttr = $isVerified || $isPending ? 'readonly' : '';
+                                    $disabledClass = $isVerified || $isPending ? 'bg-gray-100 cursor-not-allowed' : '';
                                 @endphp
                                 
                                 <!-- Company & Position -->
@@ -369,8 +346,8 @@
                                                 value="1"
                                                 onchange="toggleEndDate({{ $index }})"
                                                 {{ ($employment['still_employed'] ?? false) ? 'checked' : '' }}
-                                                {{ $isVerified ? 'disabled' : '' }}
-                                                class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20"
+                                                {{-- {{ $isVerified ? 'disabled' : '' }} --}}
+                                                class="w-5 h-5 text-plyform-green rounded focus:ring-plyform-green/20 {{ $disabledClass }}"
                                             >
                                             <span class="text-sm">Yes, currently employed</span>
                                         </label>
@@ -387,7 +364,8 @@
                                             {{ $readonlyAttr }}
                                             max="{{ now()->format('Y-m-d') }}"
                                             min="{{ isset($employment['start_date']) ? \Carbon\Carbon::parse($employment['start_date'])->format('Y-m-d') : '' }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all {{ $disabledClass }} @error('employments.'.$index.'.end_date') border-red-500 @enderror"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all end-date-field {{ $disabledClass }} @error('employments.'.$index.'.end_date') border-red-500 @enderror"
+                                            data-index='{{ $index }}'
                                         >
                                         @error('employments.'.$index.'.end_date')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -549,17 +527,15 @@ let employmentIndex = {{ count($employments ?? []) }};
 function toggleEmployment() {
     const formDiv = document.getElementById('employment-form');
     const chevron = document.getElementById('employment-chevron');
-    const editBtn = document.getElementById('employment-edit-btn');
     
     if (formDiv.classList.contains('hidden')) {
         // Expand
         formDiv.classList.remove('hidden');
-        chevron.style.transform = 'rotate(180deg)';
-        editBtn.querySelector('span').textContent = 'Close';
+        chevron.style.transform = 'rotate(90deg)';
         
         // Scroll to card
         setTimeout(() => {
-            document.getElementById('employment-card').scrollIntoView({ 
+            document.getElementById('employment-card')?.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'start' 
             });
@@ -568,7 +544,6 @@ function toggleEmployment() {
         // Collapse
         formDiv.classList.add('hidden');
         chevron.style.transform = 'rotate(0deg)';
-        editBtn.querySelector('span').textContent = 'Edit';
     }
 }
 
@@ -585,7 +560,7 @@ function toggleEmploymentSection() {
 
 function toggleEndDate(index) {
     const checkbox = document.querySelector(`input[name="employments[${index}][still_employed]"]`);
-    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input[type="date"]`);
+    const endDateField = document.querySelector(`.end-date-field[data-index="${index}"] input[type="text"]`);
     const requiredStar = document.querySelector(`.end-date-field[data-index="${index}"] .required-if`);
     
     if (!endDateField) return;
@@ -649,7 +624,7 @@ function addEmployment() {
                     <input type="text" name="employments[${employmentIndex}][company_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="ABC Company Pty Ltd">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Position <span class="text-plyform-orange">*</span></label>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Position/Job Title <span class="text-plyform-orange">*</span></label>
                     <input type="text" name="employments[${employmentIndex}][position]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="Senior Developer">
                 </div>
             </div>
@@ -660,9 +635,9 @@ function addEmployment() {
                 <input type="text" name="employments[${employmentIndex}][address]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="123 Business St, Sydney NSW 2000">
             </div>
             
-            <!-- Manager Name -->
+            <!-- Manager/Supervisor Name -->
             <div class="mb-4">
-                <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager Name <span class="text-plyform-orange">*</span></label>
+                <label class="text-sm font-medium text-plyform-dark mb-2 block">Manager/Supervisor Name <span class="text-plyform-orange">*</span></label>
                 <input type="text" name="employments[${employmentIndex}][manager_full_name]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="John Smith">
             </div>
             
@@ -683,7 +658,7 @@ function addEmployment() {
                     <p class="mt-1 text-xs text-gray-500">Select country and enter contact number</p>
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Email <span class="text-plyform-orange">*</span></label>
+                    <label class="text-sm font-medium text-plyform-dark mb-2 block">Email Address <span class="text-plyform-orange">*</span></label>
                     <input type="email" name="employments[${employmentIndex}][email]" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all" placeholder="manager@company.com">
                 </div>
             </div>
@@ -703,7 +678,7 @@ function addEmployment() {
                 </div>
                 <div class="end-date-field" data-index="${employmentIndex}">
                     <label class="text-sm font-medium text-plyform-dark mb-2 block">End Date <span class="text-plyform-orange required-if">*</span></label>
-                    <input type="date" name="employments[${employmentIndex}][end_date]" required max="{{ now()->format('Y-m-d') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all">
+                    <input type="date" name="employments[${employmentIndex}][end_date]" required max="{{ now()->format('Y-m-d') }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green/20 focus:border-plyform-green outline-none transition-all end-date-field" data-index="${employmentIndex}">
                 </div>
             </div>
             
@@ -744,9 +719,12 @@ function addEmployment() {
     // Initialize phone input for new employment
     setTimeout(() => {
         initializeEmploymentContactPhone(employmentIndex);
+        initializeDatepicker();
     }, 100);
     
-    employmentIndex++;
+    setTimeout(() => {
+        employmentIndex++;
+    }, 200);
 }
 
 // Remove employment (for new/unsaved employments)
@@ -993,7 +971,7 @@ function initializeEmploymentContactPhone(index) {
         separateDialCode: true,
         nationalMode: false,
         autoPlaceholder: "polite",
-        formatOnDisplay: true,
+        formatOnDisplay: false,
         customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
             return "e.g. " + selectedCountryPlaceholder;
         },
@@ -1147,7 +1125,7 @@ function deleteVerifiedEmployment(index) {
     }
 }
 
-// Show notification helper (keep existing function)
+// Show notification helper
 function showNotification(message, type = 'info') {
     const colors = {
         info: 'bg-blue-100 text-blue-800 border-blue-200',

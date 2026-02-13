@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Rental Reference Form - Plyform</title>
+    <title>Rental Reference Form - {{ config('app.name') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .btn-group button {
-            flex: 1;
-        }
-        .btn-group button.active {
-            background-color: #bbf7d0;
-            font-weight: 600;
-        }
+        .plyform-green { color: #0d9488; }
+        .bg-plyform-green { background-color: #0d9488; }
+        .plyform-yellow { color: #E6FF4B; }
+        .bg-plyform-yellow { background-color: #E6FF4B; }
+        .plyform-purple { color: #5E17EB; }
+        .bg-plyform-purple { background-color: #5E17EB; }
+        .plyform-orange { color: #FF3600; }
+        .bg-plyform-orange { background-color: #FF3600; }
+        .plyform-dark { color: #1E1C1C; }
+        .bg-plyform-dark { background-color: #1E1C1C; }
         
         /* Beautiful notification styles */
         @keyframes slideIn {
@@ -55,16 +58,19 @@
     <!-- Notification Container -->
     <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
-    <div class="max-w-2xl mx-auto py-8 px-4">
-        
-        <!-- Logo -->
-        <div class="text-center mb-8">
-            <img src="{{ asset('images/logo.png') }}" alt="Plyform" class="h-12 mx-auto">
+    <!-- Header -->
+    <header class="bg-plyform-dark text-white py-6">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-2xl font-bold" style="color: #E6FF4B;">{{ config('app.name') }}</h1>
+            <p class="text-gray-300 mt-1">Rental Reference Form</p>
         </div>
+    </header>
 
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
         @if($alreadySubmitted)
             <!-- Already Submitted Message -->
-            <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
                 <div class="mb-6">
                     <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -74,295 +80,556 @@
                 <p class="text-gray-600">This reference has already been submitted. Thank you for your contribution!</p>
             </div>
         @else
+            <!-- Info Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Rental Reference Form</h2>
+                <p class="text-gray-700 mb-4">You are completing a rental reference for <strong>{{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }}</strong>.</p>
+                
+                <!-- Applicant Info -->
+                <div class="bg-gray-50 border-l-4 border-plyform-yellow p-4 rounded mb-4">
+                    <p class="text-sm text-gray-700"><strong>Name:</strong> {{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }}</p>
+                    <p class="text-sm text-gray-700"><strong>Address:</strong> {{ $address->address }}</p>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                    <div class="flex">
+                        <svg class="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-blue-800 text-sm">Protecting your feedback</p>
+                            <p class="text-blue-700 text-sm">This information will only be shared back with the property manager.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form -->
             <form id="reference-form" method="POST" action="{{ route('address-reference.submit', $address->reference_token) }}" enctype="multipart/form-data">
                 @csrf
 
-                <!-- Header -->
-                <div class="bg-red-600 text-white p-6 rounded-t-lg">
-                    <h1 class="text-2xl font-bold">Rental Reference Form</h1>
+                @if(session('error'))
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <!-- Upload Section -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Upload tenant ledger</h3>
+                    <p class="text-sm text-gray-600 mb-4">Property managers want to confirm that potential renters are able to pay rent</p>
+                    
+                    <input type="file" name="ref_tenant_ledger" id="ledger_file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                    <button type="button" onclick="document.getElementById('ledger_file').click()" class="bg-plyform-green text-white px-6 py-2 rounded-lg hover:bg-[#036b62] transition">
+                        Add file
+                    </button>
+                    <div id="ledger_preview" class="mt-2 text-sm text-gray-600"></div>
                 </div>
 
-                <div class="bg-white shadow-sm rounded-b-lg p-6 space-y-6">
-                    
-                    <!-- Intro -->
-                    <div>
-                        <p class="text-gray-800">
-                            You are completing a reference for <strong>{{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }}</strong> at <strong>{{ $address->address }}</strong>
-                        </p>
-                    </div>
+                <!-- Questions Section -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Questions</h3>
 
-                    <!-- Info Box -->
-                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                        <div class="flex">
-                            <svg class="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <div>
-                                <p class="font-semibold text-blue-800 text-sm">Protecting your feedback</p>
-                                <p class="text-blue-700 text-sm">This information will only be shared back with the property manager.</p>
+                    <!-- Question 1: Is leaseholder -->
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Is this tenant a leaseholder or an approved occupant at the property mentioned above? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'yes', this)" 
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
+                        </div>
+                        <input type="hidden" name="ref_is_leaseholder" id="ref_is_leaseholder" value="{{ old('ref_is_leaseholder', $address->ref_is_leaseholder) }}">
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_is_leaseholder')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_is_leaseholder_section" class="mt-2 {{ old('ref_is_leaseholder_comment', $address->ref_is_leaseholder_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_is_leaseholder_comment" id="comment_is_leaseholder" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_is_leaseholder_comment', $address->ref_is_leaseholder_comment) }}</textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Upload tenant ledger -->
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-2">Upload tenant ledger</h3>
-                        <p class="text-sm text-gray-600 mb-3">Property managers want to confirm that potential renters are able to pay rent</p>
-                        
-                        <input type="file" name="ref_tenant_ledger" id="ledger_file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
-                        <button type="button" onclick="document.getElementById('ledger_file').click()" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition">
-                            Add file
-                        </button>
-                        <div id="ledger_preview" class="mt-2 text-sm text-gray-600"></div>
-                    </div>
-
-                    <!-- Questions Title -->
-                    <div>
-                        <h3 class="font-semibold text-gray-900 text-lg">Questions</h3>
-                    </div>
-
-                    <!-- Question 1: Is leaseholder -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Is this tenant a leaseholder or an approved occupant at the property mentioned above?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'yes')" data-field="ref_is_leaseholder" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'no')" data-field="ref_is_leaseholder" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_is_leaseholder', 'n/a')" data-field="ref_is_leaseholder" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
-                        </div>
-                        <input type="hidden" name="ref_is_leaseholder" id="ref_is_leaseholder" value="{{ old('ref_is_leaseholder', $address->ref_is_leaseholder) }}">
-                        <button type="button" onclick="toggleComment('comment_is_leaseholder')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_is_leaseholder_comment" id="comment_is_leaseholder" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_is_leaseholder_comment', $address->ref_is_leaseholder_comment) }}</textarea>
-                    </div>
-
                     <!-- Question 2: Would rent again -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Would you rent to this tenant again?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_would_rent_again', 'yes')" data-field="ref_would_rent_again" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_would_rent_again', 'no')" data-field="ref_would_rent_again" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_would_rent_again', 'n/a')" data-field="ref_would_rent_again" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Would you rent to this tenant again? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_would_rent_again', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_would_rent_again', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_would_rent_again', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_would_rent_again" id="ref_would_rent_again" value="{{ old('ref_would_rent_again', $address->ref_would_rent_again) }}">
-                        <button type="button" onclick="toggleComment('comment_would_rent_again')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_would_rent_again_comment" id="comment_would_rent_again" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_would_rent_again_comment', $address->ref_would_rent_again_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_would_rent_again')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_would_rent_again_section" class="mt-2 {{ old('ref_would_rent_again_comment', $address->ref_would_rent_again_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_would_rent_again_comment" id="comment_would_rent_again" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_would_rent_again_comment', $address->ref_would_rent_again_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 3: Lived at address -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Did the tenant live at the above address from {{ \Carbon\Carbon::parse($address->user->profile->date_of_birth)->format('M Y') }} until {{ \Carbon\Carbon::now()->format('M Y') }}?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_lived_at_address', 'yes')" data-field="ref_lived_at_address" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_lived_at_address', 'no')" data-field="ref_lived_at_address" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_lived_at_address', 'n/a')" data-field="ref_lived_at_address" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Did the tenant live at the above address from {{ \Carbon\Carbon::parse($address->user->profile->date_of_birth)->format('M Y') }} until {{ \Carbon\Carbon::now()->format('M Y') }}? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_lived_at_address', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_lived_at_address', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_lived_at_address', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_lived_at_address" id="ref_lived_at_address" value="{{ old('ref_lived_at_address', $address->ref_lived_at_address) }}">
-                        <button type="button" onclick="toggleComment('comment_lived_at_address')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_lived_at_address_comment" id="comment_lived_at_address" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_lived_at_address_comment', $address->ref_lived_at_address_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_lived_at_address')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_lived_at_address_section" class="mt-2 {{ old('ref_lived_at_address_comment', $address->ref_lived_at_address_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_lived_at_address_comment" id="comment_lived_at_address" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_lived_at_address_comment', $address->ref_lived_at_address_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 4: Rent paid on time -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Was the rent always paid on time?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'yes')" data-field="ref_rent_paid_on_time" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'no')" data-field="ref_rent_paid_on_time" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'n/a')" data-field="ref_rent_paid_on_time" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Was the rent always paid on time? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_rent_paid_on_time" id="ref_rent_paid_on_time" value="{{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) }}">
-                        <button type="button" onclick="toggleComment('comment_rent_paid_on_time')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_rent_paid_on_time_comment" id="comment_rent_paid_on_time" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_rent_paid_on_time_comment', $address->ref_rent_paid_on_time_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_rent_paid_on_time')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_rent_paid_on_time_section" class="mt-2 {{ old('ref_rent_paid_on_time_comment', $address->ref_rent_paid_on_time_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_rent_paid_on_time_comment" id="comment_rent_paid_on_time" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_rent_paid_on_time_comment', $address->ref_rent_paid_on_time_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 5: Last inspection -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">When was the last routine inspection?</label>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            When was the last routine inspection?
+                        </label>
                         <div class="grid grid-cols-2 gap-4">
-                            <select name="ref_last_inspection_month" class="border border-gray-300 rounded px-3 py-2">
+                            <select name="ref_last_inspection_month" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green">
                                 <option value="">Month</option>
                                 @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $month)
                                     <option value="{{ $month }}" {{ old('ref_last_inspection_month', $address->ref_last_inspection_month) == $month ? 'selected' : '' }}>{{ $month }}</option>
                                 @endforeach
                             </select>
-                            <select name="ref_last_inspection_year" class="border border-gray-300 rounded px-3 py-2">
+                            <select name="ref_last_inspection_year" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green">
                                 <option value="">Year</option>
                                 @for($year = now()->year; $year >= now()->year - 10; $year--)
                                     <option value="{{ $year }}" {{ old('ref_last_inspection_year', $address->ref_last_inspection_year) == $year ? 'selected' : '' }}>{{ $year }}</option>
                                 @endfor
                             </select>
                         </div>
-                        <button type="button" onclick="toggleComment('comment_last_inspection')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_last_inspection_comment" id="comment_last_inspection" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_last_inspection_comment', $address->ref_last_inspection_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_last_inspection')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_last_inspection_section" class="mt-2 {{ old('ref_last_inspection_comment', $address->ref_last_inspection_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_last_inspection_comment" id="comment_last_inspection" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_last_inspection_comment', $address->ref_last_inspection_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 6: Rent per week -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">What was the rent per week?</label>
-                        <input type="number" name="ref_rent_per_week" step="0.01" min="0" value="{{ old('ref_rent_per_week', $address->ref_rent_per_week) }}" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter amount">
-                        <button type="button" onclick="toggleComment('comment_rent_per_week')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_rent_per_week_comment" id="comment_rent_per_week" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_rent_per_week_comment', $address->ref_rent_per_week_comment) }}</textarea>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            What was the rent per week?
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-500">$</span>
+                            <input type="number" name="ref_rent_per_week" step="0.01" min="0" value="{{ old('ref_rent_per_week', $address->ref_rent_per_week) }}"
+                                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                placeholder="Enter amount">
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_rent_per_week')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_rent_per_week_section" class="mt-2 {{ old('ref_rent_per_week_comment', $address->ref_rent_per_week_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_rent_per_week_comment" id="comment_rent_per_week" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_rent_per_week_comment', $address->ref_rent_per_week_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 7: Bond refund -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Did they/will they receive a full bond refund?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'yes')" data-field="ref_full_bond_refund" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'no')" data-field="ref_full_bond_refund" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'n/a')" data-field="ref_full_bond_refund" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Did they/will they receive a full bond refund? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_full_bond_refund', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_full_bond_refund" id="ref_full_bond_refund" value="{{ old('ref_full_bond_refund', $address->ref_full_bond_refund) }}">
-                        <button type="button" onclick="toggleComment('comment_full_bond_refund')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_full_bond_refund_comment" id="comment_full_bond_refund" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_full_bond_refund_comment', $address->ref_full_bond_refund_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_full_bond_refund')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_full_bond_refund_section" class="mt-2 {{ old('ref_full_bond_refund_comment', $address->ref_full_bond_refund_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_full_bond_refund_comment" id="comment_full_bond_refund" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_full_bond_refund_comment', $address->ref_full_bond_refund_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 8: Breach free -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Was the tenancy free of breach notices?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_breach_free', 'yes')" data-field="ref_breach_free" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_breach_free', 'no')" data-field="ref_breach_free" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_breach_free', 'n/a')" data-field="ref_breach_free" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Was the tenancy free of breach notices? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_breach_free', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_breach_free', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_breach_free', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_breach_free" id="ref_breach_free" value="{{ old('ref_breach_free', $address->ref_breach_free) }}">
-                        <button type="button" onclick="toggleComment('comment_breach_free')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_breach_free_comment" id="comment_breach_free" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_breach_free_comment', $address->ref_breach_free_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_breach_free')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_breach_free_section" class="mt-2 {{ old('ref_breach_free_comment', $address->ref_breach_free_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_breach_free_comment" id="comment_breach_free" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_breach_free_comment', $address->ref_breach_free_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 9: Property clean -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Was the property found to be clean, undamaged and well maintained?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_property_clean', 'yes')" data-field="ref_property_clean" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_property_clean', 'no')" data-field="ref_property_clean" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_property_clean', 'n/a')" data-field="ref_property_clean" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Was the property found to be clean, undamaged and well maintained? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_property_clean', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_property_clean', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_property_clean', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_property_clean" id="ref_property_clean" value="{{ old('ref_property_clean', $address->ref_property_clean) }}">
-                        <button type="button" onclick="toggleComment('comment_property_clean')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_property_clean_comment" id="comment_property_clean" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_property_clean_comment', $address->ref_property_clean_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_property_clean')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_property_clean_section" class="mt-2 {{ old('ref_property_clean_comment', $address->ref_property_clean_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_property_clean_comment" id="comment_property_clean" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_property_clean_comment', $address->ref_property_clean_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 10: Had pet -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Did the tenant have a pet during the tenancy?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_had_pet', 'yes')" data-field="ref_had_pet" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_had_pet', 'no')" data-field="ref_had_pet" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_had_pet', 'n/a')" data-field="ref_had_pet" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Did the tenant have a pet during the tenancy? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_had_pet', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_had_pet', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_had_pet', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_had_pet" id="ref_had_pet" value="{{ old('ref_had_pet', $address->ref_had_pet) }}">
-                        <button type="button" onclick="toggleComment('comment_had_pet')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_had_pet_comment" id="comment_had_pet" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_had_pet_comment', $address->ref_had_pet_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_had_pet')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_had_pet_section" class="mt-2 {{ old('ref_had_pet_comment', $address->ref_had_pet_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_had_pet_comment" id="comment_had_pet" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_had_pet_comment', $address->ref_had_pet_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 11: Pet policy compliance -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">Did the tenant comply with the pet policy of the rental?</label>
-                        <div class="btn-group flex border border-gray-300 rounded overflow-hidden">
-                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'yes')" data-field="ref_pet_policy_complied" data-value="yes" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">Yes</button>
-                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'no')" data-field="ref_pet_policy_complied" data-value="no" class="py-2 px-4 border-r border-gray-300 hover:bg-gray-50">No</button>
-                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'n/a')" data-field="ref_pet_policy_complied" data-value="n/a" class="py-2 px-4 hover:bg-gray-50">N/A</button>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            Did the tenant comply with the pet policy of the rental? <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'yes', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                Yes
+                            </button>
+                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'no', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                No
+                            </button>
+                            <button type="button" onclick="selectOption('ref_pet_policy_complied', 'n/a', this)"
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                N/A
+                            </button>
                         </div>
                         <input type="hidden" name="ref_pet_policy_complied" id="ref_pet_policy_complied" value="{{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) }}">
-                        <button type="button" onclick="toggleComment('comment_pet_policy_complied')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_pet_policy_complied_comment" id="comment_pet_policy_complied" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_pet_policy_complied_comment', $address->ref_pet_policy_complied_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_pet_policy_complied')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_pet_policy_complied_section" class="mt-2 {{ old('ref_pet_policy_complied_comment', $address->ref_pet_policy_complied_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_pet_policy_complied_comment" id="comment_pet_policy_complied" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_pet_policy_complied_comment', $address->ref_pet_policy_complied_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 12: Cooperative rating -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">How co-operative and pleasant was/is the tenant to deal with?</label>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            How co-operative and pleasant was/is the tenant to deal with? <span class="text-red-600">*</span>
+                        </label>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectCooperativeRating({{ $i }})" data-coop-rating="{{ $i }}" class="coop-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectCooperativeRating({{ $i }})" data-coop-rating="{{ $i }}" 
+                                        class="coop-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        {{ $i }}
+                                    </button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
                         </div>
                         <input type="hidden" name="ref_cooperative_rating" id="ref_cooperative_rating" value="{{ old('ref_cooperative_rating', $address->ref_cooperative_rating) }}">
-                        <button type="button" onclick="toggleComment('comment_cooperative_rating')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_cooperative_rating_comment" id="comment_cooperative_rating" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_cooperative_rating_comment', $address->ref_cooperative_rating_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_cooperative_rating')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_cooperative_rating_section" class="mt-2 {{ old('ref_cooperative_rating_comment', $address->ref_cooperative_rating_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_cooperative_rating_comment" id="comment_cooperative_rating" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_cooperative_rating_comment', $address->ref_cooperative_rating_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 13: Property condition rating -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">What was the condition of the property when the tenant left?</label>
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            What was the condition of the property when the tenant left? <span class="text-red-600">*</span>
+                        </label>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectConditionRating({{ $i }})" data-condition-rating="{{ $i }}" class="condition-rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectConditionRating({{ $i }})" data-condition-rating="{{ $i }}" 
+                                        class="condition-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        {{ $i }}
+                                    </button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
                         </div>
                         <input type="hidden" name="ref_property_condition_rating" id="ref_property_condition_rating" value="{{ old('ref_property_condition_rating', $address->ref_property_condition_rating) }}">
-                        <button type="button" onclick="toggleComment('comment_property_condition_rating')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_property_condition_rating_comment" id="comment_property_condition_rating" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_property_condition_rating_comment', $address->ref_property_condition_rating_comment) }}</textarea>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_property_condition_rating')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_property_condition_rating_section" class="mt-2 {{ old('ref_property_condition_rating_comment', $address->ref_property_condition_rating_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_property_condition_rating_comment" id="comment_property_condition_rating" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_property_condition_rating_comment', $address->ref_property_condition_rating_comment) }}</textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Question 14: Overall rating -->
-                    <div class="space-y-2">
-                        <label class="block text-sm text-gray-700">How would you rate your overall experience with the tenant?</label>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">
+                            How would you rate your overall experience with the tenant? <span class="text-red-600">*</span>
+                        </label>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-500">Poor</span>
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" onclick="selectRating({{ $i }})" data-rating="{{ $i }}" class="rating-btn w-12 h-12 border border-gray-300 rounded hover:bg-gray-100 {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'bg-green-200 font-bold' : '' }}">{{ $i }}</button>
+                                    <button type="button" onclick="selectRating({{ $i }})" data-rating="{{ $i }}" 
+                                        class="rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        {{ $i }}
+                                    </button>
                                 @endfor
                             </div>
                             <span class="text-sm text-gray-500">Excellent</span>
                         </div>
                         <input type="hidden" name="ref_overall_rating" id="ref_overall_rating" value="{{ old('ref_overall_rating', $address->ref_overall_rating) }}">
-                        <button type="button" onclick="toggleComment('comment_overall_rating')" class="text-blue-600 text-sm hover:underline">Add comment</button>
-                        <textarea name="ref_overall_rating_comment" id="comment_overall_rating" rows="2" class="hidden w-full border border-gray-300 rounded px-3 py-2 text-sm mt-2" placeholder="Add your comment...">{{ old('ref_overall_rating_comment', $address->ref_overall_rating_comment) }}</textarea>
-                    </div>
-
-                    <!-- Signature -->
-                    <div class="border-t pt-6">
-                        <h3 class="font-semibold text-gray-900 mb-4">Signature</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
-                                <input 
-                                    type="text" 
-                                    name="ref_signature_name" 
-                                    id="ref_signature_name"
-                                    required 
-                                    class="w-full border border-gray-300 rounded px-3 py-2" 
-                                    placeholder="Enter your full name" 
-                                    value="{{ old('ref_signature_name', $address->ref_signature_name) }}"
-                                >
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="toggleComment('comment_overall_rating')" class="text-sm text-blue-600 hover:underline">
+                                Add comment
+                            </button>
+                            <div id="comment_overall_rating_section" class="mt-2 {{ old('ref_overall_rating_comment', $address->ref_overall_rating_comment) ? '' : 'hidden' }}">
+                                <textarea name="ref_overall_rating_comment" id="comment_overall_rating" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green"
+                                    placeholder="Add your comment...">{{ old('ref_overall_rating_comment', $address->ref_overall_rating_comment) }}</textarea>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Privacy Statement -->
-                    <div class="border-t pt-6">
-                        <h3 class="font-semibold text-gray-900 mb-2">Rental Application Personal Information Privacy Statement</h3>
-                        <div class="bg-gray-50 p-4 rounded text-xs text-gray-600 max-h-48 overflow-y-auto">
-                            <p class="mb-2"><strong>Name:</strong> {{ $address->reference_full_name }}</p>
-                            <p class="mb-4">{{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }} (the 'Applicant') has submitted a Rental Application through the online tenancy application system operated by plyform.com. By submitting their Rental Application {{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }} accepts the conditions set out in plyform's Rental Application Terms and Conditions...</p>
-                            <p class="text-xs text-gray-500">Full terms and conditions apply.</p>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex gap-4 pt-6">
-                        <button type="button" onclick="saveDraft()" class="flex-1 bg-gray-800 text-white py-3 rounded hover:bg-gray-900 transition font-semibold">
-                            Save as draft
-                        </button>
-                        <button type="submit" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded hover:bg-gray-400 transition font-semibold">
-                            Submit reference
-                        </button>
-                    </div>
-
-                    <p class="text-xs text-center text-gray-500 mt-4">By submitting this reference, you agree to the terms and conditions above.</p>
                 </div>
+
+                <!-- Signature Section -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Signature</h3>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name <span class="text-red-600">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="ref_signature_name" 
+                            id="ref_signature_name"
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-plyform-green focus:border-plyform-green" 
+                            placeholder="Enter your full name" 
+                            value="{{ old('ref_signature_name', $address->ref_signature_name) }}"
+                        >
+                    </div>
+                </div>
+
+                <!-- Privacy Statement -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Rental Application Personal Information Privacy Statement</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg text-xs text-gray-600 max-h-48 overflow-y-auto">
+                        <p class="mb-2"><strong>Name:</strong> {{ $address->reference_full_name }}</p>
+                        <p class="mb-4">{{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }} (the 'Applicant') has submitted a Rental Application through the online tenancy application system operated by plyform.com. By submitting their Rental Application {{ $address->user->profile->first_name }} {{ $address->user->profile->last_name }} accepts the conditions set out in plyform's Rental Application Terms and Conditions...</p>
+                        <p class="text-xs text-gray-500">Full terms and conditions apply.</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button type="button" onclick="saveDraft()" class="flex-1 bg-gray-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-900 transition-colors">
+                        Save as draft
+                    </button>
+                    <button type="submit" class="flex-1 bg-plyform-green text-white py-3 rounded-lg font-semibold hover:bg-[#036b62] transition-colors">
+                        Submit reference
+                    </button>
+                </div>
+
+                <p class="text-xs text-center text-gray-500 mt-4">By submitting this reference, you agree to the terms and conditions above.</p>
             </form>
         @endif
-    </div>
+
+        <!-- Privacy Notice -->
+        <div class="mt-6 text-center text-xs text-gray-500">
+            <p>By submitting this form, you confirm that the information provided is accurate.</p>
+            <p class="mt-2">
+                <a href="{{ config('app.url') }}/privacy" class="text-blue-600 hover:underline">Privacy Policy</a> | 
+                <a href="{{ config('app.url') }}/terms" class="text-blue-600 hover:underline">Terms of Use</a>
+            </p>
+        </div>
+    </main>
 
     <script>
         // ✅ Beautiful notification system
@@ -411,16 +678,18 @@
         }
 
         // Select option for Yes/No/N/A buttons
-        function selectOption(field, value) {
+        function selectOption(field, value, button) {
+            // Update hidden input
             document.getElementById(field).value = value;
-            const buttons = document.querySelectorAll(`[data-field="${field}"]`);
-            buttons.forEach(btn => {
-                if (btn.dataset.value === value) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+            
+            // Update button styles
+            const container = button.parentElement;
+            container.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]');
+                btn.classList.add('border-gray-300');
             });
+            button.classList.remove('border-gray-300');
+            button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
         }
 
         // Select rating
@@ -428,10 +697,11 @@
             document.getElementById('ref_overall_rating').value = rating;
             const buttons = document.querySelectorAll('.rating-btn');
             buttons.forEach(btn => {
+                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.rating) === rating) {
-                    btn.classList.add('bg-green-200', 'font-bold');
-                } else {
-                    btn.classList.remove('bg-green-200', 'font-bold');
+                    btn.classList.remove('border-gray-300');
+                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
                 }
             });
         }
@@ -440,10 +710,11 @@
             document.getElementById('ref_cooperative_rating').value = rating;
             const buttons = document.querySelectorAll('.coop-rating-btn');
             buttons.forEach(btn => {
+                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.coopRating) === rating) {
-                    btn.classList.add('bg-green-200', 'font-bold');
-                } else {
-                    btn.classList.remove('bg-green-200', 'font-bold');
+                    btn.classList.remove('border-gray-300');
+                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
                 }
             });
         }
@@ -452,22 +723,26 @@
             document.getElementById('ref_property_condition_rating').value = rating;
             const buttons = document.querySelectorAll('.condition-rating-btn');
             buttons.forEach(btn => {
+                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.conditionRating) === rating) {
-                    btn.classList.add('bg-green-200', 'font-bold');
-                } else {
-                    btn.classList.remove('bg-green-200', 'font-bold');
+                    btn.classList.remove('border-gray-300');
+                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
                 }
             });
         }
 
+        // Toggle comment section
         function toggleComment(id) {
+            const section = document.getElementById(id + '_section');
             const textarea = document.getElementById(id);
-            textarea.classList.toggle('hidden');
-            if (!textarea.classList.contains('hidden')) {
+            section.classList.toggle('hidden');
+            if (!section.classList.contains('hidden')) {
                 textarea.focus();
             }
         }
 
+        // File upload preview
         document.getElementById('ledger_file')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -475,6 +750,7 @@
             }
         });
 
+        // Save draft function
         function saveDraft() {
             const formData = new FormData(document.getElementById('reference-form'));
             
@@ -501,6 +777,7 @@
             });
         }
 
+        // Form validation on submit
         document.getElementById('reference-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -509,7 +786,6 @@
             
             required.forEach(field => {
                 const input = document.getElementById(field);
-                console.log(field, input)
                 if (!input || !input.value.trim()) {
                     hasErrors = true;
                 }
@@ -523,14 +799,21 @@
             this.submit();
         });
 
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Restore selected options on page load
             @foreach(['ref_is_leaseholder', 'ref_would_rent_again', 'ref_lived_at_address', 'ref_rent_paid_on_time', 'ref_full_bond_refund', 'ref_breach_free', 'ref_property_clean', 'ref_had_pet', 'ref_pet_policy_complied'] as $field)
                 const {{ $field }}_value = document.getElementById('{{ $field }}').value;
                 if ({{ $field }}_value) {
-                    selectOption('{{ $field }}', {{ $field }}_value);
+                    const {{ $field }}_button = document.querySelector('[onclick="selectOption(\'{{ $field }}\', \'' + {{ $field }}_value + '\', this)"]');
+                    if ({{ $field }}_button) {
+                        {{ $field }}_button.classList.remove('border-gray-300');
+                        {{ $field }}_button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
+                    }
                 }
             @endforeach
 
+            // Restore ratings
             const rating = document.getElementById('ref_overall_rating').value;
             if (rating) selectRating(parseInt(rating));
 
@@ -540,10 +823,11 @@
             const conditionRating = document.getElementById('ref_property_condition_rating').value;
             if (conditionRating) selectConditionRating(parseInt(conditionRating));
 
+            // Show comments that have content
             @foreach(['is_leaseholder', 'would_rent_again', 'lived_at_address', 'rent_paid_on_time', 'last_inspection', 'rent_per_week', 'full_bond_refund', 'breach_free', 'property_clean', 'had_pet', 'pet_policy_complied', 'cooperative_rating', 'property_condition_rating', 'overall_rating'] as $field)
                 const comment_{{ $field }} = document.getElementById('comment_{{ $field }}');
                 if (comment_{{ $field }} && comment_{{ $field }}.value.trim() !== '') {
-                    comment_{{ $field }}.classList.remove('hidden');
+                    document.getElementById('comment_{{ $field }}_section').classList.remove('hidden');
                 }
             @endforeach
         });

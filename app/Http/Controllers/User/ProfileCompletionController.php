@@ -210,11 +210,11 @@ class ProfileCompletionController extends Controller
                     break;
                 case 7:
                     $result = $this->saveStep7($request, $user);
-                    $nextSection = 'references-card';
+                    $nextSection = 'identification-card';
                     break;
                 case 8:
                     $result = $this->saveStep8($request, $user);
-                    $nextSection = 'identification-card';
+                    $nextSection = 'references-card';
                     break;
                 case 9:
                     $result = $this->saveStep9($request, $user);

@@ -1,79 +1,66 @@
 <!-- Personal Details Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 hover:shadow-md transition-shadow" id="personal-details-card">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden section-card mb-4" id="personal-details-card">
     
-    <!-- Card Header (Always Visible) -->
-    <div class="p-6">
-        <div class="flex items-start justify-between">
-            
-            <!-- Left: Icon + Content -->
-            <div class="flex items-start gap-4 flex-1">
-                <!-- Icon -->
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-plyform-green/20 to-plyform-mint/30 flex items-center justify-center text-plyform-dark flex-shrink-0">
-                    {{ strtoupper(substr($profile->first_name ?? 'U', 0, 1) . substr($profile->last_name ?? 'N', 0, 1)) }}
-                </div>
-                
-                <!-- Content -->
-                <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-plyform-dark">Personal Details</h3>
-                    <p class="text-sm text-gray-600 mt-1" id="personal-details-summary">
-                        @if($profile && $profile->first_name)
-                            {{ $profile->title }} {{ $profile->first_name }} {{ $profile->last_name }}
-                        @else
-                            Not completed yet
-                        @endif
-                    </p>
-                    
-                    <!-- Status Badge -->
-                    <div class="mt-3">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $profile && $profile->first_name ? 'bg-plyform-mint text-plyform-dark border border-plyform-mint' : 'bg-gray-100 text-gray-600 border border-gray-200' }}" id="personal-details-status">
-                            @if($profile && $profile->first_name)
-                                Complete
-                            @else
-                                Incomplete
-                            @endif
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Right: Completion % + Edit Button -->
-            <div class="flex items-start gap-4 ml-4">
-                <!-- Completion Percentage -->
-                <div class="flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $profile && $profile->first_name ? 'border-[#5E17EB]' : 'border-gray-300' }} bg-white">
-                    <span class="text-xs font-bold {{ $profile && $profile->first_name ? 'text-[#5E17EB]' : 'text-gray-400' }}" id="personal-details-percentage">
-                        @if($profile && $profile->first_name)
-                            100%
-                        @else
-                            0%
-                        @endif
-                    </span>
-                </div>
-                
-                <!-- Edit Button -->
-                <button 
-                    type="button" 
-                    onclick="togglePersonalDetails()"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-plyform-purple hover:text-plyform-dark hover:bg-plyform-purple/10 rounded-lg transition"
-                    id="personal-details-edit-btn"
-                >
-                    <span>Edit</span>
-                    <svg class="w-4 h-4 transition-transform" id="personal-details-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    <!-- Card Header - Collapsible Button (Always Visible) -->
+    <button type="button" onclick="togglePersonalDetails()" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+        <div class="flex items-center gap-3">
+            <!-- Status Icon -->
+            <div class="w-8 h-8 rounded-full {{ $profile && $profile->first_name ? 'bg-teal-100' : 'bg-gray-100' }} flex items-center justify-center section-status" id="status_personal_details">
+                @if($profile && $profile->first_name)
+                    <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                </button>
+                @else
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                @endif
             </div>
             
+            <!-- Title and Summary -->
+            <div class="text-left">
+                <span class="font-semibold text-gray-900">Personal Details</span>
+                @if($profile && $profile->first_name)
+                    <span class="text-xs bg-green-200 text-green-600 px-2 py-0.5 rounded-full font-medium">Completed</span>
+                @endif
+                <p class="text-xs text-gray-500" id="personal-details-summary">
+                    @if($profile && $profile->first_name)
+                        {{ $profile->title }} {{ $profile->first_name }} {{ $profile->last_name }}
+                    @else
+                        Not completed yet
+                    @endif
+                </p>
+            </div>
         </div>
-    </div>
+        
+        <!-- Right Side: Percentage + Chevron -->
+        <div class="flex items-center gap-4">
+            <!-- Completion Percentage Circle -->
+            <div class="flex items-center justify-center w-12 h-12 rounded-full border-3 {{ $profile && $profile->first_name ? 'border-teal-600 bg-teal-50' : 'border-gray-300 bg-gray-50' }}" id="personal-details-percentage-circle">
+                <span class="text-xs font-bold {{ $profile && $profile->first_name ? 'text-teal-600' : 'text-gray-400' }}" id="personal-details-percentage">
+                    @if($profile && $profile->first_name)
+                        100%
+                    @else
+                        0%
+                    @endif
+                </span>
+            </div>
+            
+            <!-- Chevron Icon -->
+            <svg class="w-5 h-5 text-gray-400 section-chevron transition-transform" id="personal-details-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </button>
     
     <!-- Expandable Form Content (Hidden by Default) -->
-    <div class="border-t border-gray-200 bg-gray-50 hidden" id="personal-details-form">
-        <form method="POST" action="{{ route('user.profile.update-step') }}" class="p-6 space-y-6">
+    <div class="section-content hidden px-6 pb-6" id="personal-details-form">
+        <form method="POST" action="{{ route('user.profile.update-step') }}" class="space-y-6">
             @csrf
             <input type="hidden" name="current_step" value="1">
             
             <!-- Personal Details Section -->
-            <div class="bg-white rounded-lg p-6 space-y-4">
+            <div class="bg-white rounded-lg space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h4 class="text-base font-semibold text-plyform-dark">Personal Details</h4>
@@ -209,7 +196,7 @@
             </div>
             
             <!-- Contact Information Section -->
-            <div class="bg-white rounded-lg p-6 space-y-4">
+            <div class="bg-white rounded-lg space-y-4">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h4 class="text-base font-semibold text-plyform-dark">Contact Information</h4>
@@ -270,7 +257,7 @@
             </div>
             
             <!-- Emergency Contact Section -->
-            <div class="bg-white rounded-lg p-6 space-y-4">
+            <div class="bg-white rounded-lg space-y-4">
                 <div class="mb-4">
                     <h4 class="text-base font-semibold text-plyform-dark">Emergency Contact</h4>
                     <p class="text-sm text-gray-600 mt-1">Someone we can contact in case of emergency</p>
@@ -392,7 +379,7 @@
             </div>
             
             <!-- Guarantor Section -->
-            <div class="bg-white rounded-lg p-6 space-y-4">
+            <div class="bg-white rounded-lg space-y-4">
                 <div class="mb-4">
                     <h4 class="text-base font-semibold text-plyform-dark">Guarantor</h4>
                     <p class="text-sm text-gray-600 mt-1">Optional - A guarantor who will co-sign your rental agreement</p>
@@ -520,18 +507,15 @@
 function togglePersonalDetails() {
     const formDiv = document.getElementById('personal-details-form');
     const chevron = document.getElementById('personal-details-chevron');
-    const editBtn = document.getElementById('personal-details-edit-btn');
     
     if (formDiv.classList.contains('hidden')) {
         // Expand
         formDiv.classList.remove('hidden');
-        chevron.style.transform = 'rotate(180deg)';
-        editBtn.querySelector('span').textContent = 'Close';
+        chevron.style.transform = 'rotate(90deg)';
     } else {
         // Collapse
         formDiv.classList.add('hidden');
         chevron.style.transform = 'rotate(0deg)';
-        editBtn.querySelector('span').textContent = 'Edit';
     }
 }
 
@@ -552,4 +536,256 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleEmergencyContact();
     toggleGuarantor();
 });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========================================
+        // MOBILE NUMBER - intl-tel-input
+        // ========================================
+        const phoneInput = document.querySelector("#mobile_number");
+        if (phoneInput) {
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: false,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            // Set initial value if exists
+            const existingCountryCode = document.getElementById('mobile_country_code').value;
+            const existingNumber = document.getElementById('mobile_number_clean').value;
+            
+            if (existingCountryCode && existingNumber) {
+                const countryCode = existingCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of iti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    iti.setCountry(countryData.iso2);
+                }
+                phoneInput.value = existingNumber;
+            }
+
+            phoneInput.addEventListener('blur', function() {
+                updatePhoneFields();
+            });
+
+            phoneInput.addEventListener('countrychange', function() {
+                updatePhoneFields();
+            });
+
+            function updatePhoneFields() {
+                const countryData = iti.getSelectedCountryData();
+                document.getElementById('mobile_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = iti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('mobile_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate on form submit
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    updatePhoneFields();
+                    
+                    // Validate phone number
+                    if (phoneInput.value && !iti.isValidNumber()) {
+                        e.preventDefault();
+                        phoneInput.classList.add('border-red-500');
+                        
+                        let errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.className = 'phone-error mt-1 text-sm text-red-600';
+                            phoneInput.parentElement.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'Please enter a valid phone number for the selected country.';
+                        
+                        phoneInput.focus();
+                        return false;
+                    } else {
+                        phoneInput.classList.remove('border-red-500');
+                        const errorMsg = phoneInput.parentElement.querySelector('.phone-error');
+                        if (errorMsg) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // EMERGENCY CONTACT PHONE - intl-tel-input
+        // ========================================
+        const emergencyPhoneInput = document.querySelector("#emergency_contact_phone");
+        if (emergencyPhoneInput) {
+            const emergencyIti = window.intlTelInput(emergencyPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: false,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingEmergencyCountryCode = document.getElementById('emergency_contact_country_code').value;
+            const existingEmergencyNumber = document.getElementById('emergency_contact_number_clean').value;
+            
+            if (existingEmergencyCountryCode && existingEmergencyNumber) {
+                const countryCode = existingEmergencyCountryCode.replace('+', '');
+                // Use window.intlTelInputGlobals instead of emergencyIti instance
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    emergencyIti.setCountry(countryData.iso2);
+                }
+                emergencyPhoneInput.value = existingEmergencyNumber;
+            }
+
+            emergencyPhoneInput.addEventListener('blur', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            emergencyPhoneInput.addEventListener('countrychange', function() {
+                updateEmergencyPhoneFields();
+            });
+
+            function updateEmergencyPhoneFields() {
+                const countryData = emergencyIti.getSelectedCountryData();
+                document.getElementById('emergency_contact_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = emergencyIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('emergency_contact_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate emergency contact phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasEmergencyContact = document.getElementById('has_emergency_contact');
+                    
+                    if (hasEmergencyContact && hasEmergencyContact.checked) {
+                        updateEmergencyPhoneFields();
+                        
+                        if (emergencyPhoneInput.value && !emergencyIti.isValidNumber()) {
+                            e.preventDefault();
+                            emergencyPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'emergency-phone-error mt-1 text-sm text-red-600';
+                                emergencyPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid emergency contact phone number.';
+                            
+                            emergencyPhoneInput.focus();
+                            return false;
+                        } else {
+                            emergencyPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = emergencyPhoneInput.parentElement.querySelector('.emergency-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========================================
+        // GUARANTOR PHONE - intl-tel-input
+        // ========================================
+        const guarantorPhoneInput = document.querySelector("#guarantor_phone");
+        if (guarantorPhoneInput) {
+            const guarantorIti = window.intlTelInput(guarantorPhoneInput, {
+                initialCountry: "au",
+                preferredCountries: ["au", "us", "gb", "nz", "sg", "my", "id", "ph"],
+                separateDialCode: true,
+                nationalMode: false,
+                autoPlaceholder: "polite",
+                formatOnDisplay: false,
+                customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                    return "e.g. " + selectedCountryPlaceholder;
+                },
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js"
+            });
+
+            const existingGuarantorCountryCode = document.getElementById('guarantor_country_code').value;
+            const existingGuarantorNumber = document.getElementById('guarantor_number_clean').value;
+            
+            if (existingGuarantorCountryCode && existingGuarantorNumber) {
+                const countryCode = existingGuarantorCountryCode.replace('+', '');
+                const allCountries = window.intlTelInputGlobals.getCountryData();
+                const countryData = allCountries.find(country => country.dialCode === countryCode);
+                if (countryData) {
+                    guarantorIti.setCountry(countryData.iso2);
+                }
+                guarantorPhoneInput.value = existingGuarantorNumber;
+            }
+
+            guarantorPhoneInput.addEventListener('blur', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            guarantorPhoneInput.addEventListener('countrychange', function() {
+                updateGuarantorPhoneFields();
+            });
+
+            function updateGuarantorPhoneFields() {
+                const countryData = guarantorIti.getSelectedCountryData();
+                document.getElementById('guarantor_country_code').value = '+' + countryData.dialCode;
+                const fullNumber = guarantorIti.getNumber();
+                const numberWithoutCode = fullNumber.replace('+' + countryData.dialCode, '').trim();
+                document.getElementById('guarantor_number_clean').value = numberWithoutCode;
+            }
+
+            // Validate guarantor phone on form submission
+            const form = document.getElementById('application-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const hasGuarantor = document.getElementById('has_guarantor');
+                    
+                    if (hasGuarantor && hasGuarantor.checked) {
+                        updateGuarantorPhoneFields();
+                        
+                        if (guarantorPhoneInput.value && !guarantorIti.isValidNumber()) {
+                            e.preventDefault();
+                            guarantorPhoneInput.classList.add('border-red-500');
+                            
+                            let errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (!errorMsg) {
+                                errorMsg = document.createElement('p');
+                                errorMsg.className = 'guarantor-phone-error mt-1 text-sm text-red-600';
+                                guarantorPhoneInput.parentElement.appendChild(errorMsg);
+                            }
+                            errorMsg.textContent = 'Please enter a valid guarantor phone number.';
+                            
+                            guarantorPhoneInput.focus();
+                            return false;
+                        } else {
+                            guarantorPhoneInput.classList.remove('border-red-500');
+                            const errorMsg = guarantorPhoneInput.parentElement.querySelector('.guarantor-phone-error');
+                            if (errorMsg) {
+                                errorMsg.remove();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+    });
 </script>
