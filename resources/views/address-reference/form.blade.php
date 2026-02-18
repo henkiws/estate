@@ -121,7 +121,7 @@
                     <p class="text-sm text-gray-600 mb-4">Property managers want to confirm that potential renters are able to pay rent</p>
                     
                     <input type="file" name="ref_tenant_ledger" id="ledger_file" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
-                    <button type="button" onclick="document.getElementById('ledger_file').click()" class="bg-plyform-green text-white px-6 py-2 rounded-lg hover:bg-[#036b62] transition">
+                    <button type="button" onclick="document.getElementById('ledger_file').click()" class="bg-plyform-yellow px-6 py-2 rounded-lg hover:bg-[#ddeecd] transition">
                         Add file
                     </button>
                     <div id="ledger_preview" class="mt-2 text-sm text-gray-600"></div>
@@ -138,15 +138,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_is_leaseholder', 'yes', this)" 
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_is_leaseholder', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_is_leaseholder', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_is_leaseholder', $address->ref_is_leaseholder) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -171,15 +171,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_would_rent_again', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_would_rent_again', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_would_rent_again', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_would_rent_again', $address->ref_would_rent_again) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -204,15 +204,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_lived_at_address', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_lived_at_address', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_lived_at_address', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_lived_at_address', $address->ref_lived_at_address) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -237,15 +237,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_rent_paid_on_time', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_rent_paid_on_time', $address->ref_rent_paid_on_time) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -326,15 +326,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_full_bond_refund', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_full_bond_refund', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_full_bond_refund', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_full_bond_refund', $address->ref_full_bond_refund) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -359,15 +359,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_breach_free', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_breach_free', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_breach_free', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_breach_free', $address->ref_breach_free) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -392,15 +392,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_property_clean', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_property_clean', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_property_clean', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_property_clean', $address->ref_property_clean) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -425,15 +425,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_had_pet', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_had_pet', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_had_pet', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_had_pet', $address->ref_had_pet) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -458,15 +458,15 @@
                         </label>
                         <div class="grid grid-cols-3 gap-4">
                             <button type="button" onclick="selectOption('ref_pet_policy_complied', 'yes', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'yes' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'yes' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 Yes
                             </button>
                             <button type="button" onclick="selectOption('ref_pet_policy_complied', 'no', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'no' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'no' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 No
                             </button>
                             <button type="button" onclick="selectOption('ref_pet_policy_complied', 'n/a', this)"
-                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'n/a' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                                class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('ref_pet_policy_complied', $address->ref_pet_policy_complied) == 'n/a' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                                 N/A
                             </button>
                         </div>
@@ -494,7 +494,7 @@
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
                                     <button type="button" onclick="selectCooperativeRating({{ $i }})" data-coop-rating="{{ $i }}" 
-                                        class="coop-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        class="coop-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_cooperative_rating', $address->ref_cooperative_rating) == $i ? 'border-plyform-green bg-[#e6ff4b] font-bold' : '' }}">
                                         {{ $i }}
                                     </button>
                                 @endfor
@@ -525,7 +525,7 @@
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
                                     <button type="button" onclick="selectConditionRating({{ $i }})" data-condition-rating="{{ $i }}" 
-                                        class="condition-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        class="condition-rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_property_condition_rating', $address->ref_property_condition_rating) == $i ? 'border-plyform-green bg-[#e6ff4b] font-bold' : '' }}">
                                         {{ $i }}
                                     </button>
                                 @endfor
@@ -556,7 +556,7 @@
                             <div class="flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
                                     <button type="button" onclick="selectRating({{ $i }})" data-rating="{{ $i }}" 
-                                        class="rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'border-plyform-green bg-[#bbf7d0] font-bold' : '' }}">
+                                        class="rating-btn w-12 h-12 border-2 border-gray-300 rounded-lg hover:border-plyform-green transition-colors {{ old('ref_overall_rating', $address->ref_overall_rating) == $i ? 'border-plyform-green bg-[#e6ff4b] font-bold' : '' }}">
                                         {{ $i }}
                                     </button>
                                 @endfor
@@ -609,10 +609,10 @@
 
                 <!-- Action Buttons -->
                 <div class="flex gap-4">
-                    <button type="button" onclick="saveDraft()" class="flex-1 bg-gray-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-900 transition-colors">
+                    <button type="button" onclick="saveDraft()" class="flex-1 bg-[#ff3600] text-white py-3 rounded-lg font-semibold hover:bg-[#e2603c] transition-colors">
                         Save as draft
                     </button>
-                    <button type="submit" class="flex-1 bg-plyform-green text-white py-3 rounded-lg font-semibold hover:bg-[#036b62] transition-colors">
+                    <button type="submit" class="flex-1 bg-[#e6ff4b] py-3 text-black rounded-lg font-semibold hover:bg-[#ddeecd] transition-colors">
                         Submit reference
                     </button>
                 </div>
@@ -685,11 +685,11 @@
             // Update button styles
             const container = button.parentElement;
             container.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]');
                 btn.classList.add('border-gray-300');
             });
             button.classList.remove('border-gray-300');
-            button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
+            button.classList.add('border-plyform-green', 'bg-[#e6ff4b]');
         }
 
         // Select rating
@@ -697,11 +697,11 @@
             document.getElementById('ref_overall_rating').value = rating;
             const buttons = document.querySelectorAll('.rating-btn');
             buttons.forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.rating) === rating) {
                     btn.classList.remove('border-gray-300');
-                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                    btn.classList.add('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 }
             });
         }
@@ -710,11 +710,11 @@
             document.getElementById('ref_cooperative_rating').value = rating;
             const buttons = document.querySelectorAll('.coop-rating-btn');
             buttons.forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.coopRating) === rating) {
                     btn.classList.remove('border-gray-300');
-                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                    btn.classList.add('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 }
             });
         }
@@ -723,11 +723,11 @@
             document.getElementById('ref_property_condition_rating').value = rating;
             const buttons = document.querySelectorAll('.condition-rating-btn');
             buttons.forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 btn.classList.add('border-gray-300');
                 if (parseInt(btn.dataset.conditionRating) === rating) {
                     btn.classList.remove('border-gray-300');
-                    btn.classList.add('border-plyform-green', 'bg-[#bbf7d0]', 'font-bold');
+                    btn.classList.add('border-plyform-green', 'bg-[#e6ff4b]', 'font-bold');
                 }
             });
         }
@@ -808,7 +808,7 @@
                     const {{ $field }}_button = document.querySelector('[onclick="selectOption(\'{{ $field }}\', \'' + {{ $field }}_value + '\', this)"]');
                     if ({{ $field }}_button) {
                         {{ $field }}_button.classList.remove('border-gray-300');
-                        {{ $field }}_button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
+                        {{ $field }}_button.classList.add('border-plyform-green', 'bg-[#e6ff4b]');
                     }
                 }
             @endforeach

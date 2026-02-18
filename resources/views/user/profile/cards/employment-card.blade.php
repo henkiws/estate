@@ -522,7 +522,172 @@
     
 </div>
 
+<!-- ===================== EMPLOYMENT CONFIRM MODALS ===================== -->
+
+<!-- 1. Remove Employment Modal (simple, unsaved entry) -->
+<div id="modal-remove-employment" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-remove-employment')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-orange-400 to-red-400"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Remove Employment?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">This entry will be removed. This action cannot be undone.</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-remove-employment')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-remove-employment')" class="flex-1 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm transition shadow-sm">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Delete Pending Employment Modal -->
+<div id="modal-delete-pending" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-delete-pending')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Delete Pending Employment?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">The pending reference request will be <strong class="text-gray-700">cancelled</strong> and cannot be recovered.</p>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 mb-6 text-xs text-yellow-800 text-center">
+                ⏱ The reference request email will be expired immediately.
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-delete-pending')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-delete-pending')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition shadow-sm">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Delete Verified Employment Modal (strongest warning) -->
+<div id="modal-delete-verified" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-delete-verified')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-600"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Delete Verified Employment?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">This record has been <span class="font-semibold text-green-700">✓ verified</span>. Deleting it is permanent and irreversible.</p>
+            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6 text-xs text-red-700 space-y-1">
+                <p class="font-semibold">⚠️ Warning — this will permanently:</p>
+                <p>• Remove the verified employment record</p>
+                <p>• Lose the reference verification permanently</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-delete-verified')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Keep It</button>
+                <button type="button" onclick="fireModalCallback('modal-delete-verified')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition shadow-sm">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Edit Pending Employment Modal (resend warning) -->
+<div id="modal-edit-pending" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-edit-pending')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Edit & Resend Reference?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">Making any changes will trigger a <strong class="text-gray-700">new reference request</strong> to be sent.</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-xs text-blue-800 space-y-1">
+                <p class="font-semibold">📧 What happens next:</p>
+                <p>• The previous reference link will expire</p>
+                <p>• A new email will be sent to your manager</p>
+                <p>• Status resets to "Pending" until re-verified</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-edit-pending')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-edit-pending')" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition shadow-sm flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Yes, Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-modal-in {
+    animation: modalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+</style>
+
 <script>
+
+    // ── Modal helpers ──────────────────────────────────────────────────────────
+let _modalCallback = null;
+
+function openModal(id, onConfirm) {
+    _modalCallback = onConfirm;
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    _modalCallback = null;
+}
+
+// Called directly by each confirm button's onclick
+function fireModalCallback(id) {
+    // Save callback BEFORE closeModal() runs (closeModal nulls _modalCallback)
+    const cb = _modalCallback;
+    console.log('[Modal] fireModalCallback called for:', id);
+    console.log('[Modal] callback value:', cb);
+    closeModal(id);
+    if (typeof cb === 'function') {
+        console.log('[Modal] Executing callback...');
+        cb();
+    } else {
+        console.warn('[Modal] No callback found - cb is:', cb);
+    }
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        ['modal-remove-employment','modal-delete-pending','modal-delete-verified','modal-edit-pending'].forEach(closeModal);
+    }
+});
+
 let employmentIndex = {{ count($employments ?? []) }};
 
 function toggleEmployment() {
@@ -730,26 +895,20 @@ function addEmployment() {
 
 // Remove employment (for new/unsaved employments)
 function removeEmployment(index) {
-    if (confirm('Remove this employment entry?')) {
+    openModal('modal-remove-employment', () => {
         const item = document.querySelector(`.employment-item[data-index="${index}"]`);
         if (item) {
-            // Destroy intl-tel-input instance
             if (employmentContactPhoneInstances[index]) {
                 employmentContactPhoneInstances[index].destroy();
                 delete employmentContactPhoneInstances[index];
             }
-            
             item.remove();
-            
-            // Renumber remaining items
             document.querySelectorAll('.employment-item').forEach((el, idx) => {
                 const h4 = el.querySelector('h4');
-                if (h4) {
-                    h4.textContent = `Employment ${idx + 1}`;
-                }
+                if (h4) h4.textContent = `Employment ${idx + 1}`;
             });
         }
-    }
+    });
 }
 
 // Initialize end date fields on page load
@@ -1042,88 +1201,70 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 // Confirm edit for pending employment (will resend email)
 function confirmEditPendingEmployment(index) {
-    if (confirm('⚠️ Making any changes will send a NEW reference request to your employment reference.\n\nThe previous reference link will be expired.\n\nDo you want to continue?')) {
-        // Enable editing - remove readonly attributes
+    openModal('modal-edit-pending', () => {
         const item = document.querySelector(`.employment-item[data-index="${index}"]`);
-        
         if (!item) return;
-        
+
         // Remove readonly from all input fields
         item.querySelectorAll('input[readonly], select[readonly], textarea[readonly]').forEach(field => {
             field.removeAttribute('readonly');
             field.classList.remove('bg-gray-100', 'cursor-not-allowed');
         });
-        
+
         // Re-enable disabled checkboxes
-        item.querySelectorAll('input[type="checkbox"][disabled]').forEach(checkbox => {
-            checkbox.removeAttribute('disabled');
+        item.querySelectorAll('input[type="checkbox"][disabled]').forEach(cb => {
+            cb.removeAttribute('disabled');
         });
-        
+
         // Re-enable file upload
         const fileInput = item.querySelector('input[type="file"][disabled]');
-        if (fileInput) {
-            fileInput.removeAttribute('disabled');
-        }
-        
-        // Show notification
-        showNotification('Fields are now editable. Remember to save your changes. A new reference email will be sent.', 'warning');
-        
-        // Change button text
+        if (fileInput) fileInput.removeAttribute('disabled');
+
+        showNotification('Fields are now editable. A new reference email will be sent when you save.', 'warning');
+
         const editBtn = item.querySelector('button[onclick*="confirmEditPendingEmployment"]');
         if (editBtn) {
             editBtn.textContent = 'Editing...';
             editBtn.classList.add('opacity-50', 'cursor-not-allowed');
             editBtn.disabled = true;
         }
-    }
+    });
 }
 
 // Delete employment with pending reference (with confirmation)
 function deleteEmployment(index) {
-    if (confirm('Are you sure you want to delete this employment record? The pending reference request will be cancelled.')) {
+    openModal('modal-delete-pending', () => {
         const item = document.querySelector(`.employment-item[data-index="${index}"]`);
         if (item) {
-            // Destroy intl-tel-input instance
             if (employmentContactPhoneInstances[index]) {
                 employmentContactPhoneInstances[index].destroy();
                 delete employmentContactPhoneInstances[index];
             }
-            
             item.remove();
-            
-            // Renumber remaining items
             document.querySelectorAll('.employment-item').forEach((el, idx) => {
                 const h4 = el.querySelector('h4');
-                if (h4) {
-                    h4.textContent = `Employment ${idx + 1}`;
-                }
+                if (h4) h4.textContent = `Employment ${idx + 1}`;
             });
         }
-    }
+    });
 }
 
 // Delete verified employment (with stronger confirmation)
 function deleteVerifiedEmployment(index) {
-    if (confirm('⚠️ WARNING: Are you sure you want to delete this employment record?\n\nThe reference verification will be permanently lost and cannot be recovered.')) {
+    openModal('modal-delete-verified', () => {
         const item = document.querySelector(`.employment-item[data-index="${index}"]`);
         if (item) {
-            // Destroy intl-tel-input instance
             if (employmentContactPhoneInstances[index]) {
                 employmentContactPhoneInstances[index].destroy();
                 delete employmentContactPhoneInstances[index];
             }
-            
             item.remove();
-            
-            // Renumber remaining items
             document.querySelectorAll('.employment-item').forEach((el, idx) => {
                 const h4 = el.querySelector('h4');
-                if (h4) {
-                    h4.textContent = `Employment ${idx + 1}`;
-                }
+                if (h4) h4.textContent = `Employment ${idx + 1}`;
             });
         }
-    }
+    });
 }
 
 // Show notification helper

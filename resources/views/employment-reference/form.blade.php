@@ -64,11 +64,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('currently_works_there', 1, this)" 
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '1' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '1' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('currently_works_there', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '0' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('currently_works_there') == '0' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             No
                         </button>
                     </div>
@@ -96,11 +96,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('job_title_correct', 1, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '1' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '1' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('job_title_correct', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '0' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('job_title_correct') == '0' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             No
                         </button>
                     </div>
@@ -220,11 +220,11 @@
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <button type="button" onclick="selectOption('role_ongoing', 1, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '1' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '1' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             Yes
                         </button>
                         <button type="button" onclick="selectOption('role_ongoing', 0, this)"
-                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '0' ? 'border-plyform-green bg-[#bbf7d0]' : '' }}">
+                            class="option-btn border-2 border-gray-300 rounded-lg py-3 px-4 text-center hover:border-plyform-green transition-colors {{ old('role_ongoing') == '0' ? 'border-plyform-green bg-[#e6ff4b]' : '' }}">
                             No
                         </button>
                     </div>
@@ -300,7 +300,7 @@
             <!-- Submit Button -->
             <div class="flex justify-end">
                 <button type="submit" 
-                    class="bg-plyform-green text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#036b62] transition-colors">
+                    class="bg-plyform-yellow px-8 py-3 rounded-lg font-semibold hover:bg-[#ddeecd] transition-colors">
                     Submit reference
                 </button>
             </div>
@@ -325,11 +325,11 @@
             // Update button styles
             const container = button.parentElement;
             container.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]');
                 btn.classList.add('border-gray-300');
             });
             button.classList.remove('border-gray-300');
-            button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
+            button.classList.add('border-plyform-green', 'bg-[#e6ff4b]');
         }
 
         // Toggle comment section
@@ -348,11 +348,11 @@
             
             // Update button styles
             container.querySelectorAll('.start-date-btn').forEach(btn => {
-                btn.classList.remove('border-plyform-green', 'bg-[#bbf7d0]');
+                btn.classList.remove('border-plyform-green', 'bg-[#e6ff4b]');
                 btn.classList.add('border-gray-300');
             });
             button.classList.remove('border-gray-300');
-            button.classList.add('border-plyform-green', 'bg-[#bbf7d0]');
+            button.classList.add('border-plyform-green', 'bg-[#e6ff4b]');
             
             // Show/hide date input
             if (!isCorrect) {

@@ -16,7 +16,7 @@
 
         <!-- Thank You Card -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="bg-red-600 text-white p-6">
+            <div class="bg-[#e6ff4b] text-black p-6">
                 <h1 class="text-3xl font-bold">Thank you</h1>
             </div>
 

@@ -53,7 +53,7 @@
         }
         .cta-button {
             display: inline-block;
-            background-color: #0d9488;
+            background-color: #e6ff4b;
             color: #ffffff !important;
             text-decoration: none;
             padding: 15px 40px;
@@ -64,7 +64,7 @@
             text-align: center;
         }
         .cta-button:hover {
-            background-color: #057e74;
+            background-color: #ddeecd;
         }
         .link-text {
             background-color: #f9f9f9;

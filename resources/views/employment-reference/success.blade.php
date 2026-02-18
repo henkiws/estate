@@ -10,8 +10,8 @@
     <div class="min-h-screen flex items-center justify-center px-4">
         <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
             <!-- Success Icon -->
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#e6ff4b] mb-4">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>

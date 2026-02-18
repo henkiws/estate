@@ -350,6 +350,56 @@
     
 </div>
 
+<!-- ===================== PETS CONFIRM MODALS ===================== -->
+
+<!-- 1. Remove Pet Photo Modal -->
+<div id="modal-remove-pet-photo" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-remove-pet-photo')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-orange-400 to-red-400"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Remove Photo?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">This pet photo will be removed. This action cannot be undone.</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-remove-pet-photo')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-remove-pet-photo')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition shadow-sm">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Remove Pet Document Modal -->
+<div id="modal-remove-pet-document" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-remove-pet-document')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-orange-400 to-red-400"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Remove Document?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">This registration document will be removed. This action cannot be undone.</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-remove-pet-document')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-remove-pet-document')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition shadow-sm">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== END MODALS ===================== -->
+
 <script>
 // Initialize pet index
 var petIndex = {{ count($pets ?? []) }};
@@ -657,22 +707,22 @@ function previewPetDocuments(index) {
 
 // Remove existing pet photo
 function removeExistingPetPhoto(petIndex, photoIndex) {
-    if (confirm('Remove this photo?')) {
-        const photoDiv = document.querySelector(`#pet_photos_preview_${petIndex} .existing-photo[data-photo-index="${photoIndex}"]`);
-        if (photoDiv) {
-            photoDiv.remove();
-        }
-    }
+    openModal('modal-remove-pet-photo', () => {
+        const photoDiv = document.querySelector(
+            `#pet_photos_preview_${petIndex} .existing-photo[data-photo-index="${photoIndex}"]`
+        );
+        if (photoDiv) photoDiv.remove();
+    });
 }
 
 // Remove existing pet document
 function removeExistingPetDocument(petIndex, docIndex) {
-    if (confirm('Remove this document?')) {
-        const docDiv = document.querySelector(`#pet_documents_preview_${petIndex} .existing-document[data-doc-index="${docIndex}"]`);
-        if (docDiv) {
-            docDiv.remove();
-        }
-    }
+    openModal('modal-remove-pet-document', () => {
+        const docDiv = document.querySelector(
+            `#pet_documents_preview_${petIndex} .existing-document[data-doc-index="${docIndex}"]`
+        );
+        if (docDiv) docDiv.remove();
+    });
 }
 
 // Initialize on page load

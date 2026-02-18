@@ -70,7 +70,7 @@
     
     <!-- Expandable Form Content (Hidden by Default) -->
     <div class="border-t border-gray-200 bg-gray-50 hidden" id="terms-form">
-        <form method="POST" action="{{ route('user.profile.update-step') }}" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('user.profile.update-step') }}" class="p-6 space-y-6" id="terms-submit-form">
             @csrf
             <input type="hidden" name="current_step" value="10">
             
@@ -214,8 +214,9 @@
                 </button>
                 
                 <button 
-                    type="submit" 
+                    type="button" 
                     id="final-submit-btn"
+                    onclick="handleSubmitClick()"
                     class="px-8 py-3 bg-gradient-to-r from-plyform-green to-plyform-green text-white font-semibold rounded-lg hover:from-plyform-green/90 hover:to-plyform-green/90 transition shadow-sm flex items-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,25 +231,111 @@
     
 </div>
 
+
+<!-- ===================== CUSTOM CONFIRM MODAL ===================== -->
+<div id="submit-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" aria-modal="true" role="dialog">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="modal-backdrop"></div>
+
+    <!-- Modal Box -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-modal-in">
+        
+        <!-- Top accent bar -->
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#5E17EB] via-[#7C3AED] to-[#a78bfa]"></div>
+
+        <!-- Body -->
+        <div class="p-8">
+            <!-- Icon -->
+            <div class="flex items-center justify-center mb-5">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#5E17EB]/10 to-[#a78bfa]/20 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-[#5E17EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-center text-gray-900 mb-2">Submit Your Profile?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6 leading-relaxed">
+                Make sure all your information is correct before submitting. 
+                Once sent, it will be reviewed by our admin team within <strong class="text-gray-700">1–2 business days</strong>.
+            </p>
+
+            <!-- Checklist -->
+            <ul class="space-y-2 mb-7 bg-gray-50 rounded-xl p-4 text-sm text-gray-700">
+                <li class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                    All information will be verified
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                    You'll be notified via email once approved
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                    You can view your submitted profile anytime
+                </li>
+            </ul>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button 
+                    type="button" 
+                    onclick="closeConfirmModal()"
+                    class="flex-1 px-5 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
+                >
+                    Go Back
+                </button>
+                <button 
+                    type="button" 
+                    onclick="confirmSubmit()"
+                    class="flex-1 px-5 py-3 rounded-xl bg-gradient-to-r from-[#5E17EB] to-[#7C3AED] text-white font-semibold text-sm hover:from-[#4c13c2] hover:to-[#6b30d4] transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    id="modal-confirm-btn"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Yes, Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ===================== END MODAL ===================== -->
+
+
 <style>
 .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #E6FF4B;
     border-radius: 4px;
 }
-
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #d4ed39;
 }
+
+/* Modal entrance animation */
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-modal-in {
+    animation: modalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 </style>
+
 
 <script>
 function toggleTerms() {
@@ -257,54 +344,85 @@ function toggleTerms() {
     const editBtn = document.getElementById('terms-edit-btn');
     
     if (formDiv.classList.contains('hidden')) {
-        // Expand
         formDiv.classList.remove('hidden');
         chevron.style.transform = 'rotate(180deg)';
         editBtn.querySelector('span').textContent = 'Close';
-        
-        // Scroll to card
         setTimeout(() => {
-            document.getElementById('terms-card').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
+            document.getElementById('terms-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     } else {
-        // Collapse
         formDiv.classList.add('hidden');
         chevron.style.transform = 'rotate(0deg)';
         editBtn.querySelector('span').textContent = 'Edit';
     }
 }
 
-// Confirm before submitting
-document.addEventListener('DOMContentLoaded', function() {
-    const submitBtn = document.getElementById('final-submit-btn');
-    
-    if (submitBtn) {
-        submitBtn.addEventListener('click', function(e) {
-            const termsCheckbox = document.querySelector('input[name="terms_accepted"]');
-            const signature = document.querySelector('input[name="signature"]');
-            
-            if (!termsCheckbox || !signature) return;
-            
-            if (!termsCheckbox.checked) {
-                e.preventDefault();
-                alert('Please accept the terms and conditions before submitting');
-                return false;
-            }
-            
-            if (!signature.value.trim()) {
-                e.preventDefault();
-                alert('Please provide your signature before submitting');
-                return false;
-            }
-            
-            if (!confirm('Are you sure you want to submit your profile for approval? Make sure all information is correct.')) {
-                e.preventDefault();
-                return false;
-            }
-        });
+function handleSubmitClick() {
+    const termsCheckbox = document.querySelector('input[name="terms_accepted"]');
+    const signature     = document.querySelector('input[name="signature"]');
+
+    if (!termsCheckbox.checked) {
+        showValidationAlert('Please accept the terms and conditions before submitting.');
+        return;
     }
+    if (!signature.value.trim()) {
+        showValidationAlert('Please provide your signature before submitting.');
+        return;
+    }
+
+    // All good — show custom confirm modal
+    openConfirmModal();
+}
+
+function openConfirmModal() {
+    const modal = document.getElementById('submit-confirm-modal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeConfirmModal() {
+    const modal = document.getElementById('submit-confirm-modal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function confirmSubmit() {
+    const btn = document.getElementById('modal-confirm-btn');
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        Submitting…
+    `;
+    document.getElementById('terms-submit-form').submit();
+}
+
+// Close modal when clicking backdrop
+document.getElementById('modal-backdrop').addEventListener('click', closeConfirmModal);
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeConfirmModal();
 });
+
+// ── Simple inline validation toast (replaces alert()) ──────────────────────
+function showValidationAlert(message) {
+    // Remove existing if any
+    const existing = document.getElementById('validation-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'validation-toast';
+    toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white border-2 border-red-300 text-red-700 text-sm font-medium px-5 py-3 rounded-xl shadow-xl';
+    toast.innerHTML = `
+        <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z"/>
+        </svg>
+        ${message}
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
 </script>

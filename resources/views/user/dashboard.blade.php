@@ -34,7 +34,7 @@
                                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Welcome to Sorted</h2>
                                 <p class="text-gray-700 mb-6">Time to get your roommates together and create your first application!</p>
                                 <div>
-                                    <a href="{{ route('user.profile.complete') }}" class="inline-block px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition shadow-sm">
+                                    <a href="{{ route('user.profile.complete') }}" class="inline-block px-6 py-3 bg-[#e6ff4b] font-semibold rounded-lg hover:bg-[#ddeecd] transition shadow-sm">
                                         Get Started
                                     </a>
                                 </div>
@@ -91,7 +91,7 @@
                                 </div>
                                 <h3 class="text-lg font-bold text-gray-900 mb-2">Complete your profile</h3>
                                 <p class="text-sm text-gray-700 mb-4">Start your application journey by filling out your personal details, such as your date of birth and emergency contact details.</p>
-                                <a href="{{ route('user.profile.complete') }}" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                                <a href="{{ route('user.profile.complete') }}" class="inline-block px-4 py-2 bg-[#e6ff4b] text-black text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                     Complete Profile
                                 </a>
                             </div>
@@ -105,7 +105,7 @@
                                 </div>
                                 <h3 class="text-lg font-bold text-gray-900 mb-2">Complete your details</h3>
                                 <p class="text-sm text-gray-700 mb-4">Let the person who is reviewing your application know your primary source of income. Not working full time? There are other options to reflect your situation.</p>
-                                <a href="{{ route('user.profile.complete') }}" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                                <a href="{{ route('user.profile.complete') }}" class="inline-block px-4 py-2 bg-[#e6ff4b] text-black text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                     Complete Income
                                 </a>
                             </div>
@@ -153,7 +153,7 @@
                         <div class="p-6">
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Boost your profile!</h3>
                             <p class="text-sm text-gray-700 mb-4">Stand out from the crowd with a background check</p>
-                            <a href="#" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                            <a href="#" class="inline-block px-4 py-2 bg-[#e6ff4b] text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                 Learn More
                             </a>
                         </div>
@@ -172,7 +172,7 @@
                                 </span>
                                 <h4 class="font-bold text-gray-900 mb-2">Top 5 tips from property managers</h4>
                                 <p class="text-sm text-gray-600 mb-3">Inside advice from Property Managers to consider for your next application ...</p>
-                                <a href="#" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                                <a href="#" class="inline-block px-4 py-2 bg-[#e6ff4b] text-black text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                     Read More...
                                 </a>
                             </div>
@@ -294,7 +294,7 @@
                                 </div>
                                 <h3 class="text-lg font-bold text-gray-900 mb-3">Sorted Applications</h3>
                                 <p class="text-sm text-gray-600 mb-4">You have {{ $submittedApplications }} submitted {{ Str::plural('application', $submittedApplications) }}</p>
-                                <a href="{{ route('user.applications.index') }}" class="inline-flex items-center px-5 py-2.5 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                                <a href="{{ route('user.applications.index') }}" class="inline-flex items-center px-5 py-2.5 bg-[#e6ff4b] text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                     View Applications
                                 </a>
                             </div>
@@ -320,7 +320,7 @@
                         <div class="p-6">
                             <h3 class="text-lg font-bold text-gray-900 mb-2">Boost your profile!</h3>
                             <p class="text-sm text-gray-700 mb-4">Stand out from the crowd with a background check</p>
-                            <a href="#" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                            <a href="#" class="inline-block px-4 py-2 bg-[#e6ff4b] text-black text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                 Learn More
                             </a>
                         </div>
@@ -339,7 +339,7 @@
                                 </span>
                                 <h4 class="font-bold text-gray-900 mb-2">Top 5 tips from property managers</h4>
                                 <p class="text-sm text-gray-600 mb-3">Inside advice from Property Managers to consider for your next application ...</p>
-                                <a href="#" class="inline-block px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition">
+                                <a href="#" class="inline-block px-4 py-2 bg-[#e6ff4b] text-black text-sm font-semibold rounded-lg hover:bg-[#ddeecd] transition">
                                     Read More...
                                 </a>
                             </div>
