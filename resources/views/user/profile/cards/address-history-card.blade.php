@@ -124,49 +124,34 @@
                                     $isPending = !$isOwned && ($address['reference_status'] ?? '') === 'pending';
                                 @endphp
                                 
-                                @if(!$isOwned && $isVerified)
-                                    <!-- Verified: Can only DELETE -->
-                                    <button 
-                                        type="button" 
-                                        onclick="deleteVerifiedAddress({{ $index }})"
-                                        class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
-                                    >
-                                        Delete
-                                    </button>
-                                    
-                                @elseif(!$isOwned && $isPending)
-                                    <!-- Pending: Can EDIT (will resend email) or DELETE -->
-                                    <button 
-                                        type="button" 
-                                        onclick="confirmEditPendingAddress({{ $index }})"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded-lg transition-colors"
-                                        title="Editing will send a new reference request"
-                                    >
-                                        Edit
-                                    </button>
-                                    
-                                    @if($index > 0)
-                                        <button 
-                                            type="button" 
-                                            onclick="deleteAddress({{ $index }})"
-                                            class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors ml-2"
-                                        >
+                                <div class="flex items-center gap-2 ml-auto">
+                                    @if(!$isOwned && $isVerified)
+                                        <button type="button" onclick="deleteVerifiedAddress({{ $index }})"
+                                            class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">
                                             Delete
                                         </button>
-                                    @endif
-                                    
-                                @else
-                                    <!-- No reference OR owned property: Normal remove (only for index > 0) -->
-                                    @if($index > 0)
-                                        <button 
-                                            type="button" 
-                                            onclick="removeAddressItem({{ $index }})"
-                                            class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors"
-                                        >
-                                            Remove
+
+                                    @elseif(!$isOwned && $isPending)
+                                        <button type="button" onclick="confirmEditPendingAddress({{ $index }})"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded-lg transition-colors">
+                                            Edit
                                         </button>
+                                        @if($index > 0)
+                                            <button type="button" onclick="deleteAddress({{ $index }})"
+                                                class="text-red-600 hover:text-red-800 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">
+                                                Delete
+                                            </button>
+                                        @endif
+
+                                    @else
+                                        @if($index > 0)
+                                            <button type="button" onclick="removeAddressItem({{ $index }})"
+                                                class="text-plyform-orange hover:text-red-700 text-sm font-medium hover:bg-plyform-orange/10 px-3 py-1 rounded-lg transition-colors">
+                                                Remove
+                                            </button>
+                                        @endif
                                     @endif
-                                @endif
+                                </div>
                             </div>
                             
                             <!-- ✅ ADD: Hidden ID field -->
@@ -174,9 +159,9 @@
                             
                             <!-- ✅ ADD: Make fields readonly if verified -->
                             @php
-                                $readonlyAttr = $isVerified ? 'readonly' : '';
-                                $disabledAttr = $isVerified ? 'disabled' : '';
-                                $disabledClass = $isVerified ? 'bg-gray-100 cursor-not-allowed' : '';
+                                $readonlyAttr = ($isVerified || $isPending) ? 'readonly' : '';
+                                $disabledAttr = ($isVerified || $isPending) ? 'disabled' : '';
+                                $disabledClass = ($isVerified || $isPending) ? 'bg-gray-100 cursor-not-allowed' : '';
                             @endphp
                             
                             <!-- Full Address -->
@@ -457,6 +442,96 @@
     </div>
     
 </div>
+
+<!-- ===================== ADDRESS HISTORY CONFIRM MODALS ===================== -->
+
+<!-- 1. Delete Verified Address Modal (strongest warning) -->
+<div id="modal-delete-verified-address" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-delete-verified-address')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-600"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Delete Verified Address?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">This address has been <span class="font-semibold text-green-700">✓ verified</span>. Deleting it is permanent and irreversible.</p>
+            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-6 text-xs text-red-700 space-y-1">
+                <p class="font-semibold">⚠️ Warning — this will permanently:</p>
+                <p>• Remove the verified address record</p>
+                <p>• Lose the reference verification permanently</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-delete-verified-address')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Keep It</button>
+                <button type="button" onclick="fireModalCallback('modal-delete-verified-address')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition shadow-sm">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Delete Pending Address Modal -->
+<div id="modal-delete-pending-address" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-delete-pending-address')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Delete Pending Address?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">The pending reference request will be <strong class="text-gray-700">cancelled</strong> and cannot be recovered.</p>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 mb-6 text-xs text-yellow-800 text-center">
+                ⏱ The reference request email will be expired immediately.
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-delete-pending-address')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-delete-pending-address')" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition shadow-sm">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Edit Pending Address Modal (resend warning) -->
+<div id="modal-edit-pending-address" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal('modal-edit-pending-address')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal-in">
+        <div class="h-1.5 w-full bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+        <div class="p-7">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Edit & Resend Reference?</h3>
+            <p class="text-sm text-center text-gray-500 mb-4">Making any changes will trigger a <strong class="text-gray-700">new reference request</strong> to be sent.</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-6 text-xs text-blue-800 space-y-1">
+                <p class="font-semibold">📧 What happens next:</p>
+                <p>• The previous reference link will expire</p>
+                <p>• A new email & SMS will be sent to your referee</p>
+                <p>• Status resets to "Pending" until re-verified</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-edit-pending-address')" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Cancel</button>
+                <button type="button" onclick="fireModalCallback('modal-edit-pending-address')" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition shadow-sm flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Yes, Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== END MODALS ===================== -->
 
 <script>
 // Initialize address index
@@ -756,4 +831,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ── Helper: remove address item and renumber ───────────────────────────────
+function _removeAddressAndRenumber(index) {
+    const item = document.querySelector(`.address-item[data-index="${index}"]`);
+    if (item) {
+        item.remove();
+        document.querySelectorAll('.address-item').forEach((el, idx) => {
+            const heading = el.querySelector('h4');
+            if (heading) {
+                if (idx === 0) {
+                    heading.innerHTML = 'Address 1 <span class="px-2 py-1 bg-plyform-mint text-plyform-dark text-xs font-semibold rounded ml-2">Current</span>';
+                } else {
+                    heading.textContent = `Address ${idx + 1}`;
+                }
+            }
+        });
+    }
+}
+
+function deleteVerifiedAddress(index) {
+    openModal('modal-delete-verified-address', () => {
+        _removeAddressAndRenumber(index);
+    });
+}
+
+function deleteAddress(index) {
+    openModal('modal-delete-pending-address', () => {
+        _removeAddressAndRenumber(index);
+    });
+}
+
+function confirmEditPendingAddress(index) {
+    openModal('modal-edit-pending-address', () => {
+        const item = document.querySelector(`.address-item[data-index="${index}"]`);
+        if (!item) return;
+
+        // Remove readonly from all inputs/textareas/selects
+        item.querySelectorAll('input[readonly], textarea[readonly], select[readonly]').forEach(field => {
+            field.removeAttribute('readonly');
+            field.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        });
+
+        // Re-enable disabled fields
+        item.querySelectorAll('input[disabled], select[disabled], textarea[disabled]').forEach(field => {
+            field.removeAttribute('disabled');
+            field.classList.remove('bg-gray-100', 'cursor-not-allowed', 'opacity-50', 'pointer-events-none');
+        });
+
+        // Re-enable ownership toggle wrapper
+        const ownershipWrapper = item.querySelector('.pointer-events-none');
+        if (ownershipWrapper) {
+            ownershipWrapper.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        // Show notification if available
+        if (typeof showNotification === 'function') {
+            showNotification('Fields are now editable. A new reference email & SMS will be sent when you save.', 'warning');
+        }
+
+        // Disable the edit button to prevent double-click
+        const editBtn = item.querySelector('button[onclick*="confirmEditPendingAddress"]');
+        if (editBtn) {
+            editBtn.textContent = 'Editing...';
+            editBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            editBtn.disabled = true;
+        }
+    });
+}
 </script>

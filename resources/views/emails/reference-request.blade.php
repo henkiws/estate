@@ -48,7 +48,7 @@
         }
         .highlight-box {
             background: #DDEECD;
-            border-left: 4px solid #5E17EB;
+            border-left: 4px solid #e6ff4b;
             padding: 20px;
             margin: 25px 0;
             border-radius: 8px;
@@ -58,12 +58,12 @@
             color: #1E1C1C;
         }
         .highlight-box strong {
-            color: #5E17EB;
+            color: #e6ff4b;
         }
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #5E17EB 0%, #8B3FFF 100%);
-            color: #ffffff !important;
+            background: #e6ff4b;
+            color: #000000 !important;
             padding: 16px 40px;
             text-decoration: none;
             border-radius: 10px;
@@ -74,8 +74,7 @@
             transition: transform 0.2s;
         }
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(94, 23, 235, 0.4);
+            background-color: #ddeecd;
         }
         .info-section {
             background: #f9fafb;
